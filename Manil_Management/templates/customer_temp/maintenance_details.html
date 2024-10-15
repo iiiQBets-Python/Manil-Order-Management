@@ -1,0 +1,368 @@
+{% extends "customer_temp/base.html" %}
+{% load static %}
+{% block title %} Ticket {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'customer/css/maintenance_details.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container-fluid table-container display responsive wrap fade-in">
+    <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
+        <div id="dataTables_filter_container" class="me-2">
+            <!-- This will be populated by jQuery -->
+        </div>
+        <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#maintenanceModal">
+            Add Tickets
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table" id="form-data-table">
+            <thead>
+                <tr>
+                    <th scope="col">SL No</th>
+                    <th scope="col">Ticket Details</th>
+                    <th scope="col">Created Details</th>
+                    <th scope="col">Maintenance Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Resolved Details</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>001</td>
+                    <td>CI00102154 <br> 18/09/2024 </td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>002</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>003</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>004</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>005</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>006</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>007</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>008</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>009</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>010</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>011</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>012</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>013</td>
+                    <td>CI00102154 <br> 18/09/2024</td>
+                    <td>Manikanta <br>15/09/2024</td>
+                    <td>19/09/2024</td>
+                    <td>open</td>
+                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+  
+    <!-- The Modal -->
+    <div class="modal fade" id="maintenanceModal" tabindex="-1" aria-labelledby="maintenanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content container-custom">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title" id="maintenanceModalLabel">Client Form</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="MaintenanceForm">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <input type="number" class="form-control" id="repair_ticket_number" name="repair_ticket_number" placeholder=" " required>
+                                <label for="repair_ticket_number" class="form-label">Repair Ticket Number</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <select class="form-control" name="status" id="status">
+                                    <option value="open">Open</option>
+                                    <option value="inprogress">In Progress</option>
+                                    <option value="Close">Close</option>
+                                </select>
+                                <label for="Status" class="form-label">Status</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="particulars_of_complaint" name="particulars_of_complaint" placeholder=" " required>
+                                <label for="particulars_of_complaint" class="form-label">Complaint Title</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="date" class="form-control" id="ticket_date" name="ticket_date" placeholder=" " required>
+                                <label for="ticket_date" class="form-label">Ticket Date</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <textarea type="text" class="form-control" id="complaint_description" name="complaint_description" placeholder=" " required></textarea>
+                                <label for="complaint_description" class="form-label">Complaint Description</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <textarea type="text" class="form-control" id="resolved_description" name="resolved_description" placeholder=" " required></textarea>
+                                <label for="resolved_description" class="form-label">Resolved Description</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="datetime-local" class="form-control" id="creation_date" name="creation_date" placeholder=" " required>
+                                <label for="creation_date" class="form-label"> Creation-Date and Time </label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="created_by" name="created_by" placeholder=" " required>
+                                <label for="created_by" class="form-label">Created By</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="datetime-local" class="form-control" id="resolved_date" name="resolved_date" placeholder=" " required>
+                                <label for="resolved_date" class="form-label"> Resolved-Date and Time </label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="resolved_by" name="resolved_by" placeholder=" " required>
+                                <label for="resolved_by" class="form-label">Resolved By</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="date" class="form-control" id="date_of_maintenance" name="date_of_maintenance"  placeholder=" " required>
+                                <label for="date_of_maintenance" class="form-label">Date of Maintenance</label>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                            <button class="btn btn-success">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'customer/js/maintenance_details.js' %}"></script>
+{% endblock scripts %}
+{% endblock content %}

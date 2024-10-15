@@ -1,0 +1,353 @@
+{% extends "customer_temp/base.html" %}
+{% load static %}
+{% block title %} customer master {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <style>
+        /* General container styles */
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .header-bar {
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .header-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-inner h2 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #4299e1;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #2b6cb0;
+        }
+
+        .btn-success {
+            background-color: #48bb78;
+        }
+
+        .btn-success:hover {
+            background-color: #38a169;
+        }
+
+        /* Grid container wrapper */
+        .grid-container-wrapper {
+            position: relative;
+            width: 100%;
+            overflow: hidden; /* Hide overflow for a clean look */
+        }
+
+        .grid-container {
+            display: flex;
+            transition: transform 0.4s ease-in-out;
+            gap: 10px; 
+            margin-bottom: 10px;
+        }
+
+        .scroll-button {
+            position: absolute;
+            top: 50%;
+            color: #4299e1;
+            transform: translateY(-50%);
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 1.5rem;
+            z-index: 10;
+            transition:  transform 0.3s ease; /* Animation for buttons */
+            background-color: transparent;
+        }
+
+        .scroll-button:hover {
+            color: #008cff;
+            transform: translateY(-50%) scale(1.1); /* Slight zoom effect on hover */            
+        }
+
+        .scroll-button-left {
+            left: -5px;
+        }
+
+        .scroll-button-right {
+            right: 5px;
+        }
+
+        .card {
+            min-width: calc(33.33% - 10px); /* Display 3 cards at a time */
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+        }
+
+        .icon-container {
+            background-color: #4299e1;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .d-icon {
+            color: #fff;
+            font-size: 24px;
+        }
+
+        .details {
+            margin-left: 20px;
+        }
+
+        .details-info {
+            display: flex;
+            align-items: baseline;
+        }
+
+        .stats {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stats-change {
+            margin-left: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #48bb78;
+        }
+
+        .progress-container {
+            margin-top: 16px;
+        }
+
+        .progress-bar {
+            background-color: #bee3f8;
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        .progress {
+            background-color: #4299e1;
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .card-actions {
+            margin-top: 16px;
+        }
+
+        .purple-bg {
+            background-color: #805ad5;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .table th {
+            background-color: #f7fafc;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status {
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 9999px;
+        }
+
+        .status-green {
+            background-color: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .status-blue {
+            background-color: #bee3f8;
+            color: #2b6cb0;
+        }
+
+        .link {
+            color: #5a67d8;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+{% endblock styles %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Main Content -->
+    <div class="content-area">
+        
+
+        <main class="main-content">
+            <div class="grid-container-wrapper">
+                <!-- Scroll left button -->
+                <button class="scroll-button scroll-button-left">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            
+                <!-- Grid container with 20 cards -->
+                <div class="grid-container">
+                    {% for i in range_20 %}
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="icon-container">
+                                    <i class="fas fa-robot d-icon"></i>
+                                </div>
+                                <div class="details">
+                                    <dl>
+                                        <dt>Robo</dt>
+                                        <dd class="details-info">
+                                            <span class="stats">150/200</span>
+                                            <span class="stats-change">
+                                                <i class="fas fa-arrow-up"></i> 75%
+                                            </span>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 75%;"></div>
+                                </div>
+                                <p>Remaining: 50 | Re-order level: Below 20</p>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-primary">Place Order</button>
+                                <button class="btn btn-success">Raise Ticket</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            
+                <!-- Scroll right button -->
+                <button class="scroll-button scroll-button-right">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Recent Orders table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Recent Orders</h3>
+                    <button class="btn btn-primary">View All Orders</button>
+                </div>
+                <div class="table-content">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Delivery Status</th>
+                                <th>Payment Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#001</td>
+                                <td>2024-09-19</td>
+                                <td>₹100</td>
+                                <td><span class="status status-green">Shipped</span></td>
+                                <td><span class="status status-blue">Paid</span></td>
+                                <td><a href="#" class="link">View</a></td>
+                            </tr>
+                            <!-- More rows... -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const gridContainer = document.querySelector('.grid-container');
+    const cardWidth = document.querySelector('.card').offsetWidth + 10; // Width of a card plus gap
+    let scrollPosition = 0;
+
+    function scrollLeft() {
+        scrollPosition = Math.max(scrollPosition - cardWidth * 3, 0); // Scroll by 3 cards to the left
+        gridContainer.style.transform = `translateX(-${scrollPosition}px)`;
+    }
+
+    function scrollRight() {
+        const maxScroll = gridContainer.scrollWidth - gridContainer.clientWidth;
+        scrollPosition = Math.min(scrollPosition + cardWidth * 3, maxScroll); // Scroll by 3 cards to the right
+        gridContainer.style.transform = `translateX(-${scrollPosition}px)`;
+    }
+
+    document.querySelector('.scroll-button-left').addEventListener('click', scrollLeft);
+    document.querySelector('.scroll-button-right').addEventListener('click', scrollRight);
+});
+</script>
+{% endblock content %}

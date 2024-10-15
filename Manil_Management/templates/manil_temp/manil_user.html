@@ -1,0 +1,157 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} customer master {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/manil_user.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container table-container display responsive wrap fade-in">
+    <div class="d-flex align-items-center position-relative">
+      <button type="button" class="btn btn-add"  data-bs-toggle="modal" data-bs-target="#userModal">
+        Add User
+      </button>
+    </div>
+ <div class="table-responsive">
+    <table class="table" id="form-data-table">
+      <thead>
+        <tr>          
+          <th scope="col">S.No</th>
+          <th scope="col">User Id</th>
+          <th scope="col">Name</th>          
+          <th scope="col">Role</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for i in m_user %}
+            <tr>            
+                <td>{{ forloop.counter }}</td>    
+                <td>{{i.user_id}}</td>
+                <td>{{i.first_name}} {{i.last_name}}</td>               
+                <td>{{i.role}}</td>
+                <td>
+                    <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                        <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                        <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                    </ul>
+                    </div>
+                </td>
+            </tr> 
+          {% endfor %}           
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+ <!-- The Modal -->
+ <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content container-custom">
+  
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" id="userModalLabel">Manil User Form</h4>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+  
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form id="UserForm" method="post">
+          {% csrf_token %}
+          <div class="row">            
+            <div class="col-md-6 form-group">
+                <input type="text" class="form-control" id="first_name" name="first_name" {% if first_name %} value="{{first_name}}" {% endif %}  placeholder=" " required>
+                <label for="first_name" class="form-label">First Name</label>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <input type="text" class="form-control" id="last_name" name="last_name" {% if last_name %} value="{{last_name}}" {% endif %}  placeholder=" " required>
+                <label for="last_name" class="form-label">Last Name</label>
+            </div>
+
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="user_id" name="user_id" {% if user_id %} value="{{user_id}}" {% endif %} maxlength="15" placeholder=" " required>
+              <label for="user_id" class="form-label">User ID</label>
+            </div>            
+
+            <div class="col-md-6 form-group">
+              <select name="role" class="form-control" id="role" required>
+                {% if role %}
+                <option value="{{role}}">{{role}}</option>
+                {% else %}
+                <option value="">--select--</option>            
+                {% endif %}             
+
+                <option value="Manager">Manager</option>  
+                <option value="Admin">Admin</option>                  
+                <option value="Operator">Operator</option>                    
+            </select>
+            <label for="role" class="form-label">User Role</label>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <input type="password" class="form-control" id="password" name="password" placeholder=" " required>
+                <label for="password" class="form-label">Password</label>
+            </div>
+            
+            <div class="col-md-6 form-group">
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder=" " required>
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+            </div>
+
+          </div>
+          <div class="form-buttons">
+            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+            <button class="btn btn-success">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'manil_user' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('userModal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'manil/js/manil_user.js' %}"></script>
+{% endblock scripts %}
+
+
+{% endblock content %}
+
+

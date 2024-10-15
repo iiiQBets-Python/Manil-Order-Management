@@ -1,0 +1,155 @@
+/* General Container Styling */
+.profile-container {
+  max-width: 100%;
+  padding: 25px;
+  background-color: white;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* Row Spacing */
+.row {
+  margin-bottom: 20px;
+}
+
+/* Section Heading Styling */
+.section-heading {
+  font-size: 24px;
+  font-weight: bolder;
+  margin-bottom: 15px;
+  font-weight: 700;
+  color: #6d4c41;
+  border-bottom: 2px solid #6d4c41;
+  padding-bottom: 8px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+/* Profile Sections */
+.profile-section {
+  margin-bottom: 30px;
+  padding-left: 15px;
+  border-left: 3px solid #6d4c41;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1s ease forwards;
+}
+
+/* Profile Items Styling */
+.profile-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.profile-item-title {
+  font-weight: 600;
+  color: #444;
+  font-size: 16px;
+  width: 50%;
+}
+
+/* Profile Item Value with Wrapping */
+.profile-item-value {
+  font-size: 16px;
+  color: #666;
+  text-align: right;
+  margin-left: 20px;
+  width: 50%;
+  white-space: normal; /* Allows wrapping inside input fields */
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word; /* Ensures long words break properly */
+}
+
+/* Ensuring input inside the profile-item-value wraps correctly */
+.profile-item-value input {
+  width: 100%;
+  white-space: normal; /* Allows text to wrap inside the input field */
+  word-wrap: break-word;  /* Break long words */
+  word-break: break-word; /* Ensures long words break */
+  overflow-wrap: break-word; /* Handles overflow */
+}
+
+.profile-item-value strong {
+  color: #333;
+}
+
+/* Hover Effects */
+.profile-section:hover {
+  border-left-color: #cf3400;
+  transition: background-color 0.3s, border-left-color 0.3s;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-item-title,
+  .profile-item-value {
+    width: 100%;
+    text-align: left;
+    margin-top: 5px;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Input Fields with no Border by Default */
+.editable-input {
+  border: none;
+  background-color: transparent;
+  font-size: 16px;
+  width: 100%;
+  color: #333;
+  padding: 5px;
+  margin-left: 50%;
+  white-space: normal; /* Allows wrapping inside input fields */
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Input Fields in Editable State (after Clicking 'Edit') */
+.editable-input.active {
+  border: 1px solid #6d4c41; /* Border when in edit mode */
+  background-color: #fff;
+}
+
+/* Edit and Save Buttons */
+.edit-btn,
+.save-btn {
+  background-color: #6d4c41;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  position: absolute;
+  top: 0;
+  right: 20px;
+}
+
+.edit-btn:hover,
+.save-btn:hover {
+  background-color: #cf3400;
+}

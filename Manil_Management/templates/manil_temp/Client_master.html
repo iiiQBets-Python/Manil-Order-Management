@@ -1,0 +1,234 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} customer master {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/customer_master.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container-fluid table-container display responsive wrap fade-in">
+  <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
+    <div id="dataTables_filter_container" class="me-2">        
+    </div>
+    <button type="button" class="btn btn-add"  data-bs-toggle="modal" data-bs-target="#clientModal">
+      Add Client
+    </button>
+  </div>
+
+    
+    <div class="table-responsive">
+      <table class="table" id="form_data_table">
+        <thead>
+          <tr>
+            <th scope="col">SL No</th>
+            <th scope="col">Client ID</th>
+            <th scope="col">Client Name</th>
+            <th scope="col">Location</th>
+            <th scope="col">Contact Name</th>
+            <th scope="col">Phone No</th>
+            <th scope="col">Email</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in client_m %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{i.client_id}}</td>
+            <td>{{i.client_name}}</td>
+            <td>{{i.client_location}}</td>
+            <td>{{i.contact_person_name}}</td>
+            <td>{{i.phone_number}}</td>
+            <td>{{i.email_id}}</td>
+            <td>
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="actionMenu">
+                  <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                  <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</div>
+
+ <!-- The Modal -->
+ <div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content container-custom">
+  
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" id="clientModalLabel">Client Form</h4>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+  
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form id="ClientForm" method="post">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="client_name" name="client_name" {% if client_name %} value="{{client_name}}" {% endif %} maxlength="15" placeholder=" " required>
+              <label for="client_name" class="form-label">Client Name</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="client_S_name" name="client_S_name" {% if client_S_name %} value="{{client_S_name}}" {% endif %} maxlength="15" list="snameList" placeholder=" " required>
+              <label for="client_S_name" class="form-label">Client Short Name</label>                          
+              <datalist id="snameList"></datalist>
+            </div>
+            <div class="col-md-6 form-group">
+                <input type="number" class="form-control" id="phone_number" name="phone_number" {% if phone_number %} value="{{phone_number}}" {% endif %} placeholder=" " required>
+                <label for="phone_number" class="form-label">Phone No</label>
+            </div>
+            <div class="col-md-6 form-group">
+                <input type="email" class="form-control" id="email_id" name="email_id" {% if email_id %} value="{{email_id}}" {% endif %} placeholder=" " required>
+                <label for="email_id" class="form-label">Email ID</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="client_location" name="client_location" {% if client_location %} value="{{client_location}}" {% endif %} placeholder=" " required>
+              <label for="client_location" class="form-label">Location</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="pan" name="pan" {% if pan %} value="{{pan}}" {% endif %} minlength="8" maxlength="15" placeholder=" " required>
+              <label for="pan" class="form-label">PAN No</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="contact_person_name" name="contact_person_name" {% if contact_person_name %} value="{{contact_person_name}}" {% endif %} min="1" max="365" placeholder=" " required>
+              <label for="contact_person_name" class="form-label">Contact Person</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="fssai_number" name="fssai_number" {% if fssai_number %} value="{{fssai_number}}" {% endif %} min="1" max="365" placeholder=" " required>
+              <label for="fssai_number" class="form-label">FSSAI No</label>
+            </div>  
+
+            <!-- Checkbox: Same as Billing Address -->
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="sameAsBilling" onchange="check_validate()" name="sameAsBilling">
+              <label class="form-check-label" for="sameAsBilling">
+                Shipping Address same as Billing Address
+              </label>
+            </div>
+
+            <!-- Tabs for Billing and Shipping Details -->
+            <ul class="nav nav-tabs mb-1" id="billingShippingTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="billing-tab" data-bs-toggle="tab" data-bs-target="#billing" type="button" role="tab" aria-controls="billing" aria-selected="true">Billing Details</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab" aria-controls="shipping" aria-selected="false">Shipping Details</button>                
+              </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="billingShippingTabContent">
+              <!-- Billing Details Tab -->
+              <div class="tab-pane fade show active" id="billing" role="tabpanel" aria-labelledby="billing-tab">
+                <div class="row mt-2">
+                  <div class="col-md-12 form-group">
+                    <textarea class="form-control" id="billing_address" name="billing_address" oninput="next_btn_enable()"  placeholder=" " required></textarea>
+                    <label for="billing_address" class="text-label">Billing Address</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <input type="text" class="form-control" id="billing_city" name="billing_city" oninput="next_btn_enable()" placeholder=" " required>
+                    <label for="billing_city" class="form-label">City</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <input type="text" class="form-control" id="billing_state" name="billing_state" oninput="next_btn_enable()" placeholder=" " required>
+                    <label for="billing_state" class="form-label">State</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <input type="number" class="form-control" id="billing_pin" name="billing_pin" oninput="next_btn_enable()" placeholder=" " required>
+                    <label for="billing_pin" class="form-label">Pin Code</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <input type="text" class="form-control" id="billing_gst_number" name="billing_gst_number" oninput="next_btn_enable()" placeholder=" " required>
+                    <label for="billing_gst_number" class="form-label">Billing GST No</label>
+                  </div>
+                </div>
+              </div>
+              
+
+              <!-- Shipping Details Tab -->
+              <div class="tab-pane fade" id="shipping" role="tabpanel" aria-labelledby="shipping-tab">
+                <div class="row mt-2">
+                  <div class="col-md-12 form-group">
+                    <textarea class="form-control" id="shipping_address" name="shipping_address"  placeholder=" " required></textarea>
+                    <label for="shipping_address" class="text-label">Shipping Address</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <input type="text" class="form-control" id="shipping_city" name="shipping_city" placeholder=" " required>
+                    <label for="shipping_city" class="form-label">City</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <input type="text" class="form-control" id="shipping_state" name="shipping_state" placeholder=" " required>
+                    <label for="shipping_state" class="form-label">State</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <input type="text" class="form-control" id="shipping_pin" name="shipping_pin" placeholder=" " required>
+                    <label for="shipping_pin" class="form-label">Pin Code</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <input type="text" class="form-control" id="shipping_gst_number" name="shipping_gst_number" placeholder=" " required>
+                    <label for="shipping_gst_number" class="form-label">Shipping GST No</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+                      
+          </div>
+          <div class="form-buttons">
+            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+            <a class="btn btn-success" id="next_btn" onclick="move_next()" disabled>Next</a>
+            <button type="submit" id="submit_btn" class="btn btn-success" style="display : none;">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'Client_master' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('clientModal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'manil/js/customer_master.js' %}"></script>
+{% endblock scripts %}
+
+
+{% endblock content %}
+
+

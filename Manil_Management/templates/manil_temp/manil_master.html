@@ -1,0 +1,152 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %}Profile Details{% endblock %}
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'manil/css/manil_master.css' %}">
+{% endblock styles %}
+
+{% block content %}
+  <!-- Profile Information Section -->
+  <!-- Profile Information Section -->
+<div class="profile-container">
+  <div class="profile-section">
+    <h2 class="section-heading">Company Details</h2>
+
+    <form action="" method="post" id="form1">
+      {% csrf_token %}
+      <div class="profile-item">
+        <div class="profile-item-title">Company Name</div>
+        <input type="text" class="editable-input" name="company_name" id="company_name" placeholder="" value="{{C_data.company_name}}" readonly>
+      </div>
+
+      <div class="profile-item">
+        <div class="profile-item-title">Date of Incorporation</div>
+        <input type="date" class="editable-input" name="date_of_incorporation" id="date_of_incorporation" value="{{C_data.date_of_incorporation|date:'Y-m-d'}}" readonly>
+      </div>
+
+      <div class="profile-item">
+        <div class="profile-item-title">PAN</div>
+        <input type="text" class="editable-input" name="pan" id="pan" value="{{C_data.pan}}" readonly>
+      </div>
+
+      <div class="profile-item">
+        <div class="profile-item-title">FASSAI Number</div>
+        <input type="number" class="editable-input" name="fssai_number" id="fssai_number" value="{{C_data.fssai_number}}" readonly>
+      </div>
+
+      <div class="profile-item">
+        <div class="profile-item-title">MSME Number</div>
+        <input type="number" class="editable-input" name="msme_number" id="msme_number" value="{{C_data.msme_number}}" readonly>
+      </div>
+
+      <button class="edit-btn" type="button" id="edit_1" onclick="enable_form1()">Edit</button>
+      <button class="save-btn" type="submit" id="submit_1" style="display: none;">Save</button>
+    </form>
+  </div>
+</div>
+
+  <!-- Bank Information -->
+  <div class="profile-container">
+    <div class="profile-section">
+      <h2 class="section-heading">Bank Details</h2>
+      <form action="" method="post" id="form2">
+        {% csrf_token %}
+        <div class="profile-item">
+          <div class="profile-item-title">Bank Name</div>
+          <input type="text" class="editable-input" name="bank_name" id="bank_name" value="{{C_data.bank_name}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">Branch</div>
+          <input type="text" class="editable-input" name="branch" id="branch" value="{{C_data.branch}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">IFSC Code</div>
+          <input type="text" class="editable-input" name="ifsc" id="ifsc" value="{{C_data.ifsc}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">Account Number</div>
+          <input type="number" class="editable-input" name="account_number" id="account_number" value="{{C_data.account_number}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">Bank Address</div>
+          <textarea class="editable-input" name="bank_address" id="bank_address"  readonly>{{C_data.bank_address}}</textarea>
+        </div>
+        
+        <button class="edit-btn" type="button" id="edit_2" onclick="enable_form2()">Edit</button>
+        <button class="save-btn" type="submit" id="submit_2" style="display: none;">Save</button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Billing Information -->
+  <div class="profile-container">
+    <div class="profile-section">
+      <h2 class="section-heading">Billing Information</h2>
+      <form action="" method="post" id="form3">
+        {% csrf_token %}
+        <div class="profile-item">
+          <div class="profile-item-title">Billing GST Number</div>
+          <input type="text" class="editable-input" name="billing_gst_number" id="billing_gst_number" value="{{C_data.billing_gst_number}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">Billing Address</div>
+          <textarea class="editable-input" name="billing_address" id="billing_address"  readonly>{{C_data.billing_address}}</textarea>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">City</div>
+          <input type="text" class="editable-input" name="billing_city" id="billing_city" value="{{C_data.billing_city}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">State</div>
+          <input type="text" class="editable-input" name="billing_state" id="billing_state" value="{{C_data.billing_state}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">Pincode</div>
+          <input type="number" class="editable-input" name="billing_pin" id="billing_pin" value="{{C_data.billing_pin}}" readonly>
+        </div>
+        <button class="edit-btn" type="button" id="edit_3" onclick="enable_form3()">Edit</button>
+        <button class="save-btn" type="submit" id="submit_3" style="display: none;">Save</button>
+      </form>
+    </div>
+  </div>
+
+<!-- Shipping Information -->
+  <div class="profile-container">
+    <div class="profile-section">
+      <h2 class="section-heading">Shipping Information</h2>
+      <form action="" method="post" id="form4">
+        {% csrf_token %}
+        <div class="profile-item">
+            <div class="profile-item-title">Shipping GST Number</div>
+            <input type="text" class="editable-input" name="shipping_gst_number" id="shipping_gst_number" value="{{C_data.shipping_gst_number}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">Shipping Address</div>
+          <textarea class="editable-input" name="shipping_address" id="shipping_address"   readonly>{{C_data.shipping_address}}</textarea>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">City</div>
+          <input type="text" class="editable-input" name="shipping_city" id="shipping_city" value="{{C_data.shipping_city}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">State</div>
+          <input type="text" class="editable-input" name="shipping_state" id="shipping_state" value="{{C_data.shipping_state}}" readonly>
+        </div>
+        <div class="profile-item">
+          <div class="profile-item-title">Pincode</div>
+          <input type="number" class="editable-input" name="shipping_pin" id="shipping_pin" value="{{C_data.shipping_pin}}" readonly>
+        </div>
+        <button class="edit-btn" type="button" id="edit_4" onclick="enable_form4()">Edit</button>
+        <button class="save-btn" type="submit" id="submit_4" style="display: none;">Save</button>
+      </form>
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block scripts %} 
+  {{ block.super }}
+  <script src="{% static 'manil/js/manil_master.js' %}"></script>
+{% endblock scripts %}

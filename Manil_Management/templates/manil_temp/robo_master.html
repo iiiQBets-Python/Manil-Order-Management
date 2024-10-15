@@ -1,0 +1,127 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} Disptch_details_table {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/robo_master.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container-fluid table-container display responsive wrap fade-in">
+    <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
+        <div id="dataTables_filter_container" class="me-2">
+            <!-- This will be populated by jQuery -->
+        </div>
+        <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#roboModal">
+            Add Robo Master
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table" id="form-data-table">
+            <thead>
+                <tr>
+                    <th scope="col">SL No</th>
+                    <th scope="col">Robo ID</th>
+                    <th scope="col">Robo Name</th>
+                    <th scope="col">Robo Type</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for robot in robots %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ robot.robot_id }}</td>
+                    <td>{{ robot.robot_name }}</td>
+                    <td>{{ robot.robot_type }}</td>
+                    <td>{{ robot.description }}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- The Modal -->
+    <div class="modal fade" id="roboModal" tabindex="-1" aria-labelledby="roboModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content container-custom">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title" id="roboModalLabel">Manil Form</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="RoboForm" method="post">
+                        {% csrf_token %}
+                        <div class="row">                            
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="robo_name" name="robo_name" {% if robo_name %} value="{{robo_name}}" {% endif %} placeholder=" " required>
+                                <label for="robo_name" class="form-label">Robo Name</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="robot_type" name="robot_type" {% if robot_type %} value="{{robot_type}}" {% endif %} placeholder=" " required>
+                                <label for="robot_type" class="form-label">Robo Type</label>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <textarea class="form-control" id="description" name="description" placeholder=" " required> {% if description %}{{description}}{% endif %}</textarea>
+                                <label for="description" class="text-label">Description</label>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                            <button class="btn btn-success">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'robo_master' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('roboModal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'manil/js/robo_master.js' %}"></script>
+{% endblock scripts %}
+{% endblock content %}

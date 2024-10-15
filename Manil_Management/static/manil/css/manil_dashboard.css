@@ -1,0 +1,91 @@
+body {
+    background-color: #f0f2f5;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+.dashboard-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+}
+.dashboard-header {
+    background: linear-gradient(135deg, #c9cddc, #ffffff);
+    color: rgb(8, 8, 8);
+    padding: 1rem;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+.card-header {
+    background-color: #fff;
+    border-bottom: none;
+    padding: 1.2rem;
+}
+.card-body {
+    padding: 1.2rem;
+    margin-top: -20px;
+}
+.card-title {
+    color: #4a4a4a;
+    font-weight: 600;
+}
+.order-count {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #6e8efb;
+}
+.ticket-count {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #ffc400;
+}
+.list-group-item {
+    border: none;
+    padding: 0.75rem 0;
+    background-color: transparent;
+}
+.table {
+    background-color: white;
+    border-radius: 15px;
+    overflow: hidden;
+}
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+.table-hover tbody tr:hover {
+    background-color: #f1f3f9;
+}
+.badge-custom {
+    background-color: #a777e3;
+    color: white;
+}
+.btn-custom {
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    border: none;
+    color: white;
+}
+.btn-custom:hover {
+    background: linear-gradient(135deg, #5d7df9, #9666d8);
+    color: white;
+}
+
+.order-ticket-list {
+    
+    max-height: 250px; /* Adjust the height as needed */
+    overflow-y: auto;
+}
+::-webkit-scrollbar {
+    display: none;/* or use 'display: none;' to completely hide */
+    background: transparent; /* Optional: Make scrollbar background transparent */
+}

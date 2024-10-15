@@ -1,0 +1,214 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} customer master {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'manil/css/manil_dashboard.css' %}">
+{% endblock styles %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    
+    <div class="row g-4 mb-4">
+        <!-- Today's Orders Card -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-shopping-cart fa-2x text-primary me-2"></i>
+                        <h5 class="card-title">Today's Orders</h5>
+                    </div>
+                    <div class="text-center">
+                        <span class="order-count">7</span> <!-- Updated count -->
+                    </div>
+                </div>
+                <div class="card-body overflow-auto order-ticket-list"> <!-- Added scroll to the list -->
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order ID:</strong> MA002<br>
+                                <small>John Doe - 3 cups</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">New</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order ID:</strong> MA003<br>
+                                <small>Jane Smith - 5 cups</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">New</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order ID:</strong> MA004<br>
+                                <small>Mark Taylor - 2 cups</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">New</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order ID:</strong> MA005<br>
+                                <small>Olivia White - 4 cups</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">New</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order ID:</strong> MA006<br>
+                                <small>Michael Brown - 1 cup</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">New</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order ID:</strong> MA007<br>
+                                <small>Linda Green - 6 cups</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">New</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order ID:</strong> MA008<br>
+                                <small>Emma Watson - 2 cups</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">New</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tickets Card -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-ticket-alt fa-2x text-warning me-2"></i>
+                        <h5 class="card-title mb-0">Tickets</h5>
+                    </div>
+                    <div class="text-center">
+                        <span class="ticket-count">7</span> <!-- Updated count -->
+                    </div>
+                </div>
+                <div class="card-body overflow-auto order-ticket-list"> <!-- Added scroll to the list -->
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Ticket ID:</strong> TK002<br>
+                                <small>Alice Johnson - Order Delay</small>
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Ticket ID:</strong> TK003<br>
+                                <small>Bob Williams - Product Query</small>
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Ticket ID:</strong> TK004<br>
+                                <small>Jessica Stone - Payment Issue</small>
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Ticket ID:</strong> TK005<br>
+                                <small>Henry Cooper - Shipping Delay</small>
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Ticket ID:</strong> TK006<br>
+                                <small>Patricia Davis - Wrong Item</small>
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Ticket ID:</strong> TK007<br>
+                                <small>Kevin Martin - Delivery Issue</small>
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Ticket ID:</strong> TK008<br>
+                                <small>Emily Clark - Refund Request</small>
+                            </div>
+                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Star Customer List Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Star Customer List</h5>
+            <button class="btn btn-custom">View All Customers</button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>ID</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Orders</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Eva Brown</td>
+                            <td>SC001</td>
+                            <td>₹150</td>
+                            <td>₹750</td>
+                            <td><span class="badge badge-custom">5</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary rounded-circle">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mike Davis</td>
+                            <td>SC002</td>
+                            <td>₹200</td>
+                            <td>₹1000</td>
+                            <td><span class="badge badge-custom">7</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary rounded-circle">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sarah Wilson</td>
+                            <td>SC003</td>
+                            <td>₹180</td>
+                            <td>₹900</td>
+                            <td><span class="badge badge-custom">6</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary rounded-circle">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

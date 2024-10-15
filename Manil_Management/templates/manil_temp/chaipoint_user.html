@@ -1,0 +1,360 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} ChaiPoint User {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/chaipoint_user.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container-fluid table-container display responsive wrap fade-in">
+    <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
+        <div id="dataTables_filter_container" class="me-2">
+            <!-- This will be populated by jQuery -->
+        </div>
+        <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#chaipointModal">
+            Add ChaiPoint
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table" id="form-data-table">
+            <thead>
+                <tr>
+                    <th scope="col">SL No</th>
+                    <th scope="col">User ID</th>
+                    <th scope="col">Chai Point Details</th>
+                    <th scope="col">
+                        Email <br>
+                        Phone Number
+                    </th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Created Details</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>001</td>
+                    <td>UI00102154</td>
+                    <td>CI00210245 <br>Raj  Kumar </td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh<br>15/08/2024 </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>002</td>
+                    <td>UI00102155 </td>
+                    <td>CI00256254 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>  
+                <tr>
+                    <td>003</td>
+                    <td>UI00102156 </td>
+                    <td>CI00256256 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>004</td>
+                    <td>UI00102157 </td>
+                    <td>CI00256257 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>005</td>
+                    <td>UI00102158 </td>
+                    <td>CI00256258 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>006</td>
+                    <td>UI00102159 </td>
+                    <td>CI00256259 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>007</td>
+                    <td>UI00102160 </td>
+                    <td>CI00256260 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>008</td>
+                    <td>UI00102161 </td>
+                    <td>CI00256261 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>009</td>
+                    <td>UI00102162 </td>
+                    <td>CI00256265 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>010</td>
+                    <td>UI00102165 </td>
+                    <td>CI00256268 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>011</td>
+                    <td>UI00102168 </td>
+                    <td>CI00256271 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>012</td>
+                    <td>UI00102173 </td>
+                    <td>CI00256277 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>013</td>
+                    <td>UI00102178 </td>
+                    <td>CI00256283 <br> Vishnu Gopal</td>
+                    <td>rahul@gmail.com <br> 9114994421</td>
+                    <td>Role</td>
+                    <td>Rajesh <br> 15/08/2024  </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+  
+    <!-- The Modal -->
+    <div class="modal fade" id="chaipointModal" tabindex="-1" aria-labelledby="chaipointModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content container-custom">
+                
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title" id="chaipointModalLabel">Chaipoint User Form</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="ChaipointForm">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="first_name" name="first_name" placeholder=" " required>
+                                <label for="first_name" class="form-label">First Name</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="last_name" name="last_name" placeholder=" " required>
+                                <label for="last_name" class="form-label">Last Name</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="email" class="form-control" id="email" name="email"  placeholder=" " required>
+                                <label for="email" class="form-label">Email</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="number" class="form-control" id="phonenumber" name="phonenumber" max="10" required>
+                                <label for="phonenumber" class="form-label">Phone Number</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="role" name="role" placeholder=" " required>
+                                <label for="role" class="form-label">Role</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="Password" class="form-control" id="password" name="password" placeholder=" " required>
+                                <label for="password" class="form-label">Password</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="datetime-local" class="form-control" id="creation_date" name="creation_date" placeholder=" " required>
+                                <label for="creation_date" class="form-label"> Creation-Date and Time </label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="created_by" name="created_by" placeholder=" " required>
+                                <label for="created_by" class="form-label">Created by</label>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                            <button class="btn btn-success">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'manil/js/chaipoint_user.js' %}"></script>
+{% endblock scripts %}
+
+
+{% endblock content %}

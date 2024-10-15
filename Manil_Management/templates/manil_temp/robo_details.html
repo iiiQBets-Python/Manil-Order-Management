@@ -1,0 +1,192 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} Manil Ticket {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/robo_details.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container-fluid table-container display responsive wrap fade-in">
+    <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
+        <div id="dataTables_filter_container" class="me-2">
+            <!-- This will be populated by jQuery -->
+        </div>
+        <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#robo_detailsModal">
+            Add Robo Details
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table" id="form-data-table">
+            <thead>
+                <tr>
+                    <th scope="col">SL No</th>
+                    <th scope="col">Client Details</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Robo Details</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Installation Date</th>
+                    <th scope="col">Maintenance Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in robot_details %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ i.client_id }} <br> {{ i.client_name }}</td>
+                    <td>{{ i.location }}</td>
+                    <td>{{ i.robot_id }} <br> {{ i.robot_name }}</td>
+                    <td>{{ i.robot_type }}</td>
+                    <td>{{ i.installation_date }}</td>
+                    <td>{{ i.l_maintenance_date }}</td>
+                    <td>{{ i.status }}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
+                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+  
+    <!-- The Modal -->
+    <div class="modal fade" id="robo_detailsModal" tabindex="-1" aria-labelledby="robo_detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content container-custom">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title" id="robo_detailsModalLabel">Manil Form</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="RoboForm" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <select class="form-control" id="client_id" name="client_id" required>
+                                    {% if client_id %}
+                                    <option value="{{client_id}}">{{client_id}}</option>
+                                    {% else %}
+                                    <option value="">--Select Client--</option>
+                                    {% endif %}
+                                    {% for i in client_m %}
+                                        <option value="{{ i.client_id }}" data-client-name="{{ i.client_name }}"  data-location="{{ i.client_location }}">{{ i.client_id }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="client_id" class="form-label">Client ID</label>
+                            </div>
+                            <div class="col-md-6 form-group"></div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="client_name" name="client_name" readonly {% if client_name %} value="{{client_name}}" {% endif %} placeholder=" " required >
+                                <label for="client_name" class="form-label">Client Name</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="location" name="location" readonly {% if location %} value="{{location}}" {% endif %} placeholder=" " required >
+                                <label for="location" class="form-label">Location</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <select class="form-control" id="robot_id" name="robot_id" required>
+                                    {% if robot_id %}
+                                    <option value="{{robot_id}}">{{robot_id}}</option>
+                                    {% else %}
+                                    <option value="">--Select Robot ID--</option>
+                                    {% endif %}
+                                    {% for i in robots %}
+                                    <option value="{{ i.robot_id }}"  data-robo-name="{{ i.robot_name }}"  data-robo-type="{{ i.robot_type }}">{{ i.robot_id }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="robo_id" class="form-label">Robo ID</label>
+                            </div>
+                            <div class="col-md-6 form-group"></div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="robot_name" readonly name="robot_name" {% if robot_name %} value="{{robot_name}}" {% endif %} placeholder=" " required >
+                                <label for="robot_name" class="form-label">Robo Name</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="robot_type" readonly name="robot_type" {% if robot_type %} value="{{robot_type}}" {% endif %} placeholder=" " required >
+                                <label for="robot_type" class="form-label">Robo Type</label>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <select class="form-control" id="status" name="status" required>
+                                    {% if status %}
+                                    <option value="{{status}}">{{status}}</option>
+                                    {% else %}
+                                    <option value="">--Select status--</option>
+                                    {% endif %}
+                                    <option value="Operational">Operational</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Out of Service">Out of Service</option>
+                                </select>
+                                <label for="status" class="form-label">Status</label>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <input type="date" class="form-control" id="installation_date"  {% if installation_date %} value="{{installation_date}}" {% endif %} name="installation_date" placeholder=" " required>
+                                <label for="installation_date" class="form-label">Installation Date</label>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <input type="date" class="form-control" id="l_maintenance_date" {% if l_maintenance_date %} value="{{l_maintenance_date}}" {% endif %} name="l_maintenance_date" placeholder=" " required>
+                                <label for="l_maintenance_date" class="form-label">Maintenance Date</label>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <textarea type="text" class="form-control" id="description" name="description" placeholder=" " required>{% if description %}{{description}}{% endif %}</textarea>
+                                <label for="description" class="text-label">Description</label>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                            <button class="btn btn-success">Save</button>
+                        </div>
+                    </form>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'robo_details' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('robo_detailsModal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'manil/js/robo_details.js' %}"></script>
+{% endblock scripts %}
+{% endblock content %}

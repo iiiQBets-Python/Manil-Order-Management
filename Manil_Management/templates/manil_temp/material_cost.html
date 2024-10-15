@@ -1,0 +1,172 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} Costing Data Table {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/material_cost.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+    <div class="container-fluid table-container display responsive wrap fade-in">
+      <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
+        <div id="dataTables_filter_container" class="me-2">
+            <!-- This will be populated by jQuery -->
+        </div>
+        <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#materialcostModal">
+            Add Material Cost
+        </button>
+      </div>
+    <div class="table-responsive">
+      <table class="table" id="form_data_table">
+        <thead>
+            <tr>
+                <th scope="col">SL No</th>
+                <th scope="col">Client ID</th>
+                <th scope="col">Client Name</th>
+                <th scope="col">Location</th>
+                <th scope="col">Material Name</th>
+                <th scope="col">Unit of Material</th>
+                <th scope="col">Cost per Unit</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            {% for costing in costings %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ costing.client_id }}</td>
+                <td>{{ costing.client_name }}</td>
+                <td>{{ costing.location }}</td>
+                <td>{{ costing.material_name }}</td>
+                <td>{{ costing.unit_of_material }}</td>
+                <td>{{ costing.cost_per_unit }}</td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
+                            <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                            <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+          
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    </div>
+  </div>
+  
+    <!-- The Modal -->
+    <div class="modal fade" id="materialcostModal" tabindex="-1" aria-labelledby="materialcostModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content container-custom">
+      
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title" id="materialcostModalLabel">Material Cost Form</h4>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+      
+          <!-- Modal Body -->
+          <div class="modal-body">
+            <form id="materialcostForm" method="post">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <select name="client_id" class="form-control" id="client_id" required>                    
+                    <option value="">--select--</option>                               
+                    {% for i in client_m %}
+                    <option value="{{i.client_id}}" data-client-name="{{ i.client_name }}"  data-location="{{ i.client_location }}">{{i.client_id}}</option>
+                    {% endfor %}
+                  </select>
+                  <label for="client_id" class="form-label">Client ID</label>
+                </div>
+                <div class="col-md-6 form-group">
+                  <input type="text" class="form-control" id="client_name" name="client_name" readonly  placeholder=" " required>
+                  <label for="client_name" class="form-label"> Client Name</label>
+                </div>                
+                <div class="col-md-6 form-group">
+                  <select name="material_code" class="form-control" id="material_code" required>                                                            
+                    <option value="">--select--</option>                               
+                    {% for i in materials %}
+                    <option value="{{i.material_code}}" data-material-name="{{ i.material_name }}">{{i.material_code}}</option>
+                    {% endfor %}
+                  </select>
+                  <label for="material_code" class="form-label">Material Code</label>
+                </div>
+                <div class="col-md-6 form-group">
+                  <input type="text" class="form-control" id="material_name" name="material_name" readonly  placeholder=" " required>
+                  <label for="material_name" class="form-label"> Material Name</label>
+                </div>
+                <div class="col-md-6 form-group">
+                  <input type="text" class="form-control" id="client_location" name="client_location" readonly placeholder=" " required>
+                  <label for="client_location" class="form-label">Location</label>
+                </div>
+                <div class="col-md-6 form-group">
+                    <input type="text" class="form-control" id="unit_of_material" name="unit_of_material"  placeholder=" " required>
+                    <label for="unit_of_material" class="form-label"> Unit of Material</label>
+                </div>
+                <div class="col-md-6 form-group">
+                    <input type="number" class="form-control" id="cost_per_unit" name="cost_per_unit" placeholder=" " required>
+                    <label for="cost_per_unit" class="form-label">Cost per Unit</label>
+                </div>
+                <div class="col-md-6 form-group">
+                  <input type="date" class="form-control" id="start_date" name="start_date" placeholder=" " required>
+                  <label for="start_date" class="form-label"> Start Date </label>
+                </div>
+                <div class="col-md-6 form-group">
+                  <input type="date" class="form-control" id="end_date" name="end_date" placeholder=" " required>
+                  <label for="end_date" class="form-label"> End Date </label>
+                </div>
+                
+              </div>
+              <div class="form-buttons">
+                <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                <button class="btn btn-success">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'material_cost' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('materialcostModal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>    
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'manil/js/material_cost.js' %}"></script>
+{% endblock scripts %}
+
+
+{% endblock content %}

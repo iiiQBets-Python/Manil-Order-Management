@@ -1,0 +1,157 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} customer master {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/material_master.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container-fluid table-container display responsive wrap fade-in">
+    <div class="d-flex align-items-center position-relative">
+      <div id="dataTables_filter_container" class="me-3">
+            <!-- This will be populated by jQuery -->
+      </div>
+
+      <button type="button" class="btn btn-add"  data-bs-toggle="modal" data-bs-target="#materialModal">
+        Add Material
+      </button>
+    </div>
+ <div class="table-responsive">
+  <table class="table" id="form_data_table">
+    <thead>
+        <tr>
+            <th scope="col">S.No</th>
+            <th scope="col">Material Code</th>
+            <th scope="col">Material Name</th>
+            <th scope="col">HSN Code</th>
+            <th scope="col">Start Date</th>
+            <th scope="col">End Date</th>
+            <th scope="col">Creation Details</th>
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for material in materials %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ material.material_code }}</td>
+            <td>{{ material.material_name }}</td>
+            <td>{{ material.hsn_code }}</td>
+            <td>{{ material.start_date|date:"d/m/Y" }}</td>
+            <td>{{ material.end_date|date:"d/m/Y" }}</td>
+            <td>{{ material.created_by }} / <br> {{ material.creation_date|date:"d/m/Y" }}</td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
+                        <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                        <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+        
+        {% endfor %}
+    </tbody>
+</table>
+
+    </div>
+  </div>
+ 
+ <!-- The Modal -->
+ <div class="modal fade" id="materialModal" tabindex="-1" aria-labelledby="materialModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content container-custom">
+  
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" id="materialModalLabel">Material Form</h4>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+  
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form id="MaterialForm" method="post">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="material_name" name="material_name" {% if material_name %} value="{{material_name}}" {% endif %} maxlength="15" placeholder=" " required>
+              <label for="material_name" class="form-label">Material Name</label>
+            </div>
+            <div class="col-md-6 form-group">
+                <input type="text" class="form-control" id="hsn_code" name="hsn_code" {% if hsn_code %} value="{{hsn_code}}" {% endif %} placeholder=" " required>
+                <label for="hsn_code" class="form-label"> HSN Code</label>
+            </div>
+            <div class="col-md-6 form-group">
+                <input type="text" class="form-control" id="cgst_rate" name="cgst_rate" {% if cgst_rate %} value="{{cgst_rate}}" {% endif %} placeholder=" " required>
+                <label for="cgst_rate" class="form-label">CGST Rate (%)</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="sgst_rate" name="sgst_rate" {% if sgst_rate %} value="{{sgst_rate}}" {% endif %} placeholder=" " required>
+              <label for="sgst_rate" class="form-label">SGST Rate (%)</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="igst_rate" name="igst_rate" {% if igst_rate %} value="{{igst_rate}}" {% endif %}  placeholder=" " required>
+              <label for="igst_rate" class="form-label">IGST Rate (%)</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="date" class="form-control" id="start_date" name="start_date" {% if start_date %} value="{{start_date}}" {% endif %}  placeholder=" " required>
+              <label for="start_date" class="form-label">Start Date</label>
+            </div>
+            <div class="col-md-6 form-group">
+                <input type="date" class="form-control" id="end_date" name="end_date" {% if end_date %} value="{{end_date}}" {% endif %}  placeholder=" " required>
+                <label for="end_date" class="form-label">End Date</label>
+            </div>
+          </div>
+          <div class="form-buttons">
+            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+            <button class="btn btn-success">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'material_master' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('materialModal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'manil/js/material_master.js' %}"></script>
+{% endblock scripts %}
+
+
+{% endblock content %}
