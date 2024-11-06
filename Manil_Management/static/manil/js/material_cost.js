@@ -34,15 +34,19 @@ document.getElementById('client_id').addEventListener('change', function () {
 });
 
 
-document.getElementById('material_code').addEventListener('change', function () {
+document.getElementById('material_name').addEventListener('change', function () {
   var selectedOption = this.options[this.selectedIndex];
-  var material_name = selectedOption.getAttribute('data-material-name');
+  var material_code = selectedOption.getAttribute('data-material-code');
 
-  if (material_name) {
-    document.getElementById('material_name').value = material_name;
+  if (material_code) {
+    document.getElementById('material_code').value = material_code;
   } else {
-    document.getElementById('material_name').value = null;
+    document.getElementById('material_code').value = null;
   }
 });
+
+
+
+
 
 

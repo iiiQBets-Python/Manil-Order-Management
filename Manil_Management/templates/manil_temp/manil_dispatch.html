@@ -15,286 +15,57 @@
         <div id="dataTables_filter_container" class="me-2">
             <!-- This will be populated by jQuery -->
         </div>
-        <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#dispatchModal">
+        <!-- <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#dispatchModal">
             Add Dispatch Details
-        </button>
+        </button> -->
     </div>
     <div class="table-responsive">
         <table class="table" id="form-data-table">
             <thead>
                 <tr>
                     <th scope="col">SL No</th>
-                    <th scope="col">Order Details</th>
+                    <th scope="col">Order Process Details</th>
                     <th scope="col">Dispatch Details</th>
                     <th scope="col">Expected Date</th>
-                    <th scope="col">Received Details</th>
-                    <th scope="col">Creation Details</th>
+                    <th scope="col">Received By</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
+                {% for i in dispatch %}
                 <tr>
-                    <td>001</td>
-                    <td>CI0001 <br> 01/09/2024 </td>
-                    <td>DLPN0001 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>Mohan <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 15/08/2024</td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ i.process_num }} <br> {{ i.process_date|date:'Y-m-d'}} </td>
+                    <td> {{ i.created_by }} <br> {{ i.creation_date|date:'Y-m-d' }}</td>
+                    <td>{{ i.exp_del_dt|date:'Y-m-d' }}</td>
+                    <td> {% if i.received_by %} {{ i.received_by }} <br> {{ i.received_date|date:'Y-m-d'}} {% else %}  N/A  {% endif%} </td>
                     <td>
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li><a class="dropdown-item btn-edit" href=""><i class="fas fa-edit"></i> Edit</a></li>
                                 <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
                             </ul>
                         </div>
                     </td>
                 </tr>
-                <tr>
-                    <td>002</td>
-                    <td>CI0002 <br> 01/09/2024 </td>
-                    <td>DLPN0002 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>003</td>
-                    <td>CI0003 <br> 01/09/2024 </td>
-                    <td>DLPN0003 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>004</td>
-                    <td>CI0004 <br> 01/09/2024 </td>
-                    <td>DLPN0004 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>005</td>
-                    <td>CI0005 <br> 01/09/2024 </td>
-                    <td>DLPN0005 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>006</td>
-                    <td>CI0006 <br> 01/09/2024 </td>
-                    <td>DLPN0006 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>007</td>
-                    <td>CI0007 <br> 01/09/2024 </td>
-                    <td>DLPN0007 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>008</td>
-                    <td>CI0008 <br> 01/09/2024 </td>
-                    <td>DLPN0008 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>009</td>
-                    <td>CI0009 <br> 01/09/2024 </td>
-                    <td>DLPN0009 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>010</td>
-                    <td>CI00010 <br> 01/09/2024 </td>
-                    <td>DLPN00010 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>011</td>
-                    <td>CI00011 <br> 01/09/2024 </td>
-                    <td>DLPN00011 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>012</td>
-                    <td>CI00012 <br> 01/09/2024 </td>
-                    <td>DLPN00012 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>013</td>
-                    <td>CI00013 <br> 01/09/2024 </td>
-                    <td>DLPN00013 <br> 03/09/2024 </td>
-                    <td>15/09/2024</td>
-                    <td>rajesh <br> 30/08/2024</td>
-                    <td>Pulakeshi <br> 16/08/2024</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 
     <!-- The Modal -->
-    <div class="modal fade" id="dispatchModal" tabindex="-1" aria-labelledby="dispatchModalLabel" aria-hidden="true">
+    <!-- <div class="modal fade" id="dispatchModal" tabindex="-1" aria-labelledby="dispatchModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content container-custom">
-                <!-- Modal Header -->
+                
                 <div class="modal-header">
                     <h4 class="modal-title" id="dispatchModalLabel">Manil Dispatch Form</h4>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
-                <!-- Modal Body -->
                 <div class="modal-body">
                     <form id="DispatchForm">
                         <div class="row">
@@ -351,7 +122,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

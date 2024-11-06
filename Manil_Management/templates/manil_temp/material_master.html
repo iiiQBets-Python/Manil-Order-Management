@@ -28,6 +28,7 @@
             <th scope="col">Material Code</th>
             <th scope="col">Material Name</th>
             <th scope="col">HSN Code</th>
+            <th scope="col">UOM</th>
             <th scope="col">Start Date</th>
             <th scope="col">End Date</th>
             <th scope="col">Creation Details</th>
@@ -41,16 +42,17 @@
             <td>{{ material.material_code }}</td>
             <td>{{ material.material_name }}</td>
             <td>{{ material.hsn_code }}</td>
+            <td>{{ material.unit_of_measurement }}</td>
             <td>{{ material.start_date|date:"d/m/Y" }}</td>
             <td>{{ material.end_date|date:"d/m/Y" }}</td>
-            <td>{{ material.created_by }} / <br> {{ material.creation_date|date:"d/m/Y" }}</td>
+            <td>{{ material.created_by }}<br>{{ material.creation_date|date:"d/m/Y" }}</td>
             <td>
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-ellipsis-v"></i>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
-                        <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                        <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_materialModal-{{ material.id }}"><i class="fas fa-edit"></i> Edit</a></li>
                         <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
                     </ul>
                 </div>
@@ -77,7 +79,7 @@
   
       <!-- Modal Body -->
       <div class="modal-body">
-        <form id="MaterialForm" method="post">
+        <form id="MaterialForm" method="post" action="{% url 'material_master' %}" >
           {% csrf_token %}
           <div class="row">
             <div class="col-md-6 form-group">
@@ -89,17 +91,26 @@
                 <label for="hsn_code" class="form-label"> HSN Code</label>
             </div>
             <div class="col-md-6 form-group">
-                <input type="text" class="form-control" id="cgst_rate" name="cgst_rate" {% if cgst_rate %} value="{{cgst_rate}}" {% endif %} placeholder=" " required>
-                <label for="cgst_rate" class="form-label">CGST Rate (%)</label>
+              <input type="text" class="form-control" id="unit_of_measurement" name="unit_of_measurement"  placeholder=" " required>
+              <label for="unit_of_measurement" class="form-label"> Unit of measurement</label>
             </div>
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="sgst_rate" name="sgst_rate" {% if sgst_rate %} value="{{sgst_rate}}" {% endif %} placeholder=" " required>
-              <label for="sgst_rate" class="form-label">SGST Rate (%)</label>
+              <input type="number" class="form-control" id="Base_Price" name="Base_Price"  placeholder=" " required>
+              <label for="Base_Price" class="form-label">Base Price</label>
             </div>
-            <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="igst_rate" name="igst_rate" {% if igst_rate %} value="{{igst_rate}}" {% endif %}  placeholder=" " required>
+            <div class="col-md-4 form-group">
+              <input type="number" class="form-control" id="igst_rate" name="igst_rate" oninput="validate_igst()" {% if igst_rate %} value="{{igst_rate}}" {% endif %}  placeholder=" " required>
               <label for="igst_rate" class="form-label">IGST Rate (%)</label>
             </div>
+            <div class="col-md-4 form-group">
+                <input type="number" class="form-control" id="cgst_rate" name="cgst_rate" readonly {% if cgst_rate %} value="{{cgst_rate}}" {% endif %} placeholder=" " required>
+                <label for="cgst_rate" class="form-label">CGST Rate (%)</label>
+            </div>
+            <div class="col-md-4 form-group">
+              <input type="number" class="form-control" id="sgst_rate" name="sgst_rate" readonly {% if sgst_rate %} value="{{sgst_rate}}" {% endif %} placeholder=" " required>
+              <label for="sgst_rate" class="form-label">SGST Rate (%)</label>
+            </div>
+            
             <div class="col-md-6 form-group">
               <input type="date" class="form-control" id="start_date" name="start_date" {% if start_date %} value="{{start_date}}" {% endif %}  placeholder=" " required>
               <label for="start_date" class="form-label">Start Date</label>
@@ -118,6 +129,80 @@
     </div>
   </div>
 </div>
+
+{% for i in materials %}
+  <div class="modal fade" id="edit_materialModal-{{ i.id }}" tabindex="-1" aria-labelledby="edit_materialModallLabel-{{ i.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content container-custom">
+    
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title" id="edit_materialModal-{{ i.id }}">Material Form</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+    
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <form id="MaterialForm-{{ i.id }}" method="post" action="{% url 'edit_material_master' i.id %}">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <input type="text" class="form-control" id="material_name-{{ i.id }}" name="edit_material_name"  value="{{i.material_name}}"  maxlength="15" placeholder=" " readonly required>
+                <label for="material_name-{{ i.id }}" class="form-label">Material Name</label>
+              </div>
+              <div class="col-md-6 form-group">
+                <input type="text" class="form-control" id="hsn_code-{{ i.id }}" name="edit_hsn_code"  value="{{i.hsn_code}}"  placeholder=" " required>
+                <label for="hsn_code-{{ i.id }}" class="form-label">HSN Code</label>
+              </div>
+              <div class="col-md-6 form-group">
+                <input type="text" class="form-control" id="unit_of_measurement-{{ i.id }}" name="edit_uom" value="{{i.unit_of_measurement}}"  placeholder=" " required>
+                <label for="unit_of_measurement-{{ i.id }}" class="form-label">Unit of Measurement</label>
+              </div>
+              <div class="col-md-6 form-group">
+                <input type="number" class="form-control" id="Base_Price-{{ i.id }}" name="edit_Base_Price" value="{{i.Base_Price}}"  placeholder=" " required>
+                <label for="Base_Price-{{ i.id }}" class="form-label">Base Price</label>
+              </div>
+              <div class="col-md-4 form-group">
+                <input type="number" class="form-control" id="edit_igst_rate-{{ i.id }}" name="edit_igst_rate" oninput="validate_edit_igst('{{ i.id }}')" value="{{i.igst_rate}}" placeholder=" " required>
+                <label for="edit_igst_rate-{{ i.id }}" class="form-label">IGST Rate (%)</label>
+              </div>
+              <div class="col-md-4 form-group">
+                <input type="number" class="form-control" id="edit_cgst_rate-{{ i.id }}" name="edit_cgst_rate" readonly value="{{i.cgst_rate}}" placeholder=" " required>
+                <label for="edit_cgst_rate-{{ i.id }}" class="form-label">CGST Rate (%)</label>
+              </div>
+              <div class="col-md-4 form-group">
+                <input type="number" class="form-control" id="edit_sgst_rate-{{ i.id }}" name="edit_sgst_rate" readonly value="{{i.sgst_rate}}" placeholder=" " required>
+                <label for="edit_sgst_rate-{{ i.id }}" class="form-label">SGST Rate (%)</label>
+              </div>
+              
+              <div class="col-md-6 form-group">
+                <input type="date" class="form-control" id="start_date-{{ i.id }}" name="edit_start_date" value="{{i.start_date|date:'Y-m-d'}}" placeholder=" " required>
+                <label for="start_date-{{ i.id }}" class="form-label">Start Date</label>
+              </div>
+              <div class="col-md-6 form-group">
+                <input type="date" class="form-control" id="end_date-{{ i.id }}" name="edit_end_date" value="{{i.end_date|date:'Y-m-d'}}" placeholder=" " required>
+                <label for="end_date-{{ i.id }}" class="form-label">End Date</label>
+              </div>
+            </div>
+            <div class="form-buttons">
+              <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+              <button class="btn btn-success">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+<script>
+  function validate_edit_igst(id) {
+    const igstRate = document.getElementById(`edit_igst_rate-${id}`).value;
+    const halfRate = (Number(igstRate) / 2); 
+    document.getElementById(`edit_cgst_rate-${id}`).value = halfRate;
+    document.getElementById(`edit_sgst_rate-${id}`).value = halfRate;
+  }
+</script>
 
 
 

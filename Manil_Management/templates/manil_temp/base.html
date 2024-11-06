@@ -20,6 +20,9 @@
             padding: 0;
             box-sizing: border-box;
         }
+        a{
+            cursor: pointer;
+        }
 
         :root {
             --grey: #F1F0F6;
@@ -386,6 +389,9 @@
             width: 100%;
             padding: 10px;
         }
+        .tog_btn2{
+            display: none;
+        }
 
         @media screen and (max-width:768px) {
             /* #content {
@@ -456,6 +462,11 @@
                 max-width: 0;
                 /* Hide sidebar completely */
             }
+            .tog_btn2 {
+                display: inline-block;
+                cursor: pointer;
+            }
+
         }
         .fa-user:hover{
             cursor: pointer;
@@ -469,10 +480,10 @@
 <body>
     <!-- SIDEBAR -->
     <section id="sidebar" class="toggle_hide">
-        <a href="#" class="brand"><i class='bx bxs-smile icon'></i>Manil App</a>
+        <a href="#" class="brand" style="padding-left: 80px;">Manil <i class='bx bx-menu toggle-sidebar tog_btn2' style="color: black; margin-left: 80px;"></i> </a>
+        
         <ul class="side-menu">
-            <li><a href="{% url 'manil_dashboard'  %}"><i class='bx bxs-dashboard icon' class="active"></i>
-                    Dashboard</a></li>
+            <li><a href="{% url 'manil_dashboard'  %}"><i class='bx bxs-dashboard icon' class="active"></i>Dashboard</a></li>
             <li><a href="{% url 'manil_master' %}"><i class='fas fa-cogs icon'></i> Manil Master</a></li>
             <li><a href="{% url 'manil_user' %}"><i class="fas fa-users icon"></i> Manil User</a></li>
             <li><a href="{% url 'Client_master' %}"><i class='bx bxs-chart icon'></i> Client Master</a></li>
@@ -480,9 +491,10 @@
             <li><a href="{% url 'chaipoint_user' %}"><i class="fas fa-users icon"></i> Chaipoint User</a></li>
             <li><a href="{% url 'material_master' %}"><i class="fas fa-boxes icon"></i> Material Master</a></li>
             <li><a href="{% url 'material_cost' %}"><i class="fas fa-dollar-sign icon"></i> Material Cost</a></li>            
-            <li><a href="{% url 'manil_order' %}"><i class="fas fa-receipt icon"></i> Manil Order Table</a></li>
-            <li><a href="{% url 'client_order' %}"><i class="fas fa-receipt icon"></i> Client Order Table</a></li>
+            <li><a href="{% url 'manil_order_' %}"><i class="fas fa-receipt icon"></i> Manil Order Table</a></li>
+            <li><a href="{% url 'client_order_' %}"><i class="fas fa-receipt icon"></i> Client Order Table</a></li>
             <li><a href="{% url 'manil_dispatch' %}"><i class='fas fa-truck icon'></i>Manil Dispatch</a></li>
+            <li><a href="{% url 'order_remarks' %}"><i class='fas fa-boxes icon'></i>Order Remarks</a></li>
             <li><a href="{% url 'manil_ticket' %}"><i class="fas fa-tools icon"></i> Manil Ticket</a></li>
             <li><a href="{% url 'robo_master' %}"><i class="fas fa-robot icon"></i> Robo Master</a></li>
             <li><a href="{% url 'robo_details' %}"><i class="fas fa-robot icon"></i> Robo Details</a></li>
@@ -514,6 +526,9 @@
                 <span class="badge">8</span>
             </a> -->
             <span class="divider"></span>
+            <div class="profile_name">
+                {{data.first_name}} {{data.last_name}}
+            </div>
             <div class="profile">
                 <i class="fa fa-user"  aria-hidden="true"></i>
 

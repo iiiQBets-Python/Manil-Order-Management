@@ -1,5 +1,5 @@
 .dataTables_filter {
-    margin-right: 180px;
+    margin-right: 150px;
 }
 .btn-add {
     background-color: #4e5d4e;
@@ -362,26 +362,14 @@
 }
 
 /* Reduce width of the 'Action' column */
-.table th:nth-child(1), .table td:nth-child(1),
-.table th:nth-child(8), .table td:nth-child(8) {
+.table th:nth-child(1), .table td:nth-child(1) {
     width: 50px; /* Adjust this value as needed */
     max-width: 50px; /* Ensure it doesn't grow beyond this */
     text-align: center;
 }
-/* Force hide sorting symbols for the "Action" column */
-th:nth-child(8) {
-    pointer-events: none; /* Disable pointer events so no interaction is possible */
-}
 
-/* Hide the sorting icons for the Action column */
-th:nth-child(8) .sorting::before, 
-th:nth-child(8) .sorting::after, 
-th:nth-child(8) .sorting_asc::before, 
-th:nth-child(8) .sorting_asc::after, 
-th:nth-child(8) .sorting_desc::before, 
-th:nth-child(8) .sorting_desc::after {
-    display: none !important; /* Completely hide the sorting icons */
-}
+
+
 
 .text-label{
     position: absolute;

@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Data Table</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'chaipoint/css/order_view.css' %}">
+</head>
+<body>
+
+<div class="container mt-5">
+    <!-- Page Header -->
+    <h2 class="text-center mb-5">Order Summary</h2>
+
+    <!-- Section 1: Order Details -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Order Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Left column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Order Number: </strong></span> {{order.process_num}}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Order Date: </strong></span> {{order.creation_date|date:'Y-m-d'}}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Client Number: </strong></span> {{client_det.client_id}}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Client Name: </strong></span> {{client_det.client_name}}
+                    </div>
+                </div>
+                <!-- Right column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Order By: </strong></span> {{order.created_by}}
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Shipping Details -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Shipping Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <span class="text-muted"><strong>Shipping Address: </strong></span> {{order.shipping_address}}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <span class="text-muted"><strong>City: </strong></span> {{order.shipping_city}}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <span class="text-muted"><strong>State: </strong></span> {{order.shipping_state}}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <span class="text-muted"><strong>Pin Code: </strong></span> {{order.shipping_pin}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Line Items Table -->
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table text-center">
+                <tr>
+                    <th>Material Name</th>
+                    <th>Quantity</th>
+                    <th>Base Price</th>
+                    <th>GST Type</th>
+                    <th>GST Rate (%)</th>
+                    <th>Sub Total</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                {% for i in ord_det %}
+                <tr>
+                    <td>{{i.material_name}}</td>
+                    <td>{{i.qty}} {{i.uom}}</td>
+                    <td>{{i.base_price}}</td>
+                    <td>{{i.gst_type}}</td>
+                    <td>{{i.gst_rate}}</td>
+                    <td>{{i.sub_total}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Grand Total and Amount in Words -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card p-3 shadow-sm">
+                <p><strong>Amount in Words: </strong>{{order.ammount_words}}.</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3 shadow-sm">
+                <p><strong>Grand Total: Rs. {{order.grand_total}} </strong> </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back and Print Buttons -->
+    <div class="form-buttons mt-4 text-center">
+        <button class="btn btn-secondary btn-sm me-1" onclick="window.history.back()">Back</button>
+        {% if order.status != 'Delivered' %}
+            <form method="post" action="{% url 'received_view' order.process_num %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm">Received</button>
+            </form>
+        {% endif %}
+
+        {% if order.status == 'Delivered' and not dispatch.remarked_by %}
+           <button type="submit" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#remarkModal">Remarks</button>
+        {% endif %}
+    </div>
+</div>
+
+
+<div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content container-custom">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title" id="remarkModalLabel">Remarks Form</h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form id="RemarkForm" method="post" enctype="multipart/form-data" action="{% url 'remarks_view' order.process_num %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" id="order_number" name="order_number" placeholder=" " value="{{order.process_num}}" readonly required>
+                            <label for="order_number" class="form-label">Order Number</label>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" id="client_name" name="client_name" placeholder=" " value="{{client_det.client_name}}" readonly required>
+                            <label for="client_name" class="form-label">Client Name</label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="text" class="form-control" id="remarks_title" name="remarks_title" placeholder=" "  required>
+                            <label for="remarks_title" class="form-label">Remarks Title</label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                           <textarea type="text" class="form-control" name="remarks" id="remarks" placeholder=" "  required></textarea>
+                            <label for="remarks" class="form-label">Remarks Description</label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="file" class="form-control" id="image" name="image" placeholder=" " multiple   required>
+                            <label for="image" class="form-label">Images</label>
+                        </div>
+                       
+                    </div>
+                    <div class="form-buttons">
+                        <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                        <button class="btn btn-success">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+  
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'Client_dispatch' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('dispatchmodal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script src="{% static 'chaipoint/js/order_view.js' %}"></script>
+</body>
+</html>

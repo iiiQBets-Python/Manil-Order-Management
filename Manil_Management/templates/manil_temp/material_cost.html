@@ -27,8 +27,7 @@
                 <th scope="col">Client ID</th>
                 <th scope="col">Client Name</th>
                 <th scope="col">Location</th>
-                <th scope="col">Material Name</th>
-                <th scope="col">Unit of Material</th>
+                <th scope="col">Material Name</th>                
                 <th scope="col">Cost per Unit</th>
                 <th scope="col">Action</th>
             </tr>
@@ -40,8 +39,7 @@
                 <td>{{ costing.client_id }}</td>
                 <td>{{ costing.client_name }}</td>
                 <td>{{ costing.location }}</td>
-                <td>{{ costing.material_name }}</td>
-                <td>{{ costing.unit_of_material }}</td>
+                <td>{{ costing.material_name }}</td>                
                 <td>{{ costing.cost_per_unit }}</td>
                 <td>
                     <div class="dropdown">
@@ -49,7 +47,7 @@
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
-                            <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                            <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_materialcostModal-{{costing.id}}"><i class="fas fa-edit"></i> Edit</a></li>
                             <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
                         </ul>
                     </div>
@@ -76,7 +74,7 @@
       
           <!-- Modal Body -->
           <div class="modal-body">
-            <form id="materialcostForm" method="post">
+            <form id="materialcostForm" method="post" action="{% url 'material_cost' %}">
               {% csrf_token %}
               <div class="row">
                 <div class="col-md-6 form-group">
@@ -92,27 +90,24 @@
                   <input type="text" class="form-control" id="client_name" name="client_name" readonly  placeholder=" " required>
                   <label for="client_name" class="form-label"> Client Name</label>
                 </div>                
-                <div class="col-md-6 form-group">
-                  <select name="material_code" class="form-control" id="material_code" required>                                                            
+                <div class="col-md-6 form-group">                  
+                  <select name="material_name" class="form-control" id="material_name" required>                                                            
                     <option value="">--select--</option>                               
                     {% for i in materials %}
-                    <option value="{{i.material_code}}" data-material-name="{{ i.material_name }}">{{i.material_code}}</option>
+                    <option value="{{i.material_name}}" data-material-code="{{ i.material_code }}">{{i.material_name}}</option>
                     {% endfor %}
                   </select>
-                  <label for="material_code" class="form-label">Material Code</label>
+                  <label for="material_code" class="form-label">Material Name</label>
                 </div>
-                <div class="col-md-6 form-group">
-                  <input type="text" class="form-control" id="material_name" name="material_name" readonly  placeholder=" " required>
-                  <label for="material_name" class="form-label"> Material Name</label>
+                <div class="col-md-6 form-group">                  
+                  <input type="text" class="form-control" id="material_code" name="material_code" readonly  placeholder=" " required>
+                  <label for="material_code" class="form-label"> Material Code</label>
                 </div>
                 <div class="col-md-6 form-group">
                   <input type="text" class="form-control" id="client_location" name="client_location" readonly placeholder=" " required>
                   <label for="client_location" class="form-label">Location</label>
                 </div>
-                <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="unit_of_material" name="unit_of_material"  placeholder=" " required>
-                    <label for="unit_of_material" class="form-label"> Unit of Material</label>
-                </div>
+                
                 <div class="col-md-6 form-group">
                     <input type="number" class="form-control" id="cost_per_unit" name="cost_per_unit" placeholder=" " required>
                     <label for="cost_per_unit" class="form-label">Cost per Unit</label>
@@ -137,6 +132,68 @@
       </div>
     </div>
 
+  {% for i in costings %}  
+    <div class="modal fade" id="edit_materialcostModal-{{i.id}}" tabindex="-1" aria-labelledby="materialcostModalLabel-{{i.id}}" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content container-custom">
+      
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title" id="materialcostModalLabel-{{i.id}}">Material Cost Form</h4>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+      
+          <!-- Modal Body -->
+          <div class="modal-body">
+            <form id="materialcostForm-{{i.id}}" method="post" action="{% url 'edit_material_cost' i.id %}">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <input type="text" class="form-control" id="client_id-{{i.id}}" name="edit_client_id" value="{{i.client_id}}" readonly  placeholder=" " required>
+                  <label for="client_id-{{i.id}}" class="form-label"> Client Name</label>
+                </div>  
+                <div class="col-md-6 form-group">
+                  <input type="text" class="form-control" id="client_name-{{i.id}}" name="edit_client_name" value="{{i.client_name}}" readonly  placeholder=" " required>
+                  <label for="client_name-{{i.id}}" class="form-label"> Client Name</label>
+                </div>      
+                <div class="col-md-6 form-group">                  
+                  <input type="text" class="form-control" id="material_name-{{i.id}}" name="edit_material_code" value="{{i.material_name}}" readonly  placeholder=" " required>
+                  <label for="material_name-{{i.id}}" class="form-label"> Material Code</label>
+                </div>
+                <div class="col-md-6 form-group">                  
+                  <input type="text" class="form-control" id="material_code-{{i.id}}" name="edit_material_code" value="{{i.material_code}}" readonly  placeholder=" " required>
+                  <label for="material_code-{{i.id}}" class="form-label"> Material Code</label>
+                </div>
+                <div class="col-md-6 form-group">
+                  <input type="text" class="form-control" id="client_location-{{i.id}}" name="edit_location" value="{{i.location}}" readonly placeholder=" " required>
+                  <label for="client_location-{{i.id}}" class="form-label">Location</label>
+                </div>
+                
+                <div class="col-md-6 form-group">
+                    <input type="number" class="form-control" id="cost_per_unit-{{i.id}}" name="edit_cost_per_unit" value="{{i.cost_per_unit}}" placeholder=" " required>
+                    <label for="cost_per_unit-{{i.id}}" class="form-label">Cost per Unit</label>
+                </div>
+                <div class="col-md-6 form-group">
+                  <input type="date" class="form-control" id="start_date-{{i.id}}" name="edit_start_date" value="{{i.start_date|date:'Y-m-d'}}" placeholder=" " required>
+                  <label for="start_date-{{i.id}}" class="form-label"> Start Date </label>
+                </div>
+                <div class="col-md-6 form-group">
+                  <input type="date" class="form-control" id="end_date-{{i.id}}" name="edit_end_date" value="{{i.end_date|date:'Y-m-d'}}" placeholder=" " required>
+                  <label for="end_date-{{i.id}}" class="form-label"> End Date </label>
+                </div>
+                
+              </div>
+              <div class="form-buttons">
+                <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                <button class="btn btn-success">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
 
     
 {% if success_msg %}
@@ -160,8 +217,10 @@
 </script>
 {% endif %}
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>    
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>    
 
 {% block scripts %}
     {{ block.super }}

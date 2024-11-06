@@ -15,15 +15,16 @@
         <div id="dataTables_filter_container" class="me-2">
             <!-- This will be populated by jQuery -->
         </div>
-        <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#manil_ticketModal">
+        <!-- <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#manil_ticketModal">
             Add Tickets
-        </button>
+        </button> -->
     </div>
     <div class="table-responsive">
         <table class="table" id="form-data-table">
             <thead>
                 <tr>
                     <th scope="col">SL No</th>
+                    <th scope="col">Client ID</th>
                     <th scope="col">Ticket Details</th>
                     <th scope="col">Created Details</th>
                     <th scope="col">Maintenance Date</th>
@@ -33,274 +34,57 @@
                 </tr>
             </thead>
             <tbody>
+                {% for i in tickets %}
                 <tr>
-                    <td>001</td>
-                    <td>CI00102154 <br> 18/09/2024 </td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ i.client_id }}</td>
+                    <td>{{ i.ticket_num }} <br> {{ i.ticket_date|date:"d/m/Y" }}</td>
+                    <td>{{ i.created_by }} <br> {{ i.creation_date|date:"d/m/Y" }}</td>
+                    <td>{{ i.Maintenance_Date|date:"d/m/Y" }}</td>
+                    <td>{{ i.status }}</td>
+                    <td>{% if i.resolved_by %} {{ i.resolved_by }} <br> {{ i.resolved_dt|date:"d/m/Y" }} {% else %} N/A {% endif %} </td>
                     <td>
                         <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item btn-read" href="{% url 'ticket_view' i.ticket_num %}"><i class="fas fa-eye"></i> View</a></li>
                                 <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
                                 <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
                             </ul>
                         </div>
                     </td>
                 </tr>
-                <tr>
-                    <td>002</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>003</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>004</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>005</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>006</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>007</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>008</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>009</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>010</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>011</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>012</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>013</td>
-                    <td>CI00102154 <br> 18/09/2024</td>
-                    <td>Manikanta <br>15/09/2024</td>
-                    <td>19/09/2024</td>
-                    <td>open</td>
-                    <td>manhotra <br> 17/09/2024 </td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="actionMenu2">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
   
     <!-- The Modal -->
-    <div class="modal fade" id="manil_ticketModal" tabindex="-1" aria-labelledby="manil_ticketModalLabel" aria-hidden="true">
+    <!-- <div class="modal fade" id="manil_ticketModal" tabindex="-1" aria-labelledby="manil_ticketModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content container-custom">
-                <!-- Modal Header -->
+            <div class="modal-content container-custom">                
                 <div class="modal-header">
                     <h4 class="modal-title" id="manil_ticketModalLabel">Manil Ticket Form</h4>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                
-                <!-- Modal Body -->
+                </div>                            
                 <div class="modal-body">
-                    <form id="TicketForm">
+                    <form id="TicketForm" method="post">
+                        {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6 form-group">
-                                <input type="number" class="form-control" id="repair_ticket_number" name="repair_ticket_number" placeholder=" " required>
-                                <label for="repair_ticket_number" class="form-label">Repair Ticket Number</label>
+                                <select class="form-control" id="client_id" name="client_id" required>
+                                    {% if client_id %}
+                                    <option value="{{client_id}}">{{client_id}}</option>
+                                    {% else %}
+                                    <option value="">--Select Client--</option>
+                                    {% endif %}
+                                    {% for i in client_m %}
+                                        <option value="{{ i.client_id }}" data-client-name="{{ i.client_name }}"  data-location="{{ i.client_location }}">{{ i.client_id }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="client_id" class="form-label">Client ID</label>
                             </div>
                             <div class="col-md-6 form-group">
                                 <select class="form-control" name="status" id="status">
@@ -310,41 +94,21 @@
                                 </select>
                                 <label for="Status" class="form-label">Status</label>
                             </div>
-                            <div class="col-md-6 form-group">
-                                <input type="text" class="form-control" id="particulars_of_complaint" name="particulars_of_complaint" placeholder=" " required>
-                                <label for="particulars_of_complaint" class="form-label">Complaint Title</label>
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="complaint_title" name="complaint_title" placeholder=" " required>
+                                <label for="complaint_title" class="form-label">Complaint Title</label>
                             </div>
-                            <div class="col-md-6 form-group">
-                                <input type="date" class="form-control" id="ticket_date" name="ticket_date" placeholder=" " required>
-                                <label for="ticket_date" class="form-label">Ticket Date</label>
+                            <div class="col-md-12 form-group">
+                                <textarea type="text" class="form-control" id="cmp_description" name="cmp_description" placeholder=" " required></textarea>
+                                <label for="cmp_description" class="form-label">Complaint Description</label>
                             </div>
-                            <div class="col-md-6 form-group">
-                                <textarea type="text" class="form-control" id="complaint_description" name="complaint_description" placeholder=" " required></textarea>
-                                <label for="complaint_description" class="form-label">Complaint Description</label>
+                            <div class="col-md-12 form-group">
+                                <textarea type="text" class="form-control" id="res_description" name="res_description" placeholder=" " required></textarea>
+                                <label for="res_description" class="form-label">Resolved Description</label>
                             </div>
-                            <div class="col-md-6 form-group">
-                                <textarea type="text" class="form-control" id="resolved_description" name="resolved_description" placeholder=" " required></textarea>
-                                <label for="resolved_description" class="form-label">Resolved Description</label>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <input type="datetime-local" class="form-control" id="creation_date" name="creation_date" placeholder=" " required>
-                                <label for="creation_date" class="form-label"> Creation-Date and Time </label>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <input type="text" class="form-control" id="created_by" name="created_by" placeholder=" " required>
-                                <label for="created_by" class="form-label">Created By</label>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <input type="datetime-local" class="form-control" id="resolved_date" name="resolved_date" placeholder=" " required>
-                                <label for="resolved_date" class="form-label"> Resolved-Date and Time </label>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <input type="text" class="form-control" id="resolved_by" name="resolved_by" placeholder=" " required>
-                                <label for="resolved_by" class="form-label">Resolved By</label>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <input type="date" class="form-control" id="date_of_maintenance" name="date_of_maintenance"  placeholder=" " required>
-                                <label for="date_of_maintenance" class="form-label">Date of Maintenance</label>
+                            <div class="col-md-12 form-group">
+                                <input type="date" class="form-control" id="Maintenance_Date" name="Maintenance_Date"  placeholder=" " required>
+                                <label for="Maintenance_Date" class="form-label">Date of Maintenance</label>
                             </div>
                         </div>
                         <div class="form-buttons">
@@ -355,8 +119,29 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
+
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'manil_ticket' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('manil_ticketModal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

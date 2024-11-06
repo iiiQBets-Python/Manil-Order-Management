@@ -9,6 +9,6 @@ $(document).ready(function () {
   
   // Use jQuery to listen for the modal 'hidden' event
   $('#cust_userModel').on('hidden.bs.modal', function () {  
-    $('#ClientForm')[0].reset();
+    $('#Client_userForm')[0].reset();
   });
   

@@ -49,7 +49,7 @@
                   <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="actionMenu">
-                  <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                  <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_cust_userModel-{{i.id}}"><i class="fas fa-edit"></i> Edit</a></li>
                   <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
                 </ul>
               </div>
@@ -74,7 +74,7 @@
   
       <!-- Modal Body -->
       <div class="modal-body">
-        <form id="Client_userForm" method="post">
+        <form id="Client_userForm" method="post" action="{% url 'cust_user_master' %}" >
           {% csrf_token %}
           <div class="row">
             <div class="col-md-6 form-group">
@@ -138,6 +138,72 @@
   </div>
 </div>
 
+{% for i in com_user %}
+<div class="modal fade" id="edit_cust_userModel-{{i.id}}" tabindex="-1" aria-labelledby="edit_cust_userModelLabel-{{i.id}}" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content container-custom">
+  
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" id="edit_cust_userModel-{{i.id}}"> Edit Client User Form</h4>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+  
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form id="EdituserForm-{{i.id}}" method="post" action="{% url 'edit_cust_user' i.id %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="first_name-{{i.id}}" name="edit_first_name" value="{{i.first_name}}"  maxlength="15" placeholder=" " required>
+              <label for="first_name-{{i.id}}" class="form-label">First Name</label>
+            </div>
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="last_name-{{i.id}}" name="edit_last_name" value="{{i.last_name}}"  maxlength="15" placeholder=" " required>
+              <label for="last_name-{{i.id}}" class="form-label">Last Name</label>
+            </div>
+            <div class="col-md-6 form-group">
+                <input type="number" class="form-control" id="phone_number-{{i.id}}" name="edit_phone_number"  value="{{i.phone_number}}"  placeholder=" " required>
+                <label for="phone_number-{{i.id}}" class="form-label">Phone No</label>
+            </div>
+            <div class="col-md-6 form-group">
+                <input type="email" class="form-control" id="email_id-{{i.id}}" name="edit_email_id"  value="{{i.email_id}}"  placeholder=" " required>
+                <label for="email_id-{{i.id}}" class="form-label">Email ID</label>
+            </div>
+            <div class="col-md-6 form-group">
+                <select  class="form-control" id="role-{{i.id}}" name="edit_role" required>
+                    <option value="{{i.role}}">{{i.role}}</option>         
+
+                    <option value="Manager">Manager</option>                    
+                    <option value="Operator">Operator</option>                    
+                </select>
+                <label for="role-{{i.id}}" class="form-label">User Role</label>
+            </div>        
+            <div class="col-md-6 form-group">
+              <input type="text" class="form-control" id="client_id-{{i.id}}" name="edit_client_id"  value="{{i.client_id}}"  placeholder=" " readonly required>
+              <label for="client_id-{{i.id}}" class="form-label">Client Name</label>
+            </div>    
+                       
+            <div class="col-md-6 form-group">
+                <input type="password" class="form-control" id="password-{{i.id}}" name="edit_password" min="1" max="365" placeholder=" " required>
+                <label for="password-{{i.id}}" class="form-label">Password</label>
+            </div>
+            <div class="col-md-6 form-group">
+                <input type="password" class="form-control" id="confirm_password-{{i.id}}" name="edit_confirm_password" min="1" max="365" placeholder=" " required>
+                <label for="confirm_password-{{i.id}}" class="form-label">Confirm Password</label>
+            </div>
+          </div>
+          <div class="form-buttons">
+            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+            <button type="submit" class="btn btn-success">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
 {% if success_msg %}
 <script>     
     window.onload = function () {
@@ -158,6 +224,8 @@
     };
 </script>
 {% endif %}
+
+
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

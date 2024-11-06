@@ -278,19 +278,18 @@
         <div class="form-container sign-in-container">
             
             <form action="" method="post">
+                {% csrf_token %}
 
                 {% if error_msg %}
                 <p style="color: red;">{{error_msg}}</p>
                 {% endif %}
-                
-                {% csrf_token %}
 
                 <h1>Log In</h1>
 
                 <div class="form-group mb-4">
                     <div class="input-container">
                         <input type="text" class="form-control" id="clientid" name="clientid" placeholder=" ">
-                        <label for="clientid" class="form-label">Client ID</label>
+                        <label for="clientid" class="form-label">User ID</label>
                     </div>
                 </div>
 
@@ -310,7 +309,7 @@
         </div>
         <div class="overlay-container">
             <div class="overlay">
-                <img src="{% static 'images/coffe.jpeg' %}" alt="coffee_img" class="img-fluid">
+                <img src="/media/general/coffe.jpeg" alt="coffee_img" class="img-fluid">
             </div>
         </div>
 
@@ -328,6 +327,15 @@
             window.onload = function () {
                 alert("{{  cust_msg|safe }}");                
                 window.location.href = "{% url 'Client_dashboard' %}";
+            };
+        </script>
+        {% endif %}
+
+        {% if chai_msg %}
+        <script>     
+            window.onload = function () {
+                alert("{{  chai_msg|safe }}");                
+                window.location.href = "{% url 'cp_dashboard' %}";
             };
         </script>
         {% endif %}

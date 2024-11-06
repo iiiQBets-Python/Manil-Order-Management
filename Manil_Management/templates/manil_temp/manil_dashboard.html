@@ -9,72 +9,92 @@
 
 {% block content %}
 <div class="dashboard-container">
-    
+
+    <div class="row g-4 mb-4">
+        <!-- Orders Cards -->
+        <div class="col-md-3">
+            <div class="card h-100 p-2">
+                <div class="card-body">
+                    <h5 class="card-title mt-3">Total Orders</h5>
+                    <span class="order-count text-center">{{ total_orders }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 p-2">
+                <div class="card-body">
+                    <h5 class="card-title mt-3">Processed Orders</h5>
+                    <span class="order-count text-center">{{ processed_orders }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 p-2">
+                <div class="card-body">
+                    <h5 class="card-title mt-3">Pending Orders</h5>
+                    <span class="order-count text-center">{{ pending_orders }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 p-2">
+                <div class="card-body">
+                    <h5 class="card-title mt-3">Deliverd Orders</h5>
+                    <span class="order-count text-center">{{ delivered_orders }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tickets Cards -->
+        <div class="col-md-4">
+            <div class="card h-100 p-2">
+                <div class="card-body ">
+                    <h5 class="card-title mt-3">Total Tickets</h5>
+                    <span class="ticket-count text-center">{{ total_tickets }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-2">
+                <div class="card-body ">
+                    <h5 class="card-title mt-3">Solved Tickets</h5>
+                    <span class="ticket-count text-center">{{ solved_tickets }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 p-2">
+                <div class="card-body ">
+                    <h5 class="card-title mt-3">Pending Tickets</h5>
+                    <span class="ticket-count text-center">{{ pending_tickets }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="row g-4 mb-4">
-        <!-- Today's Orders Card -->
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-shopping-cart fa-2x text-primary me-2"></i>
-                        <h5 class="card-title">Today's Orders</h5>
+                        <h5 class="card-title">Total Orders</h5>
                     </div>
                     <div class="text-center">
-                        <span class="order-count">7</span> <!-- Updated count -->
+                        <span class="order-count">{{c_orders.count}}</span> <!-- Updated count -->
                     </div>
                 </div>
                 <div class="card-body overflow-auto order-ticket-list"> <!-- Added scroll to the list -->
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Order ID:</strong> MA002<br>
-                                <small>John Doe - 3 cups</small>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">New</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Order ID:</strong> MA003<br>
-                                <small>Jane Smith - 5 cups</small>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">New</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Order ID:</strong> MA004<br>
-                                <small>Mark Taylor - 2 cups</small>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">New</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Order ID:</strong> MA005<br>
-                                <small>Olivia White - 4 cups</small>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">New</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Order ID:</strong> MA006<br>
-                                <small>Michael Brown - 1 cup</small>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">New</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Order ID:</strong> MA007<br>
-                                <small>Linda Green - 6 cups</small>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">New</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Order ID:</strong> MA008<br>
-                                <small>Emma Watson - 2 cups</small>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">New</span>
-                        </li>
+                        {% for i in c_orders %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Order ID:</strong> {{i.order_number}} <br>
+                                    <small>{{i.client_id}} - 3 cups</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">New</span>
+                            </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -89,60 +109,20 @@
                         <h5 class="card-title mb-0">Tickets</h5>
                     </div>
                     <div class="text-center">
-                        <span class="ticket-count">7</span> <!-- Updated count -->
+                        <span class="ticket-count">{{m_tickets.count}}</span> <!-- Updated count -->
                     </div>
                 </div>
                 <div class="card-body overflow-auto order-ticket-list"> <!-- Added scroll to the list -->
                     <ul class="list-group list-group-flush">
+                        {% for i in m_tickets %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>Ticket ID:</strong> TK002<br>
-                                <small>Alice Johnson - Order Delay</small>
+                                <strong>Ticket ID:</strong> {{i.ticket_num}} <br>
+                                <small>{{i.client_id}} - {{i.complaint_title}}</small>
                             </div>
                             <span class="badge bg-warning text-dark rounded-pill">Pending</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Ticket ID:</strong> TK003<br>
-                                <small>Bob Williams - Product Query</small>
-                            </div>
-                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Ticket ID:</strong> TK004<br>
-                                <small>Jessica Stone - Payment Issue</small>
-                            </div>
-                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Ticket ID:</strong> TK005<br>
-                                <small>Henry Cooper - Shipping Delay</small>
-                            </div>
-                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Ticket ID:</strong> TK006<br>
-                                <small>Patricia Davis - Wrong Item</small>
-                            </div>
-                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Ticket ID:</strong> TK007<br>
-                                <small>Kevin Martin - Delivery Issue</small>
-                            </div>
-                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Ticket ID:</strong> TK008<br>
-                                <small>Emily Clark - Refund Request</small>
-                            </div>
-                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>

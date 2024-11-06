@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Data Table</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/ticket_view.css' %}">
+</head>
+<body>
+
+<div class="container mt-5">
+    <!-- Page Header -->
+    <h2 class="text-center mb-5">Order Remark</h2>
+
+    <!-- Section 1: Order Details -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Order Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Order Number: </strong></span>{{ dispatch.process_num }}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Client ID: </strong></span>{{ dispatch.client_id }}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Client Name: </strong></span>{{ dispatch.client_name }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Remarked By: </strong></span>{{ dispatch.remarked_by }}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Remarked Date: </strong></span>{{ dispatch.remarked_date|date:'Y-m-d' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Complaint Details -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Complaint Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Complaint Title: </strong></span>{{ dispatch.remarks_title }}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Complaint Description: </strong></span>{{ dispatch.remarks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Images -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Images</h4>
+        </div>
+        <div class="card-body">
+            {% if dispatch.image %}
+                <img src="{{ dispatch.image.url }}" alt="Remark Image" class="img-fluid">
+            {% else %}
+                <p class="text-muted">No image available</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

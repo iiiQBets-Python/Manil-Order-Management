@@ -6,416 +6,6 @@
     {{ block.super }}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="{% static 'manil/css/client_order.css' %}">
-    <style>
-      .dataTables_filter {
-    margin-right: 180px;
-}
-.btn-add {
-    background-color: #4e5d4e;
-    font-weight: bold;
-    color: #fff;
-    position: absolute; /* Keep this */
-    margin-top: 35px; 
-    right: 0; /* Change this to position relative to its parent */
-    z-index: 10; /* Ensure it's above other elements */
-}
-.btn-add:hover{
-    background-color: #6b8f71;
-}
-.btn-close-white {
-    filter: invert(100%);
-}
-
-/* General table container styles */
-.table-container {
-    background-color: #f1f1f1;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-/* Make the table horizontally scrollable */
-.table-responsive {
-    overflow-x: auto;
-    overflow-y: hidden; /* Prevent vertical scrolling of the entire container */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
-}
-.table-wrapper {
-    max-height: 500px; /* Set a maximum height for the table data area */
-    overflow-y: auto; /* Enable vertical scrolling within the table wrapper */
-    overflow-x: hidden; /* Prevent horizontal scroll within the wrapper */
-    -webkit-overflow-scrolling: touch; /* Smooth vertical scrolling on mobile */
-}
-.table {
-    overflow-x: auto;
-    width: auto;    
-    border-collapse: collapse; /* Ensure borders are aligned */
-}
-.table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background-color: #6d4c41;
-    color: #ffffff;
-    border-bottom: 2px solid #dee2e6;
-}
-
-
-
-.table th, .table td {
-    text-align: center;
-    vertical-align: middle;
-    padding: 2px 5px;
-    line-height: 20px; /* Adjust line height to fit within the row height */
-}
-.table tbody tr:hover td {    
-    background-color: #ede2dd;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-}
-
-/* Action button styles */
-.btn-edit {
-    color: #5a5a5a;
-}
-
-.btn-edit:hover {
-    color: #3cc540;
-}
-
-.btn-delete {
-    color: #5a5a5a;
-}
-
-.btn-delete:hover {
-    color: #f44336;
-}
-/* Fade-in animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-/* Dropdown styles */
-.dropdown-toggle::after {
-    display: none;
-}
-
-.dropdown-toggle {
-    color: #454545;
-    border: none;
-    background-color: transparent;
-}
-
-.dropdown-menu {
-    min-width: 100px;
-}
-/* Custom container styles */
-.container-custom {
-    width: 1200px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
-}
-/* Modal styles */
-.modal-header {
-    padding: 0.5rem 1rem;
-    background-color: #6d4c41;
-    color: #ffff;
-}
-
-.modal-body {
-    padding-top: 25px;
-    border: 1px solid #dbdbdb;
-    border-radius: 0 0 5px 5px;
-}
-
-.modal-title {
-    font-weight: bold;
-}
-#modal_container{
-    margin-left: -180px;
-}
-
-/* Floating label form group */
-.form-group {
-    position: relative;
-    margin-bottom: 1.5rem;
-}
-
-.form-label {
-    position: absolute;
-    top: 50%;
-    left: 25px;
-    transform: translateY(-50%);
-    background: #fff;
-    padding: 0 5px;
-    color: #aaa;
-    transition: 0.2s ease all;
-    pointer-events: none;
-}
-
-.form-control {
-    border: none;
-    border-radius: 0px;
-    border-bottom: 2px solid #aaa;
-    padding: 10px;
-    box-shadow: none;
-    outline: none;
-}
-
-.form-control:focus {
-    border-bottom: 2px solid #ffcb90;
-    background-color: #fffbf5;
-    box-shadow: none;
-    /* box-shadow: 0px 5px 5px 5px rgba(156, 156, 156, 0.1); */
-}
-
-.form-control:focus ~ .form-label,
-.form-control:not(:placeholder-shown) ~ .form-label {
-    top: 0;
-    transform: translateY(-60%);
-    left: 5%;
-    font-size: 14px;
-    color: #e59539;
-    font-weight: bold;
-}
-.text-label{
-    position: absolute;
-    top: 80%;
-    left: 25px;
-    transform: translateY(-50%);
-    background: #fff;
-    padding: 0 5px;
-    color: #aaa;
-    transition: 0.3s ease all;
-    pointer-events: none;
-}
-.form-control:focus ~ .text-label,
-.form-control:not(:placeholder-shown) ~ .text-label {
-    top: 0;
-    transform: translateY(-60%);
-    left: 5%;
-    font-size: 14px;
-    color: #e59539;
-    font-weight: bold;
-}
-
-.form-control::placeholder {
-    opacity: 0;
-}
-
-/* Button group styling */
-.form-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.btn-success {
-    color: #02c902;
-    background-color: #fdfdfd;
-    border: 1px solid #02c902;
-    transition: background-color 0.3s ease-in-out;
-}
-
-.btn-success:hover {
-    color: white;
-    background-color: #02c902;
-}
-
-.btn-danger {
-    color: red;
-    background-color: #fdfdfd;
-    border: 1px solid red;
-    transition: background-color 0.3s ease-in-out;
-}
-
-.btn-danger:hover {
-    color: white;
-    background-color: red;
-}
-/* DataTables customization */
-.dataTables_length,
-.dataTables_filter {
-    font-size: 14px !important;
-    color: #333 !important;
-    display: flex !important;
-    align-items: center !important;
-    margin-bottom: 10px;
-}
-
-.dataTables_length select ,
-.dataTables_filter input{
-    padding: 5px !important;
-    border-radius: 5px !important;
-    border: 1px solid #ccc !important;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
-}
-
-.dataTables_length select:focus,
-.dataTables_filter input:focus {
-    outline: none !important;
-    border-color: #007bff !important;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5) !important;
-}
-
-.dataTables_paginate .paginate_button {
-    padding: 3px 6px !important;
-    margin: 5px 5px !important;
-    border: 1px solid #ccc !important;
-    border-radius: 10px !important;
-    background-color: #f5f5f5 !important;
-    color: #333 !important;
-    transition: background-color 0.3s ease, color 0.3s ease !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #6d4c41 !important;
-    color: white !important;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background-color: #6d4c41 !important;
-    color: white !important;
-}
-
-.dataTables_paginate .paginate_button.disabled {
-    color: #999 !important;
-    background-color: #f5f5f5 !important;
-    border-color: #ddd !important;
-}
-
-::-webkit-scrollbar {
-    display: none;/* or use 'display: none;' to completely hide */
-    background: transparent; /* Optional: Make scrollbar background transparent */
-}
-
-
-/* Media query for tablet and mobile screens */
-@media (max-width: 1028px) {
-    .table-responsive {
-        overflow-x: auto; /* Enables horizontal scrolling */
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
-    }
-
-    .table-wrapper {
-        max-height: 300px; /* Adjust height for smaller screens */
-        overflow-y: auto;
-    }
-
-    .table {
-        display: block;
-        white-space: nowrap; /* Prevent table content from wrapping */
-        width: 100%; /* Ensure the table occupies full width */
-    }
-
-    .table th, .table td {
-        text-align: left; /* Adjust text alignment for better readability on small screens */
-        min-width: 150px; /* Ensure columns have enough width for readability */
-    }
-    .container-custom {
-        width:auto;
-        padding: 8px;
-        
-    }
-    #modal_container{
-        margin-left: 10px;
-    }
-}
-
-/* Media query for mobile screens */
-@media (max-width: 778px) {
-    .table th, .table td {
-        padding: 10px; /* Increase padding for touch-friendly spacing */
-    }
-    .form-control {
-        padding: 8px;
-    }
-
-    .modal-dialog {
-        max-width: 90%;
-    }
-
-    .modal-body {
-        padding: 1rem;
-    }
-
-    .btn-modal {
-        padding: 4px 8px;
-    }
-    .table th:nth-child(1), .table td:nth-child(1),
-    .table th:nth-child(8), .table td:nth-child(8) {
-        width: 10px; /* Adjust this value as needed */
-        max-width: 10px; /* Ensure it doesn't grow beyond this */
-        text-align: center;
-    }
-    .container-custom {
-        width:auto;
-        padding: 8px;
-        
-    }
-
-    #modal_container{
-        margin-left: 10px;
-    }
-}
-
-/* Reduce width of the 'Action' column */
-.table th:nth-child(1), .table td:nth-child(1),
-.table th:nth-child(8), .table td:nth-child(8) {
-    width: 50px; /* Adjust this value as needed */
-    max-width: 50px; /* Ensure it doesn't grow beyond this */
-    text-align: center;
-}
-/* Force hide sorting symbols for the "Action" column */
-th:nth-child(8) {
-    pointer-events: none; /* Disable pointer events so no interaction is possible */
-}
-
-/* Hide the sorting icons for the Action column */
-th:nth-child(8) .sorting::before, 
-th:nth-child(8) .sorting::after, 
-th:nth-child(8) .sorting_asc::before, 
-th:nth-child(8) .sorting_asc::after, 
-th:nth-child(8) .sorting_desc::before, 
-th:nth-child(8) .sorting_desc::after {
-    display: none !important; /* Completely hide the sorting icons */
-}
-
-.text-label{
-    position: absolute;
-    top: 60%;
-    left: 25px;
-    transform: translateY(-50%);
-    background: #fff;
-    padding: 0 5px;
-    color: #aaa;
-    transition: 0.3s ease all;
-    pointer-events: none;
-}
-.form-control:focus ~ .text-label,
-.form-control:not(:placeholder-shown) ~ .text-label {
-    top: 0;
-    transform: translateY(-60%);
-    left: 2%;
-    font-size: 14px;
-    color: #e59539;
-    font-weight: bold;
-}
-
-    </style>
-
 {% endblock styles %}
 
 
@@ -434,80 +24,41 @@ th:nth-child(8) .sorting_desc::after {
           <thead>
             <tr>
               <th scope="col">SL No</th>
-              <th scope="col">Order Details</th>
-              <th scope="col">Material Name</th>
-              <th scope="col">Quantity(UOM)</th>
-              <th scope="col">Price</th>
-              <th scope="col">PO/Authority Details</th>
+              <th scope="col">Client ID</th>              
+              <th scope="col">Order Details</th>            
+              <th scope="col">Grant Total</th>  
+              <th scope="col">Order By</th>    
+              <th scope="col">Status</th>     
               <th scope="col">Action</th>
             </tr>
           </thead>
           <tbody>
+            {% for i in all_orders %}
             <tr>
-              <td>001</td>
-              <td>R001/ <br> 12/08/2024</td>
-              <td>material 1</td>
-              <td>100kg</td>
-              <td>RS.10000</td>
-              <td>Darshan / <br> 12/08/2024</td>
+              <td>{{ forloop.counter }}</td>
+              <td>{{i.client_id}}</td>    
+              <td>{{i.order_number}}  <br> {{i.order_date|date:'Y-m-d'}}</td>
+              <td>{{i.grand_total}}</td>     
+              <td>{{i.created_by}}</td> 
+              <td>{{i.status}}</td>           
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     <i class="fas fa-ellipsis-v"></i>
                   </button>
                   <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                    <li><a class="dropdown-item btn-read" href="#"><i class="fas fa-eye"></i> View</a></li>
-                    <li><a class="dropdown-item btn-invoice" href="#"><i class="fas fa-file-download"></i> Invoice</a></li>
-                    <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                    <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                    <li><a class="dropdown-item btn-read" href="{% url 'c_order_view' i.order_number %}"><i class="fas fa-eye"></i>View</a></li>
+                    {% if i.status == 'Delivered' %}
+                      <li><a class="dropdown-item btn-invoice " href="{% url 'invoice_preview' i.order_number %}"><i class="fas fa-file-download"></i> Invoice</a></li>
+                    {% endif %}
+                    <!-- <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i>Edit</a></li>
+                    <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i>Delete</a></li> -->
                   </ul>
                 </div>
               </td>
             </tr>
-            <tr>
-              <td>002</td>
-              <td>R002/ <br>12/08/2024</td>
-              <td>material 2</td>
-              <td>100 litre</td>
-              <td>RS.10000</td>
-              <td>Darshan / <br> 12/08/2024</td>
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-ellipsis-v"></i>
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                    <li><a class="dropdown-item btn-read" href="#"><i class="fas fa-eye"></i> View</a></li>
-                    <li><a class="dropdown-item btn-invoice" href="#"><i class="fas fa-file-download"></i> Invoice</a></li>
-                    <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                    <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>003</td>
-              <td>R003/ <br> 12/08/2024</td>
-              <td>material 3</td>
-              <td>100kg</td>
-              <td>RS.10000</td>
-              <td>Darshan / <br> 12/08/2024</td>
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-ellipsis-v"></i>
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                    <li><a class="dropdown-item btn-read" href="#"><i class="fas fa-eye"></i> View</a></li>
-                    <li><a class="dropdown-item btn-invoice" href="#"><i class="fas fa-file-download"></i> Invoice</a></li>
-                    <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                    <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-           
-            
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -526,40 +77,34 @@ th:nth-child(8) .sorting_desc::after {
       
           <!-- Modal Body -->
           <div class="modal-body">
-            <form id="OrderForm">
-              <div class="row">
+            <form id="OrderForm" method="post">
+              {% csrf_token %}
+              <div class="row"> 
+
+                <input type="number" name="no_of_sec" id="no_of_sec" value="1" hidden>
+
                 <div class="col-lg-3 col-sm-12 form-group">
-                  <input type="number" class="form-control" id="order_number" name="order_number" maxlength="15" placeholder=" " required>
-                  <label for="order_number" class="form-label">Order Number</label>
-                </div>
+                  <select class="form-control" id="client_id" name="client_id" required>
+                    <option value="" disabled selected>Select Client</option>
+                    {% for i in all_client %}
+                    <option value="{{ i.client_id }}" shipping_add="{{i.shipping_address}}" city="{{i.shipping_city}}" state="{{i.shipping_state}}" pincode="{{i.shipping_pin}}" >{{ i.client_id }}</option>
+                    {% endfor %}
+                  </select>
+                  <label for="client_id" class="form-label">Client ID</label>
+                </div>               
                 <div class="col-lg-3 col-sm-12 form-group">
-                  <input type="date" class="form-control" id="order_date" name="order_date" placeholder=" " required>
-                  <label for="order_date" class="form-label">Order Date</label>
-                </div>
-                <div class="col-lg-3 col-sm-12 form-group">
-                  <input type="text" class="form-control" id="po_authority" name="po_authority" placeholder=" " required>
+                  <select class="form-control" id="po_authority" name="po_authority" required disabled>
+                    <option value="" disabled selected>Select PO/Authority</option>
+                    {% for i in all_users %}                        
+                        <option value="{{ i.user_id }}" data-Clientid="{{ i.client_id }}">{{ i.user_id }}</option>
+                    {% endfor %}
+                  </select>
                   <label for="po_authority" class="form-label">PO/Authority</label>
                 </div>
                 <div class="col-lg-3 col-sm-12 form-group">
                   <input type="date" class="form-control" id="po_authority_date" name="po_authority_date" placeholder=" " required>
                   <label for="po_authority_date" class="form-label">PO/Authority Date</label>
-                </div>
-                <div class="col-lg-3 col-sm-12 form-group">
-                  <input type="text" class="form-control" id="created_by" name="created_by" placeholder=" " required>
-                  <label for="created_by" class="form-label">Created by</label>
-                </div>
-                <div class="col-lg-3 col-sm-12 form-group">
-                  <input type="datetime-local" class="form-control" id="creation_date" name="creation_date" placeholder=" " required>
-                  <label for="creation_date" class="form-label"> Creation-Date and Time </label>
-                </div>
-                <div class="col-lg-3 col-sm-12 form-group">
-                  <input type="text" class="form-control" id="authorised_by" name="authorised_by" placeholder=" " required>
-                  <label for="authorised_by" class="form-label">Authorised by</label>
-                </div>
-                <div class="col-lg-3 col-sm-12 form-group">
-                  <input type="datetime-local" class="form-control" id="authorisation-date" name="authorisation-date" placeholder=" " required>
-                  <label for="authorisation-date" class="form-label"> Authorisation-Date and Time </label>
-                </div>
+                </div>                                
                 <div class="col-lg-12 col-sm-12 form-group">
                   <textarea class="form-control" id="shipping_address" name="shipping_address"  placeholder=" " required></textarea>
                   <label for="shipping_address" class="text-label">Shipping Address</label>
@@ -580,7 +125,8 @@ th:nth-child(8) .sorting_desc::after {
                 <!-- Order Details Section with Heading and New Design -->
                 <div id="order-details-section" style="border: 2px solid #ffcb90; border-radius: 10px; padding: 10px; ">
                   <!-- Section Title -->
-                  <h4 class="order-details-heading " style="color: #ff9419; margin-left: 10px;"><strong>Order Details</strong></h4>
+                  <h4 class="order-details-heading " style="color: #ff9419; margin-left: 10px;"><strong>Order
+                      Details</strong></h4>
 
                   <!-- Scrollable Section -->
                   <div class="order-details-container" style="max-height: 300px; overflow-y: auto;">
@@ -589,60 +135,67 @@ th:nth-child(8) .sorting_desc::after {
                       <div class="row">
                         <!-- Material Name -->
                         <div class="col-lg-6 col-sm-12 mb-3">
-                          <div class="form-floating">
-                            <input type="text" class="form-control" id="material_name" placeholder="Material Name" required>
-                            <label for="material_name">Material Name</label>
+                          <div class="form-floating">                        
+                            <select class="form-control material-select" id="material_name_1" name="material_name_1" onchange="handle_material(1)" required>
+                              <option value="" disabled selected>Select material</option>
+                              {% for i in cost_det %}
+                              <option value="{{i.material_name}}" data-clientid="{{i.client_id}}" uom="{{i.unit_of_measurement}}" cost_unit="{{i.cost_per_unit}}" cgst="{{i.cgst_rate}}" sgst="{{i.sgst_rate}}" igst="{{i.igst_rate}}" >{{i.material_name}}</option>
+                              {% endfor %}
+                            </select>                                            
+                            <label for="material_name_1">Material Name</label> 
                           </div>
                         </div>
                         <!-- Unit of Measure -->
                         <div class="col-lg-3 col-sm-12 mb-3">
                           <div class="form-floating">
-                            <input type="text" class="form-control" id="uom" placeholder="Unit of Measure" required>
-                            <label for="uom">Unit of Measure (KG/Ltrs)</label>
+                            <input type="text" class="form-control" id="uom_1" name="uom_1" placeholder="" readonly required>
+                            <label for="uom_1">Unit of Measure</label>
                           </div>
                         </div>
                         <!-- Quantity -->
                         <div class="col-lg-3 col-sm-12 mb-3">
                           <div class="form-floating">
-                            <input type="number" step="1" class="form-control" id="qty" placeholder="Quantity" required>
-                            <label for="qty">Quantity</label>
+                            <input type="number" step="1" class="form-control" id="qty_1" name="qty_1" oninput="subtotal_cal(1)" placeholder="" required>
+                            <label for="qty_1">Quantity</label>
                           </div>
                         </div>
                       </div>
 
                       <div class="row">
                         <!-- Base Price -->
-                        <div class="col-lg-3 col-sm-12 mb-3">
+                        <div class="col-lg-2 col-sm-12 mb-3">
                           <div class="form-floating">
-                            <input type="number" step="0.01" class="form-control" id="base_price" placeholder="Base Price" required>
-                            <label for="base_price">Base Price</label>
+                            <input type="number" step="0.01" class="form-control" id="base_price_1" name="base_price_1" readonly placeholder="" required>
+                            <label for="base_price_1">Base Price</label>
                           </div>
                         </div>
                         <!-- GST Type -->
-                        <div class="col-lg-3 col-sm-12 mb-3">
-                          <div class="form-floating">
-                            <select class="form-control" id="gst_type" required>
-                              <option value="" disabled selected>Select GST Type</option>
-                              <option value="CGST">CGST</option>
-                              <option value="SGST">SGST</option>
-                              <option value="IGST">IGST</option>
-                            </select>
-                            <label for="gst_type">GST Type</label>
+                        <div class="col-lg-2 col-sm-12 mb-3">
+                          <div class="form-floating">                        
+                            <input type="text" class="form-control gst_type" id="gst_type_1" name="gst_type_1"  placeholder="" readonly required>
+                            <label for="gst_type_1">GST Type</label>
                           </div>
                         </div>
                         <!-- GST Rate -->
                         <div class="col-lg-2 col-sm-12 mb-3">
                           <div class="form-floating">
-                            <input type="number" step="0.01" class="form-control" id="gst_rate" placeholder="GST Rate (%)" required>
-                            <label for="gst_rate">GST Rate (%)</label>
+                            <input type="number" step="0.01" class="form-control" id="gst_rate_1" name="gst_rate_1" readonly placeholder="" required>
+                            <label for="gst_rate_1">GST Rate (%)</label>
+                          </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-12 mb-3">
+                          <div class="form-floating">
+                            <input type="number" step="0.01" class="form-control" id="gst_amt_1" name="gst_amt_1" readonly placeholder="" required>
+                            <label for="gst_amt_1">GST Amount (rs)</label>
                           </div>
                         </div>
 
                         <!-- Sub Total -->
                         <div class="col-lg-3 col-sm-12 mb-3">
                           <div class="form-floating">
-                            <input type="number" step="0.01" class="form-control" id="sub_total" placeholder="Sub Total" required>
-                            <label for="sub_total">Sub Total</label>
+                            <input type="number" step="0.01" class="form-control" id="sub_total_1" name="sub_total_1" readonly placeholder="" required>
+                            <label for="sub_total_1">Sub Total</label>
                           </div>
                         </div>
 
@@ -651,21 +204,18 @@ th:nth-child(8) .sorting_desc::after {
                           <button type="button" class="btn btn-sm btn-success add-more">
                             <i class="fas fa-plus"></i>
                           </button>
-                          <button type="button" class="btn btn-sm btn-danger remove-section">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>
+                        </div>                    
                       </div>
                     </div>
                   </div>
                 </div>
                 
                 <div class="col-md-6 form-group mt-4">
-                  <input type="text" class="form-control" id="amt_in_words" name="amt_in_words" placeholder=" " required>
+                  <input type="text" class="form-control" id="amt_in_words" name="amt_in_words" placeholder=" " readonly required>              
                   <label for="amt_in_words" class="form-label">Amount in Words</label>
                 </div>
                 <div class="col-md-6 form-group mt-4">
-                  <input type="number" class="form-control" id="grand_total" name="grand_total" placeholder=" " required>
+                  <input type="number" step="0.01" class="form-control" id="grand_total" name="grand_total" placeholder=" " readonly required>
                   <label for="grand_total" class="form-label">Grand Total</label>
                 </div>
                 <div class="form-buttons">
@@ -680,43 +230,32 @@ th:nth-child(8) .sorting_desc::after {
       </div>
     </div>
 
+
+
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'client_order_' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('orderModal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   
-  <script>
-  // Add event listener to dynamically add and remove sections
-  document.addEventListener('DOMContentLoaded', function () {
-    const orderDetailsContainer = document.querySelector('.order-details-container');
-
-    // Add new section
-    orderDetailsContainer.addEventListener('click', function (e) {
-      if (e.target.closest('.add-more')) {
-        const orderDetailRow = e.target.closest('.order-details-row'); // Target the row to clone
-        const clone = orderDetailRow.cloneNode(true); // Clone the entire row
-        resetFormFields(clone); // Optional: reset fields in cloned section
-        orderDetailsContainer.appendChild(clone); // Append the cloned row
-      }
-    });
-
-    // Remove section
-    orderDetailsContainer.addEventListener('click', function (e) {
-      if (e.target.closest('.remove-section')) {
-        const orderDetailRow = e.target.closest('.order-details-row'); // Target the row to remove
-        if (orderDetailsContainer.querySelectorAll('.order-details-row').length > 1) {
-          orderDetailRow.remove(); // Remove the row
-        } else {
-          alert('At least one order detail section is required.');
-        }
-      }
-    });
-
-    // Function to reset input fields in cloned section
-    function resetFormFields(clone) {
-      const inputs = clone.querySelectorAll('input, select');
-      inputs.forEach(input => input.value = ''); // Clear input and select values
-    }
-  });
-</script>
 
 {% block scripts %}
     {{ block.super }}

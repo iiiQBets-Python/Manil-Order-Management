@@ -40,7 +40,7 @@
                         <i class="fas fa-ellipsis-v"></i>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                        <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
+                      <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#editUserModal-{{i.id}}" ><i class="fas fa-edit"></i> Edit</a></li>
                         <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
                     </ul>
                     </div>
@@ -65,7 +65,7 @@
   
       <!-- Modal Body -->
       <div class="modal-body">
-        <form id="UserForm" method="post">
+        <form id="UserForm" method="post" action="{% url 'manil_user' %}">
           {% csrf_token %}
           <div class="row">            
             <div class="col-md-6 form-group">
@@ -119,6 +119,66 @@
   </div>
 </div>
 
+{% for i in m_user %}
+<div class="modal fade" id="editUserModal-{{i.id}}" tabindex="-1" aria-labelledby="editUserModalLabel-{{i.id}}" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content container-custom">
+          <!-- Modal Header -->
+          <div class="modal-header">
+              <h4 class="modal-title" id="editUserModalLabel-{{i.id}}">Edit Manil User Form</h4>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="modal-body">
+              <form id="editUserForm-{{i.id}}" method="post" action="{% url 'edit_manil_user' i.id %}" >
+                  {% csrf_token %}
+                  <div class="row">
+                      <div class="col-md-6 form-group">
+                          <input type="text" class="form-control" id="first_name-{{i.id}}" name="edit_first_name" value="{{i.first_name}}" required>
+                          <label for="first_name-{{i.id}}" class="form-label">First Name</label>
+                      </div>
+
+                      <div class="col-md-6 form-group">
+                          <input type="text" class="form-control" id="last_name-{{i.id}}" name="edit_last_name" value="{{i.last_name}}" required>
+                          <label for="last_name-{{i.id}}" class="form-label">Last Name</label>
+                      </div>
+
+                      <div class="col-md-6 form-group">
+                          <input type="text" class="form-control" id="user_id-{{i.id}}" name="edit_user_id" value="{{i.user_id}}" readonly>
+                          <label for="user_id-{{i.id}}" class="form-label">User ID</label>
+                      </div>
+
+                      <div class="col-md-6 form-group">
+                          <select  class="form-control" id="role-{{i.id}}" name="edit_role" required>
+                              <option value="{{i.role}}">{{i.role}}</option>
+                              <option value="Manager">Manager</option>
+                              <option value="Admin">Admin</option>
+                              <option value="Operator">Operator</option>
+                          </select>
+                          <label for="role-{{i.id}}" class="form-label">User Role</label>
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <input type="password" class="form-control" id="password-{{i.id}}" name="edit_password" placeholder=" " required>
+                        <label for="password-{{i.id}}" class="form-label">Password</label>
+                      </div>
+                    
+                      <div class="col-md-6 form-group">
+                          <input type="password" class="form-control" id="confirm_password-{{i.id}}" name="edit_confirm_password" placeholder=" " required>
+                          <label for="confirm_password-{{i.id}}" class="form-label">Confirm Password</label>
+                      </div>
+                  </div>
+                  <div class="form-buttons">
+                      <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                      <button class="btn btn-success">Save</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+{% endfor %}
+
 {% if success_msg %}
 <script>     
     window.onload = function () {
@@ -139,6 +199,19 @@
     };
 </script>
 {% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('editUserModal-{{i.id}}'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>

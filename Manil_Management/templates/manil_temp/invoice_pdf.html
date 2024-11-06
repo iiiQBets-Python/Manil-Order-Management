@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+        }
+        .invoice-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 10px;
+            margin: auto;
+        }
+        
+        .invoice-header, .invoice-section, .line-items {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .invoice-section td {
+            padding: 3px 2px; 
+        }
+        .company-details {
+            text-align: left;
+            padding-top: 30px;
+            padding-bottom:10px;
+            padding-left: 1px;
+            padding-right: 0;
+        }
+        .invoice-title {
+            text-align: right;
+            padding: 2px  0px;
+        }
+        .invoice-info{
+            text-align: right;
+        }
+
+        .section-title {
+            background-color:  #f8f9fa;
+            font-weight: bold;
+            font-size: 14px;
+            padding-left: 5px;
+            padding-top: 10px;
+            padding-bottom: 2px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border:1px solid #ddd;
+        }
+        .line-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .line-items td {
+            padding-left: 5px;
+            padding-top: 8px;
+            padding-bottom: 2px;
+            border: 1px solid #ddd;
+            vertical-align: middle; /* Vertical alignment */
+        }
+        .line-items th {
+            padding-left: 5px;
+            padding-top: 8px;
+            padding-bottom: 2px; 
+            background-color:  #f8f9fa;
+            border: 1px solid #ddd;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .invoice-section tr {
+            margin: 0;
+            line-height: 1.8;
+        }
+        .summary-section {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .invoice-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+    <div style="border-bottom:2px solid #ddd;">
+        <table class="invoice-header">
+            <tr>
+                <td class="company-details">
+                    <span style="font-size: 16px;"><strong>Manil Technology Pvt Ltd</strong></span>
+                </td>
+                <td class="invoice-title">
+                    <span style="font-size: 24px;">Invoice</span> <br>
+                    <span style="font-size: 12px;"><strong>Number :</strong> {{ invoice.invoice_num }}</span> <br>
+                    <span style="font-size: 12px;"><strong>Date :</strong> {{ invoice.invoice_date|date:'Y-m-d' }}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+
+    <div class="section-title">Order Details</div>
+    <table class="invoice-section">
+        <tr>
+            <td><strong>Order Number:</strong> {{ order.order_number }}</td>
+            <td><strong>Client Number:</strong> {{ client_det.client_id }}</td>
+        </tr>
+        <tr>
+            <td><strong>Order Date:</strong> {{ order.creation_date|date:'Y-m-d' }}</td>
+            <td><strong>Client Name:</strong> {{ client_det.client_name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Order By:</strong> {{ order.created_by }}</td>
+        </tr>
+        
+    </table>
+
+    <div class="section-title">Shipping Details</div>
+    <table class="invoice-section">
+        <tr>
+            <td colspan="2"><strong>Shipping Address:</strong> {{ order.shipping_address }}</td>
+        </tr>
+        <tr>
+            <td><strong>City:</strong> {{ order.shipping_city }}</td>
+            <td><strong>State:</strong> {{ order.shipping_state }}</td>
+        </tr>
+        <tr>
+            <td><strong>Pin Code:</strong> {{ order.shipping_pin }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">Ordered Items</div>
+    <table class="line-items">
+        <thead>
+            <tr>
+                <th>Material Name</th>
+                <th>Quantity</th>
+                <th>Base Price(Rs)</th>
+                <th>GST Type</th>
+                <th>GST Rate (%)</th>
+                <th>Sub Total(Rs)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in ord_det %}
+            <tr>
+                <td>{{ i.material_name }}</td>
+                <td>{{ i.qty }} {{ i.uom }}</td>
+                <td>{{ i.base_price }}</td>
+                <td>{{ i.gst_type }}</td>
+                <td>{{ i.gst_rate }}</td>
+                <td>{{ i.sub_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="summary-section">
+        <p><strong>Amount in Words:</strong> {{ order.ammount_words }} <br>
+          <strong> Grand Total: Rs.{{ order.grand_total }}</strong></p>
+    </div>
+
+    <div class="invoice-footer" style="border-top:2px solid #ddd;">
+        <p>Thank you for your business! <br>
+           <em>Terms and conditions apply. Contact us for inquiries.</em></p>
+    </div>
+</div>
+</body>
+</html>

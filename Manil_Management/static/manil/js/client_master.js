@@ -13,6 +13,7 @@ $('#clientModal').on('hidden.bs.modal', function () {
 });
 
 
+
 var billing_address = document.getElementById('billing_address');
 var billing_city = document.getElementById('billing_city');
 var billing_state = document.getElementById('billing_state');
@@ -44,7 +45,8 @@ var billingFields = {
   gst_number: document.getElementById('billing_gst_number'),
 };
 
-
+document.getElementById('billing-tab').removeAttribute('data-bs-toggle');
+document.getElementById('shipping-tab').removeAttribute('data-bs-toggle');
 
 function next_btn_enable(){  
   if (billing_address.value && billing_city.value && billing_state.value && billing_pin.value && billing_gst_number.value){
@@ -54,11 +56,22 @@ function next_btn_enable(){
   }
 }
 
+// Disable tab switching via tab button clicks
+billingTab.onclick = function (event) {
+  event.preventDefault();
+};
+shippingTab.onclick = function (event) {
+  event.preventDefault();
+};
 
 function move_next() {
 
   if (next_btn.disabled == false){
-    shippingTab.click();
+
+    shippingTab.setAttribute('data-bs-toggle', 'tab');
+
+    document.getElementById('billing').classList.remove('show', 'active');
+    document.getElementById('shipping').classList.add('show', 'active');    
     next_btn.style.display = 'none';
     submit_btn.style.display = 'block';
   } else {
@@ -86,6 +99,15 @@ function move_next() {
 }
 
 
+function go_back_to_billing() {
+
+  billingTab.setAttribute('data-bs-toggle', 'tab');
+  
+  document.getElementById('shipping').classList.remove('show', 'active');
+  document.getElementById('billing').classList.add('show', 'active');
+  next_btn.style.display = 'block';
+  submit_btn.style.display = 'none';
+}
 
 function check_validate() {
   if (sameAsBilling.checked == true) {
@@ -117,6 +139,9 @@ function check_validate() {
     submit_btn.style.display = 'none';
   }
 }
+
+
+
 
 
 document.getElementById('client_S_name').addEventListener('input', function () {

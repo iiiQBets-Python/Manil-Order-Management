@@ -17,11 +17,24 @@ urlpatterns = [
     path('material_master', material_master, name='material_master'),
     path('material_cost', material_cost, name='material_cost'),
     path('manil_user', manil_user, name='manil_user'),
-    path('manil_order', manil_order, name='manil_order'),
-    path('client_order', client_order, name='client_order'),
+    path('manil_order_', manil_order_, name='manil_order_'),
+    path('client_order_', client_order_, name='client_order_'),
+    path('c_order_view/<str:ord_no>',c_order_view,name='c_order_view'),
+    path('ticket_view/<str:ticket_num>',ticket_view,name='ticket_view'),
     path('manil_dispatch',manil_dispatch, name='manil_dispatch'),
+    path('order_remarks', order_remarks, name='order_remarks'),
+    path('order_remarks_view/<str:ord_no>', order_remarks_view, name='order_remarks_view'),
     path('chaipoint_user', chaipoint_user, name='chaipoint_user'),
     path('manil_ticket', manil_ticket, name='manil_ticket'),
     path('robo_master', robo_master, name='robo_master'),
     path('robo_details', robo_details, name='robo_details'),
+
+    path('invoice_preview/<str:ord_no>',invoice_preview,name='invoice_preview'),
+
+
+    path('edit_manil_user/<str:id>', edit_manil_user, name='edit_manil_user'),
+    path('edit_client_master/<str:id>', edit_client_master, name='edit_client_master'),
+    path('edit_cust_user/<str:id>', edit_cust_user, name='edit_cust_user'),
+    path('edit_material_master/<str:id>',edit_material_master,name='edit_material_master'),
+    path('edit_material_cost/<str:id>', edit_material_cost, name='edit_material_cost'),
 ]

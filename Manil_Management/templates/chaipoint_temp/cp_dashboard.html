@@ -1,0 +1,105 @@
+{% extends "chaipoint_temp/base.html" %}
+{% load static %}
+{% block title %} Chai Point{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'chaipoint/css/cp_dashboard.css' %}">
+{% endblock styles %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row dashboard-container">
+        <div class="col-md-3 card">
+            <h5>Total Orders</h5>
+            <p class="display-4">{{ total_orders }}</p>
+        </div>
+        <div class="col-md-3 card">
+            <h5>Total Dispatches</h5>
+            <p class="display-4">{{ total_dispatches }}</p>
+        </div>
+        <div class="col-md-3 card">
+            <h5>Pending Deliveries</h5>
+            <p class="display-4">{{ pending_deliveries }}</p>
+        </div>
+        <div class="col-md-3 card">
+            <h5>Delivered Orders</h5>
+            <p class="display-4">{{ delivered_orders }}</p>
+        </div>
+    </div>
+    
+    
+    <!-- Chart Section -->
+    <div class="row ">
+        <div class="col-md-6 chart-card">
+            <h5>Order Quantity by Material</h5>
+            <canvas id="orderQuantityChart"></canvas>
+        </div>
+        <div class="col-md-6 chart-card">
+            <h5>Dispatch Status Over Time</h5>
+            <canvas id="dispatchStatusChart"></canvas>
+        </div>
+    </div>
+    
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx1 = document.getElementById('orderQuantityChart').getContext('2d');
+    const orderQuantityChart = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['Material A', 'Material B', 'Material C', 'Material D'],
+            datasets: [{
+                label: 'Quantity (KG)',
+                data: [120, 150, 90, 200],
+                backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true },
+                title: { display: true, text: 'Order Quantity by Material' }
+            }
+        }
+    });
+
+
+    const ctx2 = document.getElementById('dispatchStatusChart').getContext('2d');
+    const dispatchStatusChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Dispatches',
+                data: [30, 45, 55, 40, 70, 50],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: '#36a2eb',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true },
+                title: { display: true, text: 'Dispatch Status Over Time' }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'chaipoint/js/cp_dashboard.js' %}"></script>
+{% endblock scripts %}
+
+
+{% endblock content %}
+
+
