@@ -277,12 +277,30 @@
     <div class="container" id="container">
         <div class="form-container sign-in-container">
             
-            <form action="" method="post">
+            <form action="" method="post"> 
                 {% csrf_token %}
 
-                {% if error_msg %}
-                <p style="color: red;">{{error_msg}}</p>
+                {% if messages %}
+                    <div id="message-container">
+                        {% for message in messages %}
+                            {% if 'error' in message.tags %}
+                                <p style="color: red;" class="error-message">{{ message|safe }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 {% endif %}
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const messageContainer = document.getElementById("message-container");
+                        if (messageContainer) {
+                            setTimeout(() => {
+                                messageContainer.style.display = "none"; 
+                            }, 3000); 
+                        }
+                    });
+                </script>
+
 
                 <h1>Log In</h1>
 
@@ -313,7 +331,7 @@
             </div>
         </div>
 
-        {% if manil_msg %}
+        <!-- {% if manil_msg %}
         <script>     
             window.onload = function () {
                 alert("{{  manil_msg|safe }}");                
@@ -338,7 +356,7 @@
                 window.location.href = "{% url 'cp_dashboard' %}";
             };
         </script>
-        {% endif %}
+        {% endif %} -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

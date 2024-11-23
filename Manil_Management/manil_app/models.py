@@ -49,8 +49,8 @@ class Manil_User(models.Model):
     deleted_by = models.CharField(max_length=100, blank=True, null=True)
     pwd_date = models.DateTimeField(null=True) 
     reg_status = models.BooleanField(default=0)
-    upadated_date = models.DateTimeField( null=True)
-    updated_by = models.CharField(max_length=100,null=True)
+    upadated_date = models.DateTimeField(blank=True, null=True)
+    updated_by = models.CharField(max_length=100,blank=True,null=True)
 
     def save(self, *args, **kwargs):        
         if self.pk:
@@ -180,22 +180,21 @@ class Despatch_Details(models.Model):
     dispatch_lr_num = models.CharField(max_length=100)
     exp_del_dt = models.DateTimeField()
     client_rec_dt = models.DateTimeField(null=True)
+    creation_date = models.DateTimeField(null=False)
+    created_by = models.CharField(max_length=100, null=False) 
     received_by = models.CharField(max_length=100, null=True)
     received_date = models.DateTimeField(null=True)
-    remarks_title = models.CharField(max_length=150, null=True)
-    remarks = models.TextField(null=True)
-    image = models.ImageField(upload_to='Client/report/', null=True)
-    creation_date = models.DateTimeField()
-    created_by = models.CharField(max_length=100)  
-    remarked_by = models.CharField(max_length=100, ) 
-    remarked_date = models.DateTimeField(null=True)
+   
 
     def __str__(self):
         return self.process_num
+    
+
 
 class M_client_invoice(models.Model):
     order_number = models.CharField(max_length=100)
     client_id = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
     invoice_num = models.CharField(max_length=100)
     invoice_date = models.DateTimeField()
     po_authority = models.CharField(max_length=255 , null=True)
@@ -233,8 +232,8 @@ class Client_user(models.Model):
     created_by = models.CharField(max_length=100)    
     deletion_date = models.DateTimeField(blank=True, null=True)
     deleted_by = models.CharField(max_length=100, blank=True, null=True) 
-    upadated_date = models.DateTimeField( null=True)
-    updated_by = models.CharField(max_length=100,null=True)
+    upadated_date = models.DateTimeField(blank=True, null=True)
+    updated_by = models.CharField(max_length=100,blank=True,null=True)
 
     def save(self, *args, **kwargs):        
         if self.pk:
@@ -318,6 +317,7 @@ class chai_point_user_pwd(models.Model):
 
 class client_order(models.Model):
     client_id = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
     order_number = models.CharField(max_length=100)
     order_date = models.DateTimeField()    
     po_authority = models.CharField(max_length=255, null=True)
@@ -357,6 +357,7 @@ class client_order_details(models.Model):
 class manil_order(models.Model):
     process_num = models.CharField(max_length=100)
     client_id = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
     order_number = models.CharField(max_length=100)
     order_date = models.DateTimeField()    
     po_authority = models.CharField(max_length=255, null=True)
@@ -392,8 +393,11 @@ class manil_order_details(models.Model):
     sub_total = models.BigIntegerField()
      
 
-class Ticket_tbl(models.Model):
+class Robo_Ticket(models.Model):
     client_id = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
+    robot_id = models.CharField(max_length=50, null=False)
+    robot_name = models.CharField(max_length=255)
     ticket_num = models.CharField(max_length=100)
     cmp_description = models.TextField()
     res_description = models.TextField()
@@ -408,14 +412,39 @@ class Ticket_tbl(models.Model):
 
     def __str__(self):
         return self.ticket_num 
+    
+class Order_Tickets(models.Model):
+    process_num = models.CharField(max_length=100, null=False)
+    order_number = models.CharField(max_length=100, null=False)
+    client_id = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
+    ticket_num = models.CharField(max_length=100,null=False)
+    ticket_date = models.DateTimeField(null=False)
+    remarks_title = models.CharField(max_length=150, null=True)
+    remarks = models.TextField(null=True) 
+    remarked_by = models.CharField(max_length=100) 
+    remarked_date = models.DateTimeField(null=True) 
+    resolved_dt = models.DateTimeField(null=True)
+    resolved_by = models.CharField(max_length=100)  
 
+    def __str__(self):
+        return self.ticket_num     
+        
 
+class Remarkes_images(models.Model):
+    process_num = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='Client/report/')
+
+    def __str__(self):
+        return self.process_num
 
 class Robot_Master(models.Model):
-    robot_id = models.CharField(max_length=50, primary_key=True)
+    robot_id = models.CharField(max_length=50, unique=True)
     robot_name = models.CharField(max_length=255)
     robot_type = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
+    creation_date = models.DateTimeField()
+    created_by = models.CharField(max_length=100)
 
     def _str_(self):
         return self.robot_name
@@ -427,16 +456,18 @@ class Robot_Details(models.Model):
         ('Out of Service', 'Out of Service'),
     ]
 
-    client_id = models.CharField(max_length=50, primary_key=True)
-    client_name = models.CharField(max_length=50)
-    location = models.CharField(max_length=255, null=True, blank=True)
-    robot_id = models.CharField(max_length=50, null=True, blank=True)
+    client_id = models.CharField(max_length=50, null=False)
+    client_name = models.CharField(max_length=50, null=False)
+    location = models.CharField(max_length=255, null=False)
+    robot_id = models.CharField(max_length=50, null=False)
     robot_name = models.CharField(max_length=255)
     robot_type = models.CharField(max_length=100 )
     installation_date = models.DateField()
     l_maintenance_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     description = models.TextField(null=True, blank=True)
+    creation_date = models.DateTimeField()
+    created_by = models.CharField(max_length=100)
 
     def _str_(self):
         return f"{self.client_name} - {self.robot_name}"

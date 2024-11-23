@@ -1,0 +1,69 @@
+ /* Invoice Container */
+ .invoice-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    font-size: 14px;
+    color: #333;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Header and Footer */
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+.company-details {
+    text-align: left;
+    font-size: 16px;
+    margin-bottom: -30px;
+}
+.invoice-info {
+    text-align: right;
+    font-size: 14px;
+}
+.invoice-footer {
+    text-align: center;
+    border-top: 2px solid #dee2e6;
+    padding-top: 10px;
+    margin-top: 20px;
+}
+
+/* Section Titles */
+.section-title {
+    font-weight: bold;
+    background-color: #f8f9fa;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    margin-top: 20px;
+}
+
+/* Section Styling */
+.section-content {
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    background-color: #fefefe;
+    margin-top: 10px;
+}
+
+/* Line Items Table */
+.line-items th, .line-items td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+
+/* Summary Section */
+.summary-section {
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    background-color: #f8f9fa;
+    margin-top: 20px;
+    font-weight: bold;
+}

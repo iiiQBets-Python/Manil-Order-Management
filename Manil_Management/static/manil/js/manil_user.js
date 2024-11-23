@@ -3,8 +3,8 @@ $(document).ready(function () {
   });
     
 
-  // Use jQuery to listen for the modal 'hidden' event
-  $('#userModal').on('hidden.bs.modal', function () {
-    // Reset the form fields
-    $('#UserForm')[0].reset();
-  });  
+// Use jQuery to listen for the modal 'hidden' event
+$('#userModal').on('hidden.bs.modal', function () {
+  // Reset the form fields
+  $('#UserForm')[0].reset();
+});  

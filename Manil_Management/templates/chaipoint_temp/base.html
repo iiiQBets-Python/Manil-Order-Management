@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'messages.css' %}">
 
     <style>
         * {
@@ -416,13 +417,17 @@
 </head>
 
 <body>
+    <!-- Floating Alert for Success Messages -->
+    <div id="floating-alert-success" class="floating-alert-success">
+        <span id="floating-alert-success-message"></span>
+    </div>
     <!-- SIDEBAR -->
     <section id="sidebar" class="toggle_hide">
         <a href="#" class="brand" style="padding-left: 80px;">Chai Point</a>
         <ul class="side-menu">
             <li><a href="{% url 'cp_dashboard'  %}"><i class='bx bxs-dashboard icon' class="active"></i>Dashboard</a></li>
-            <li><a href="{% url 'C_order_table' %}"><i class="fas fa-cogs icon"></i> Chaipoint Orders</a></li>
-            <li><a href="{% url 'C_dispatch_details' %}"><i class="fas fa-truck icon"></i>Chaipoint Dispatch</a></li>
+            <li><a href="{% url 'cp_order_table' %}"><i class="fas fa-cogs icon"></i> Chaipoint Orders</a></li>
+            <li><a href="{% url 'cp_dispatch_details' %}"><i class="fas fa-truck icon"></i>Chaipoint Dispatch</a></li>
 
         </ul>
     </section>
@@ -471,6 +476,30 @@
             {% endblock %}
         </main>
     </section>
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' in message.tags %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var successAlertElement = document.getElementById('floating-alert-success');
+                        var successMessage = document.getElementById('floating-alert-success-message');
+
+                        // Set the success message and display the floating alert
+                        successMessage.textContent = "{{ message|safe }}";
+                        successAlertElement.style.display = 'block';
+                        successAlertElement.classList.add('show');
+
+                        // Hide the success alert automatically after 2 seconds
+                        setTimeout(function () {
+                            successAlertElement.classList.remove('show');
+                            successAlertElement.style.display = 'none';
+                        }, 3000); // 2 seconds delay for success alert
+                    });
+                </script>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

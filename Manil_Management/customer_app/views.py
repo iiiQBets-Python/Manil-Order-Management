@@ -2,6 +2,7 @@ from Manil_Management.imports import *
 from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 
 from django.http import HttpResponse
 from xhtml2pdf import pisa
@@ -45,8 +46,7 @@ def add_user(request):
         combined_context = {**context, **context_2}
 
         if password != confirm_password:
-            error_msg = 'Password mismatch. Please try again.'
-            combined_context['error_msg'] = error_msg
+            messages.error(request, 'Password mismatch, Please try again.')
             return render(request, 'customer_temp/add_user.html', combined_context)
 
         
@@ -79,9 +79,8 @@ def add_user(request):
         )
         Client_user_new.save()              
 
-        success_msg = 'Client User added successfully.'
-        combined_context['success_msg'] = success_msg
-        return render(request, 'customer_temp/add_user.html', combined_context)
+        messages.success(request, 'Client User Added Successfully')
+        return redirect('add_user')
 
     return render(request, 'customer_temp/add_user.html', context)
 
@@ -99,20 +98,13 @@ def edit_user(request, id):
         com_user.email_id = request.POST.get('edit_email_id')
         com_user.role = request.POST.get('edit_role')        
 
-        com_user.password = request.POST.get('edit_password')
-        confirm_password = request.POST.get('edit_confirm_password')
+        com_user.upadated_date = timezone.now() + timedelta(hours=5, minutes=30)
+        com_user.updated_by = data.first_name 
 
-        if com_user.password != confirm_password:
-            edit_error_msg = 'Password mismatch. Please try again.'
-            return render(request, 'customer_temp/add_user.html', {'edit_error_msg':edit_error_msg})
         
         com_user.save()
-
+        messages.success(request, 'Manil User details updated successfully.')
         return redirect('add_user')
-        
-        # success_msg = 'Client User added successfully.'
-        # return render(request, 'customer_temp/add_user.html', {'data': data, 'client_m': client_m, 'com_user': com_user,'success_msg':success_msg})
-
 
     return render(request, 'customer_temp/add_user.html', {'data': data, 'client_m': client_m, 'com_user': com_user})
 
@@ -198,10 +190,11 @@ def order_table(request):
 
         client_order_new = client_order(
             client_id = data.client_id,
+            client_name = data.client_name,
             order_number = new_value,
             order_date = timezone.now() + timedelta(hours=5, minutes=30),
             creation_date = timezone.now() + timedelta(hours=5, minutes=30),
-            created_by = data.user_id,
+            created_by = data.first_name,
             grand_total = round(float(grand_total)),
             ammount_words = amt_in_words, 
 
@@ -213,9 +206,9 @@ def order_table(request):
         )
         client_order_new.save()
 
-        success_msg = 'Your order has been Placed.'
-        return render (request, 'customer_temp/order_table.html', {'success_msg':success_msg, **context})
-    
+        messages.success(request, 'Your order has been Placed.')
+        return redirect('order_table')
+
     return render (request, 'customer_temp/order_table.html', context)
 
 
@@ -240,13 +233,16 @@ def client_ticket(request):
     user_id = request.session.get('user_id')
     data = Client_user.objects.get(user_id=user_id) 
 
-    tickets = Ticket_tbl.objects.filter(client_id = data.client_id)
-    all_tic = Ticket_tbl.objects.all()
+    tickets = Robo_Ticket.objects.filter(client_id = data.client_id)
+    all_tic = Robo_Ticket.objects.all()
+    robots = Robot_Details.objects.filter(client_id = data.client_id)
 
     if request.method == 'POST':
-        complaint_title = request.POST['complaint_title']
-        complaint_description = request.POST['cmp_description']
-        maintenance_date = request.POST['Maintenance_Date']
+        robot_id = request.POST.get('robot_id')
+        robot_name = request.POST.get('robot_name')
+        complaint_title = request.POST.get('complaint_title')
+        complaint_description = request.POST.get('cmp_description')
+        maintenance_date = request.POST.get('Maintenance_Date')
 
         # Autogenerate ticket number
         if all_tic.exists():
@@ -256,38 +252,41 @@ def client_ticket(request):
             new_suf = suf + 1
             new_value = f"{pre}{new_suf:03}"
         else:           
-            new_value = 'TCK001'  # Starting ticket number
+            new_value = 'TCK001'  
 
-
-        # Save the new ticket
-        new_ticket = Ticket_tbl(
+        new_ticket = Robo_Ticket(
             client_id = data.client_id,
+            robot_id = robot_id,
+            robot_name =robot_name,
             ticket_num=new_value,
             complaint_title=complaint_title,
             cmp_description=complaint_description,
             ticket_date=timezone.now() + timedelta(hours=5, minutes=30),
             Maintenance_Date=maintenance_date,
-            created_by=data.user_id,
+            created_by=data.first_name,
             creation_date=timezone.now() + timedelta(hours=5, minutes=30),
             status='Open'
         )
         new_ticket.save()
 
-        success_msg = 'Ticket Raised successfully'
-        return render(request, 'customer_temp/client_ticket.html', {'data': data, 'tickets': tickets,'success_msg':success_msg,})
+        messages.success(request, 'Ticket Raised successfully.')
+        return redirect('client_ticket')
 
-    return render(request, 'customer_temp/client_ticket.html', {'data': data, 'tickets': tickets})
+    return render(request, 'customer_temp/client_ticket.html', {'data': data, 'tickets': tickets, 'robots':robots})
 
 
 def received_view(request, ord_no):
     user_id = request.session.get('user_id')
     data = Client_user.objects.get(user_id=user_id)
+
     order = get_object_or_404(manil_order, process_num=ord_no)
     ord_det = manil_order_details.objects.filter(process_num=ord_no)
     c_order = client_order.objects.get(order_number=order.order_number)
     client_det = Client_Master.objects.get(client_id=order.client_id)
     mat_list = Material_Master.objects.all()
     dispatch = Despatch_Details.objects.get(process_num=ord_no)
+
+    existing_tickets = Order_Tickets.objects.filter(client_id=order.client_id).exists()
 
     context = {
         'data': data,
@@ -297,11 +296,12 @@ def received_view(request, ord_no):
         'mat_list': mat_list,
         'c_order': c_order,
         'dispatch': dispatch,
+        'hide_dropdown':  existing_tickets or order.status == "Delivered",
         'success_msg': None  
     }
 
     if request.method == "POST":
-        dispatch.received_by = data.user_id
+        dispatch.received_by = data.first_name
         dispatch.received_date = timezone.now() + timedelta(hours=5, minutes=30)
         dispatch.save()
 
@@ -311,41 +311,59 @@ def received_view(request, ord_no):
         c_order.status = 'Delivered'
         c_order.save()
 
-        context['success_msg'] = 'Order Received Successfully.'
+        messages.success(request, 'Order Received Successfully.')
+        return redirect('order_table')
 
     return render(request, 'customer_temp/recieved_view.html', context)
 
 
-def remarks_view(request, ord_no):    
+def remarks_view(request, ord_no):
+    # Fetch user and order details
     user_id = request.session.get('user_id')
-    data = Client_user.objects.get(user_id = user_id)
-    
-    order = manil_order.objects.get(process_num = ord_no)
+    data = get_object_or_404(Client_user, user_id=user_id)  # Fetch client user or return 404
+    order = get_object_or_404(manil_order, process_num=ord_no)  # Fetch order or return 404
+
+    # Generate a new ticket number
+    last_ticket = Order_Tickets.objects.filter(process_num=ord_no).order_by('ticket_num').last()
+    if last_ticket:
+        last_ticket_num = last_ticket.ticket_num
+        pre = last_ticket_num[:-3]
+        suf = int(last_ticket_num[-3:])
+        new_ticket_num = f"{pre}{suf + 1:03}"
+    else:
+        new_ticket_num = 'ORTCK001'
 
     if request.method == "POST":
-            try:
-                dispatch = Despatch_Details.objects.get(process_num=ord_no)
-                
-                dispatch.remarks_title = request.POST.get("remarks_title")
-                dispatch.remarks = request.POST.get("remarks")
-                dispatch.image = request.FILES.get("image")
-                dispatch.remarked_by = request.session.get("user_id")
-                dispatch.remarked_date = timezone.now()
-                dispatch.save()
-                
-                success_msg = "Remark saved successfully."
-                return render(request, 'customer_temp/recieved_view.html', {'success_msg': success_msg, 'data':data, 'order':order})
-            except Despatch_Details.DoesNotExist:
-                error_msg = "Order not found."
-                return render(request, 'customer_temp/recieved_view.html', {'error_msg': error_msg,'data':data})
+        order_remark = Order_Tickets(
+            process_num=ord_no,
+            order_number= order.order_number,
+            client_id=data.client_id,
+            client_name=data.client_name,
+            ticket_num=new_ticket_num,
+            ticket_date=timezone.now() + timedelta(hours=5, minutes=30),
+            remarks_title=request.POST.get("remarks_title"),
+            remarks=request.POST.get("remarks"),
+            remarked_by=data.first_name,
+            remarked_date=timezone.now() + timedelta(hours=5, minutes=30),
+        )
+        order_remark.save()
 
-    return redirect('recieved_view', ord_no=ord_no)
+        # Save attached images
+        images = request.FILES.getlist("image")
+        for image in images:
+            Remarkes_images.objects.create(process_num=ord_no, image=image)
+
+        # Success message and render the view
+        messages.success(request, 'Remark and images saved successfully.')
+        return redirect("order_table")
+       
+    return render( request,'customer_temp/recieved_view.html',{'data': data,'order': order,} )
 
 def invoice_table (request):
     user_id = request.session.get('user_id')
     data = Client_user.objects.get(user_id = user_id)
 
-    invoice = M_client_invoice.objects.all()
+    invoice = M_client_invoice.objects.filter(client_id = data.client_id)
 
 
     return render (request, 'customer_temp/invoice_table.html', {'data':data, 'invoice':invoice})
@@ -383,6 +401,8 @@ from django.conf import settings
 def download_invoice(request, ord_no):
     user_id = request.session.get('user_id')
     data = Client_user.objects.get(user_id=user_id)
+
+    
     manil_det = Manil_db.objects.all()
     order = client_order.objects.get(order_number=ord_no)
     client_det = Client_Master.objects.get(client_id=order.client_id)
@@ -402,7 +422,7 @@ def download_invoice(request, ord_no):
         'invoice': invoice,
     }
 
-    rendered_html = render_to_string('manil_temp/invoice_pdf.html', context)
+    rendered_html = render_to_string('customer_temp/invoice_pdf.html', context)
     result = BytesIO()
 
     pdf = pisa.CreatePDF(BytesIO(rendered_html.encode("UTF-8")), dest=result)

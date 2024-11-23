@@ -30,6 +30,9 @@ urlpatterns = [
     path('robo_details', robo_details, name='robo_details'),
 
     path('invoice_preview/<str:ord_no>',invoice_preview,name='invoice_preview'),
+    path('m_invoice_table', m_invoice_table, name='m_invoice_table'),
+    path('invoice_view/<str:ord_no>', invoice_view, name='invoice_view'),
+    path('m_download_invoice/<str:ord_no>', m_download_invoice, name='m_download_invoice'),
 
 
     path('edit_manil_user/<str:id>', edit_manil_user, name='edit_manil_user'),

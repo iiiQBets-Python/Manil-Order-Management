@@ -5,6 +5,25 @@
 {% block styles %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'manil/css/manil_dashboard.css' %}">
+    <style>
+        .floating-alert {
+            position: fixed;
+            top: -100px; /* Hidden above the view initially */
+            right: 40%;
+            z-index: 1050;
+            width: auto;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #28a745; /* Green background for success */
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: top 0.5s ease-in-out; /* Smooth transition for appearing */
+        }
+  
+        .floating-alert.show {
+            top: 100px; /* Slide down to be visible */
+        }
+    </style>
 {% endblock styles %}
 
 {% block content %}
@@ -191,4 +210,5 @@
         </div>
     </div>
 </div>
+
 {% endblock content %}

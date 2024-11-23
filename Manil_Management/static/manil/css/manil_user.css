@@ -1,5 +1,5 @@
 .dataTables_filter {
-    margin-right: 120px;
+    margin-right: 160px;
 }
 .btn-add {
     background-color: #4e5d4e;
@@ -369,10 +369,7 @@
     max-width: 50px; /* Ensure it doesn't grow beyond this */
     text-align: center;
 }
-/* Force hide sorting symbols for the "Action" column */
-th:nth-child(8) {
-    pointer-events: none; /* Disable pointer events so no interaction is possible */
-}
+
 
 /* Hide the sorting icons for the Action column */
 th:nth-child(8) .sorting::before, 

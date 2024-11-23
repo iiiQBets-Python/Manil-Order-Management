@@ -6,11 +6,18 @@
     {{ block.super }}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="{% static 'manil/css/robo_details.css' %}">
+    <link rel="stylesheet" href="{% static 'messages.css' %}">
 {% endblock styles %}
 
 
 {% block content %}
 <div class="container-fluid table-container display responsive wrap fade-in">
+    
+    <!-- Floating Alert for Success Messages -->
+    <div id="floating-alert-success" class="floating-alert-success">
+        <span id="floating-alert-success-message"></span>
+    </div>
+
     <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
         <div id="dataTables_filter_container" class="me-2">
             <!-- This will be populated by jQuery -->
@@ -159,27 +166,31 @@
 </div>
 
 
-{% if success_msg %}
-<script>     
-    window.onload = function () {
-        alert("{{  success_msg|safe }}");                
-        window.location.href = "{% url 'robo_details' %}";
-    };
-</script>
-{% endif %}
 
-{% if error_msg %}
-<script>     
-    window.onload = function () {
-        alert("{{  error_msg|safe }}");                                    
-        setTimeout(function() {
-            var modal = new bootstrap.Modal(document.getElementById('robo_detailsModal'), {});
-            modal.show();
-        }); 
-    };
-</script>
-{% endif %}
 
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' in message.tags %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var successAlertElement = document.getElementById('floating-alert-success');
+                    var successMessage = document.getElementById('floating-alert-success-message');
+
+                    // Set the success message and display the floating alert
+                    successMessage.textContent = "{{ message|safe }}";
+                    successAlertElement.style.display = 'block';
+                    successAlertElement.classList.add('show');
+
+                    // Hide the success alert automatically after 2 seconds
+                    setTimeout(function () {
+                        successAlertElement.classList.remove('show');
+                        successAlertElement.style.display = 'none';
+                    }, 3000); // 2 seconds delay for success alert
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

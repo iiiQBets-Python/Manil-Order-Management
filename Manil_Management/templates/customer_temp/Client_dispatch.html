@@ -25,7 +25,7 @@
                 <tr>
                     <th scope="col">SL No</th>
                     <th scope="col">Order Process Details</th>
-                    <th scope="col">Dispatch Details</th>
+                    <th scope="col">Dispatch Lr No</th>
                     <th scope="col">Expected Date</th>
                     <th scope="col">Received By</th>
                     <th scope="col">Action</th>
@@ -35,8 +35,8 @@
                 {% for i in dispatch %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ i.process_num }} <br> {{ i.process_date|date:'Y-m-d'}} </td>
-                    <td> {{ i.created_by }} <br> {{ i.creation_date|date:'Y-m-d' }}</td>
+                    <td>{{ i.order_number }} <br> {{ i.process_date|date:'Y-m-d'}} </td>
+                    <td>{{ i.dispatch_lr_num }}</td>
                     <td>{{ i.exp_del_dt|date:'Y-m-d' }}</td>
                     <td> {% if i.received_by %} {{ i.received_by }} <br> {{ i.received_date|date:'Y-m-d'}} {% else %}  N/A  {% endif%} </td>
                     <td>

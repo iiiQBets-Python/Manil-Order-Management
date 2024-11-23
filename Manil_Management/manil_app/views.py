@@ -1,5 +1,6 @@
 
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from Manil_Management.imports import *
 
 # Create your views here.
@@ -32,20 +33,21 @@ def login_page(request):
         if m_user:
             if check_password(password, m_user.password):
                 request.session['user_id'] = m_user.user_id
-                manil_msg = 'Login Successful!'
-                return render(request, 'Base/login.html', {'manil_msg':manil_msg})                            
+                messages.success(request, 'Login Successful!')
+                return redirect('manil_dashboard')                          
         if c_user:
             if check_password(password, c_user.password):
                 request.session['user_id'] = c_user.user_id
-                cust_msg = 'Login Successful!'
-                return render(request, 'Base/login.html', {'cust_msg':cust_msg})        
+                messages.success(request, 'Login Successful!') 
+                return redirect('Client_dashboard')       
         if p_user:
             if check_password(password, p_user.password):
                 request.session['user_id'] = p_user.user_id
-                chai_msg = 'Login Successful!'
-                return render(request, 'Base/login.html', {'chai_msg':chai_msg})  
-        error_msg = 'Please enter valid credentials'
-        return render(request, 'Base/login.html', {'error_msg':error_msg})        
+                messages.success(request, 'Login Successful!')
+                return redirect('cp_dashboard')  
+                
+        messages.error(request, 'Please enter valid credentials')
+        return render(request, 'Base/login.html')        
     return render(request, 'Base/login.html')
 
 @csrf_exempt
@@ -67,7 +69,7 @@ def manil_dashboard(request):
     delivered_orders = c_orders.filter(status='Delivered').count()
 
     # Tickets
-    m_tickets = Ticket_tbl.objects.all()
+    m_tickets = Robo_Ticket.objects.all()
     total_tickets = m_tickets.count()
     solved_tickets = m_tickets.filter(status='Closed').count()
     pending_tickets = m_tickets.filter(status='Open').count()
@@ -86,8 +88,6 @@ def manil_dashboard(request):
     }
 
     return render(request, 'manil_temp/manil_dashboard.html', context)
-
-
 
 def forgot_password(request):
     return render(request, 'Base/forgot_password.html')
@@ -138,61 +138,63 @@ def manil_master(request):
     return render (request, 'manil_temp/manil_master.html', {'data':data, 'C_data':C_data})
 
 
-def manil_user(request):
+from django.contrib import messages
 
+def manil_user(request):
     user_id = request.session.get('user_id')
-    data = Manil_User.objects.get(user_id = user_id)
+    data = Manil_User.objects.get(user_id=user_id)
     m_user = Manil_User.objects.all()
 
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        user_id_new = request.POST.get('user_id')        
+        user_id_new = request.POST.get('user_id')
         role = request.POST.get('role')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
         context = {
-           'first_name':first_name, 'last_name':last_name, 'user_id':user_id_new, 'role':role
+            'first_name': first_name, 'last_name': last_name, 'user_id': user_id_new, 'role': role
         }
 
         for i in m_user:
             if i.user_id == user_id_new:
-                error_msg = 'This user ID is already in use.'
-                return render (request, 'manil_temp/manil_user.html', {'data':data, 'm_user':m_user, 'error_msg':error_msg, **context})
-        
-        if password != confirm_password:
-            error_msg = 'Mismatched password.'
-            return render (request, 'manil_temp/manil_user.html', {'data':data, 'm_user':m_user, 'error_msg':error_msg, **context})
+                messages.error(request, 'This user ID is already in use.')
+                return render(request, 'manil_temp/manil_user.html', {'data': data, 'm_user': m_user, **context})
 
+        if password != confirm_password:
+            messages.error(request, 'Password mismatch, Please try again.')
+            return render(request, 'manil_temp/manil_user.html', {'data': data, 'm_user': m_user, **context})
+
+        # Save new user
         Manil_User_new = Manil_User(
-            user_id = user_id_new,
-            first_name = first_name,
-            last_name = last_name,
-            role = role,
-            password = password,            
-            created_by = data.user_id,
-            creation_date = timezone.now() + timedelta(hours=5, minutes=30)
+            user_id=user_id_new,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            password=password,
+            created_by=data.first_name + data.last_name,
+            creation_date=timezone.now() + timedelta(hours=5, minutes=30)
         )
         Manil_User_new.save()
-        
+
+        # Save password record
         Manil_PWD_new = Manil_PWD(
-            user_id = user_id_new,
-            first_name = first_name,            
-            password = password    
+            user_id=user_id_new,
+            first_name=first_name,
+            password=password
         )
         Manil_PWD_new.save()
 
-        success_msg = 'User added successfully.'
+        messages.success(request, 'Manil User Added Successfully', extra_tags='add_success')
+        return redirect('manil_user')
 
-        return render (request, 'manil_temp/manil_user.html', {'data':data, 'm_user':m_user, 'success_msg':success_msg})
+    return render(request, 'manil_temp/manil_user.html', {'data': data, 'm_user': m_user})
 
-
-    return render (request, 'manil_temp/manil_user.html', {'data':data, 'm_user':m_user})
 
 def edit_manil_user(request, id):
     user_id = request.session.get('user_id')
-    data = Manil_User.objects.get(user_id = user_id)
+    data = get_object_or_404(Manil_User, user_id=user_id)
 
     m_user = get_object_or_404(Manil_User, id=id)
 
@@ -201,20 +203,15 @@ def edit_manil_user(request, id):
         m_user.last_name = request.POST.get('edit_last_name')
         m_user.user_id = m_user.user_id       
         m_user.role = request.POST.get('edit_role')
-        m_user.password = request.POST.get('edit_password')
-        confirm_password = request.POST.get('edit_confirm_password')
-        
-        if m_user.password != confirm_password:
-            error_msg = 'Password mismatch. Please try again.'
-            return render(request, 'manil_temp/manil_user.html', {'error_msg':error_msg})
-        
         m_user.upadated_date = timezone.now() + timedelta(hours=5, minutes=30)
-        m_user.updated_by = data.user_id 
+        m_user.updated_by = data.first_name 
 
         m_user.save()
 
+        messages.success(request, 'Manil User details updated successfully.')
         return redirect('manil_user')
-    return render (request, 'manil_temp/manil_user.html', {'data':data, 'm_user':m_user})
+
+    return render(request, 'manil_temp/manil_user.html', {'data': data, 'm_user': m_user})
 
 
 def get_short_form(text):
@@ -363,7 +360,7 @@ def Client_master(request):
             shipping_pin = new_shipping_pin,
             shipping_gst_number = new_shipping_gst_number,
         
-            created_by = data.user_id,
+            created_by = data.first_name,
             creation_date = timezone.now() + timedelta(hours=5, minutes=30)
         )
         new_Client.save()
@@ -375,8 +372,8 @@ def Client_master(request):
         )
         Client_s_name_n.save()
 
-        success_msg = 'Client details saved successfully'
-        return render (request, 'manil_temp/Client_master.html', {'data':data, 'all_s_name':all_s_name, 'client_m':client_m, 'success_msg':success_msg})
+        messages.success(request, 'Client details saved successfully.')
+        return redirect('Client_master')
 
     return render (request, 'manil_temp/Client_master.html', {'data':data, 'all_s_name':all_s_name, 'client_m':client_m})
 
@@ -411,14 +408,14 @@ def edit_client_master(request, id):
         client_m.shipping_gst_number = request.POST.get('edit_shipping_gst_number')
 
         client_m.upadated_date = timezone.now() + timedelta(hours=5, minutes=30)
-        client_m.updated_by = data.user_id 
+        client_m.updated_by = data.first_name 
 
         client_m.save()
-
+        
+        messages.success(request, 'Client Master details updated successfully.')
         return redirect ('Client_master')
 
     return render (request, 'manil_temp/Client_master.html', {'data':data, 'all_s_name':all_s_name, 'client_m':client_m})
-
 
 
 def get_sname_matches(request):
@@ -461,8 +458,7 @@ def cust_user_master(request):
         combined_context = {**context, **context_2}
 
         if password != confirm_password:
-            error_msg = 'Password mismatch. Please try again.'
-            combined_context['error_msg'] = error_msg
+            messages.error(request, 'Password mismatch, Please try again.')
             return render(request, 'manil_temp/cust_user_master.html', combined_context)
 
         client_dt = Client_Master.objects.get(client_id=client_id)
@@ -491,7 +487,7 @@ def cust_user_master(request):
             password=password,
             pwd_date=timezone.now() + timedelta(hours=5, minutes=30),
             creation_date=timezone.now() + timedelta(hours=5, minutes=30),
-            created_by=data.user_id
+            created_by=data.first_name
         )
         Client_user_new.save()      
 
@@ -502,8 +498,7 @@ def cust_user_master(request):
         )       
         Client_PWD_new.save() 
 
-        success_msg = 'Client User added successfully.'
-        combined_context['success_msg'] = success_msg
+        messages.success(request, 'Client User Added Successfully', extra_tags='add_success')
         return render(request, 'manil_temp/cust_user_master.html', combined_context)
 
     return render(request, 'manil_temp/cust_user_master.html', context)
@@ -524,19 +519,13 @@ def edit_cust_user(request, id):
         com_user.email_id = request.POST.get('edit_email_id')
         com_user.role = request.POST.get('edit_role')        
         com_user.client_id = com_user.client_id
-
-        com_user.password = request.POST.get('edit_password')
-        confirm_password = request.POST.get('edit_confirm_password')
-
-        if com_user.password != confirm_password:
-            error_msg = 'Password mismatch. Please try again.'
-            return render(request, 'manil_temp/cust_user_master.html', {'error_msg':error_msg})
         
         com_user.upadated_date = timezone.now() + timedelta(hours=5, minutes=30)
-        com_user.updated_by = data.user_id 
+        com_user.updated_by = data.first_name 
         
         com_user.save()
-
+        
+        messages.success(request, 'Client User Details are Updated')
         return redirect ('cust_user_master')
          
     return render(request, 'manil_temp/cust_user_master.html', {'data': data, 'client_m': client_m, 'com_user': com_user})
@@ -563,15 +552,15 @@ def material_master(request):
         print('cgst_rate', cgst_rate)   
 
         context = {
-            'material_name':material_name, 'hsn_code':hsn_code, 'cgst_rate':cgst_rate, 'sgst_rate':sgst_rate,
+            'material_name':material_name, 'hsn_code':hsn_code, 'unit_of_measurement':unit_of_measurement, 'Base_Price':Base_Price, 'cgst_rate':cgst_rate, 'sgst_rate':sgst_rate,
             'igst_rate':igst_rate, 'start_date':start_date, 'end_date':end_date
         }
 
         if materials.exists():
             for i in materials:
                 if i.hsn_code == hsn_code:
-                    error_msg = 'This HNS Code is already in use.'
-                    return render(request, 'manil_temp/material_master.html', {'data':data,'materials': materials, 'error_msg':error_msg, **context})
+                    messages.error(request, 'This HNS Code is already in use.')
+                    return render(request, 'manil_temp/material_master.html', {'data':data,'materials': materials, **context})
 
         if materials.exists():            
             last_name = materials.last().material_code                       
@@ -598,12 +587,12 @@ def material_master(request):
             start_date=start_date,
             end_date=end_date,
             creation_date=timezone.now() + timedelta(hours=5, minutes=30),
-            created_by=data.user_id  # Assuming you have user authentication
+            created_by=data.first_name  # Assuming you have user authentication
         )
         new_material.save()
 
-        success_msg = 'Materiral added successfully.'
-        return render(request, 'manil_temp/material_master.html', {'data':data,'materials': materials, 'success_msg':success_msg})
+        messages.success(request, 'Material added successfully.')
+        return redirect('material_master')
     
     return render(request, 'manil_temp/material_master.html', {'data':data,'materials': materials})
 
@@ -625,9 +614,10 @@ def edit_material_master(request, id):
         materials.start_date = request.POST.get('edit_start_date')
         materials.end_date = request.POST.get('edit_end_date')
         materials.upadated_date = timezone.now() + timedelta(hours=5, minutes=30)
-        materials.updated_by = data.user_id 
+        materials.updated_by = data.first_name 
  
         materials.save()
+        messages.success(request, 'Material Details are Updated')
         return redirect('material_master')
     
     return render(request, 'manil_temp/material_master.html', {'data':data,'materials': materials})
@@ -666,7 +656,7 @@ def material_cost(request):
             start_date=start_date,
             end_date=end_date,
             creation_date=timezone.now() + timedelta(hours=5, minutes=30),
-            created_by=data.user_id,
+            created_by=data.first_name,
 
             unit_of_measurement=mat_rec.unit_of_measurement,
             Base_Price=mat_rec.Base_Price,
@@ -677,10 +667,8 @@ def material_cost(request):
         )
         new_costing.save()
 
-        success_msg = 'Material cost for a client added successfully'
-        return render(request, 'manil_temp/material_cost.html', {'data': data, 'costings': costings, 'materials': materials, 'client_m':client_m, 'success_msg':success_msg})
-    
-    # Fetch all costing table data for display in the table
+        messages.success(request, 'Material cost for a client added successfully')
+        return redirect('material_cost')
     
     return render(request, 'manil_temp/material_cost.html', {'data': data, 'costings': costings, 'materials': materials, 'client_m':client_m})
 
@@ -705,10 +693,11 @@ def edit_material_cost(request,id):
         costings.end_date = request.POST.get('edit_end_date')
 
         costings.upadated_date = timezone.now() + timedelta(hours=5, minutes=30)
-        costings.updated_by = data.user_id 
+        costings.updated_by = data.first_name 
 
         costings.save()
 
+        messages.success(request, 'Material cost for a client updated successfully')
         return redirect('material_cost')
     
     return render(request, 'manil_temp/material_cost.html', {'data': data, 'costings': costings, 'materials': materials, 'client_m':client_m})
@@ -799,14 +788,17 @@ def client_order_(request):
             )
             order_details_n.save()
 
+        client_dt = Client_Master.objects.get(client_id = client_id)
+
         client_order_new = client_order(
             client_id = client_id,
+            client_name = client_dt.client_name,
             order_number = new_value,
             order_date = timezone.now() + timedelta(hours=5, minutes=30),
             po_authority = po_authority,
             po_authority_date = po_authority_date,
             creation_date = timezone.now() + timedelta(hours=5, minutes=30),
-            created_by = data.user_id,
+            created_by = data.first_name,
             grand_total = round(float(grand_total)),
             ammount_words = amt_in_words, 
 
@@ -818,8 +810,8 @@ def client_order_(request):
         )
         client_order_new.save()
 
-        success_msg = 'Your order has been Placed.'
-        return render (request, 'manil_temp/client_order.html', {'success_msg':success_msg, **context})
+        messages.success(request, 'Your order has been Placed.')
+        return redirect('client_order_')
 
 
     return render (request, 'manil_temp/client_order.html', context)
@@ -894,13 +886,14 @@ def c_order_view(request, ord_no):
 
         manil_order_new = manil_order(
             process_num = new_value,
-            client_id = old_order.client_id,            
+            client_id = old_order.client_id,   
+            client_name = old_order.client_name,           
             order_number = old_order.order_number,
             order_date = old_order.order_date,
             po_authority = old_order.po_authority,
             po_authority_date = old_order.po_authority_date,
             creation_date = timezone.now() + timedelta(hours=5, minutes=30),
-            created_by = data.user_id,
+            created_by = data.first_name,
             grand_total = round(float(grand_total)),
             ammount_words = amt_in_words, 
 
@@ -914,11 +907,11 @@ def c_order_view(request, ord_no):
 
         old_order.status = 'In Progress'
         old_order.authorisation_date = timezone.now() + timedelta(hours=5, minutes=30)
-        old_order.authorised_by = data.user_id
+        old_order.authorised_by = data.first_name
         old_order.save()
 
-        success_msg = 'Your order has been Placed.'
-        return render (request, 'manil_temp/c_order_view.html', {'success_msg':success_msg, **context})
+        messages.success(request, 'Your order has been Placed.')
+        return redirect('manil_order_')
 
     return render (request, 'manil_temp/c_order_view.html', context)
 
@@ -955,8 +948,8 @@ def chaipoint_user(request):
         }
 
         if password != confirm_password:
-            error_msg = 'Password mismatch. Please try again.'        
-            return render(request, 'manil_temp/chaipoint_user.html', {'error_msg':error_msg, **context, **context_2 })
+            messages.error(request, 'Password mismatch, Please try again.')      
+            return render(request, 'manil_temp/chaipoint_user.html', { **context, **context_2 })
         
         if cp_user.exists():            
             last_num = cp_user.last().user_id                       
@@ -982,7 +975,7 @@ def chaipoint_user(request):
             password=password,
             pwd_date=timezone.now() + timedelta(hours=5, minutes=30),
             creation_date=timezone.now() + timedelta(hours=5, minutes=30),
-            created_by=data.user_id
+            created_by=data.first_name
         )
         cp_user_new.save()              
 
@@ -993,9 +986,9 @@ def chaipoint_user(request):
         )       
         cp_user_pwd.save() 
         
-        success_msg = 'Chai Point User added successfully.'
-        return render(request, 'manil_temp/chaipoint_user.html', {'success_msg':success_msg, **context, **context_2 })
-
+        messages.success(request, 'Chai Point User added successfully.')
+        return redirect('chaipoint_user')
+        
     return render (request, 'manil_temp/chaipoint_user.html', context)
 
 
@@ -1003,7 +996,7 @@ def manil_ticket(request):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id = user_id)
 
-    tickets = Ticket_tbl.objects.all()
+    tickets = Robo_Ticket.objects.all()
 
     return render (request, 'manil_temp/manil_ticket.html', {'data':data, 'tickets':tickets})
 
@@ -1011,16 +1004,18 @@ def ticket_view(request,ticket_num):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id = user_id)
 
-    tickets=Ticket_tbl.objects.get(ticket_num=ticket_num)
+    tickets=Robo_Ticket.objects.get(ticket_num=ticket_num)
     client_dt=Client_Master.objects.get(client_id=tickets.client_id)
 
     if request.method == 'POST':
-        tickets.res_description = request.POST['res_description']
-        tickets.resolved_by = data.user_id
+        tickets.res_description = request.POST.get('res_description')
+        tickets.resolved_by = data.first_name
         tickets.resolved_dt = timezone.now() + timedelta(hours=5, minutes=30)
         tickets.status = 'Closed'
 
         tickets.save()
+
+        messages.success(request, "Ticket Has been solved")
         return redirect ('manil_ticket')
     
     return render (request, 'manil_temp/ticket_view.html', {'data':data,'tickets':tickets,'client_dt':client_dt,})
@@ -1052,12 +1047,14 @@ def robo_master(request):
             robot_id=new_value,
             robot_name=robot_name,
             robot_type=robot_type,
-            description=description
+            description=description,
+            creation_date=timezone.now() + timedelta(hours=5, minutes=30),
+            created_by=data.first_name
         )
         new_robot.save()
 
-        success_msg = 'Robot is added successfully.'
-        return render(request, 'manil_temp/robo_master.html', {'robots': robots,'data': data, 'success_msg':success_msg})
+        messages.success(request, "Robot is added successfully.")
+        return redirect ('robo_master')
 
     return render(request, 'manil_temp/robo_master.html', {'robots': robots,'data': data})
 
@@ -1095,16 +1092,17 @@ def robo_details(request):
             installation_date=installation_date,
             l_maintenance_date=l_maintenance_date,
             status=status,
-            description=description
+            description=description,
+            creation_date=timezone.now() + timedelta(hours=5, minutes=30),
+            created_by=data.first_name
         )
         new_robot_detail.save()
-
-        success_msg = 'Robot details are added successfully.'
-        return render(request, 'manil_temp/robo_details.html', {'client_m': client_m, 'robots': robots, 'robot_details': robot_details,'data': data, 'success_msg':success_msg })
-
+        messages.success(request, "Robot details are added successfully.")
+        return redirect ('robo_details')
+    
     return render(request, 'manil_temp/robo_details.html', {'client_m': client_m, 'robots': robots, 'robot_details': robot_details,'data': data })
 
-def invoice_preview(request, ord_no):    
+def invoice_preview(request, ord_no):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
 
@@ -1114,39 +1112,38 @@ def invoice_preview(request, ord_no):
     ord_det = client_order_details.objects.filter(order_number=ord_no)
     mat_list = Material_Master.objects.all()
     dispatch = Despatch_Details.objects.all()
-    
-    existing_invoice = M_client_invoice.objects.filter(order_number=order.order_number).exists()
-    
-    if request.method == 'POST' and not existing_invoice:
 
+    existing_invoice = M_client_invoice.objects.filter(order_number=order.order_number).exists()
+
+    if request.method == 'POST' and not existing_invoice:
         invoice = M_client_invoice.objects.all()
 
-        if invoice.exists():            
-            last_name = invoice.last().invoice_num                     
-            pre = last_name[:-3]  
-            suf = int(last_name[-3:])                        
+        if invoice.exists():
+            last_name = invoice.last().invoice_num
+            pre = last_name[:-3]
+            suf = int(last_name[-3:])
             new_suf = suf + 1
-                    
-            new_suffix = f"{new_suf:03}"        
+            new_suffix = f"{new_suf:03}"
             new_value = pre + new_suffix
-        else:           
+        else:
             new_value = 'INV001'
 
         new_invoice = M_client_invoice(
             order_number=order.order_number,
             client_id=order.client_id,
+            client_name=order.client_name,
             invoice_num=new_value,
             invoice_date=timezone.now() + timedelta(hours=5, minutes=30),
             po_authority=order.po_authority,
             total_price=order.grand_total,
             creation_date=timezone.now() + timedelta(hours=5, minutes=30),
-            created_by=data.user_id,
+            created_by=data.first_name,
         )
         new_invoice.save()
         
-        success_msg = "Invoice generated successfully"
-        return render(request, 'manil_temp/invoice_preview.html', {'success_msg': success_msg})
-    
+        messages.success(request, 'Invoice generated successfully')
+        return redirect('m_invoice_table')
+
     context = {
         'data': data,
         'order': order,
@@ -1155,34 +1152,109 @@ def invoice_preview(request, ord_no):
         'mat_list': mat_list,
         'dispatch': dispatch,
         'manil_det': manil_det,
-        'show_generate_button': not existing_invoice  
+        'show_generate_button': not existing_invoice  # Show button only if no invoice
     }
-    
+
     return render(request, 'manil_temp/invoice_preview.html', context)
+
+
+def m_invoice_table (request):
+    user_id = request.session.get('user_id')
+    data = Manil_User.objects.get(user_id = user_id)
+
+    invoice = M_client_invoice.objects.all()
+
+
+    return render (request, 'manil_temp/invoice_table.html', {'data':data, 'invoice':invoice})
+
+def invoice_view(request, ord_no):    
+    user_id = request.session.get('user_id')
+    data = Manil_User.objects.get(user_id = user_id)
+
+    manil_det = Manil_db.objects.all()
+
+    order = client_order.objects.get(order_number = ord_no)
+
+    client_det = Client_Master.objects.get(client_id = order.client_id)
+
+    ord_det = client_order_details.objects.filter(order_number = ord_no)
+
+    mat_list = Material_Master.objects.all()
+    
+    dispatch = Despatch_Details.objects.all()
+
+    invoice = M_client_invoice.objects.get(order_number=order.order_number)
+
+
+    context = {'data':data, 'order':order, 'client_det':client_det, 'ord_det':ord_det, 'mat_list':mat_list, 'dispatch':dispatch, 'manil_det':manil_det, 'invoice':invoice }
+    
+    return render (request, 'manil_temp/m_invoice_view.html', context)
+
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from io import BytesIO
+from django.conf import settings
+
+def m_download_invoice(request, ord_no):
+    user_id = request.session.get('user_id')
+    data = Manil_User.objects.get(user_id=user_id)
+
+
+    manil_det = Manil_db.objects.all()
+    order = client_order.objects.get(order_number=ord_no)
+    client_det = Client_Master.objects.get(client_id=order.client_id)
+    ord_det = client_order_details.objects.filter(order_number=ord_no)
+    mat_list = Material_Master.objects.all()
+    dispatch = Despatch_Details.objects.all()
+    invoice = M_client_invoice.objects.get(order_number=order.order_number)
+
+    context = {
+        'data': data,
+        'order': order,
+        'client_det': client_det,
+        'ord_det': ord_det,
+        'mat_list': mat_list,
+        'dispatch': dispatch,
+        'manil_det': manil_det,
+        'invoice': invoice,
+    }
+
+    rendered_html = render_to_string('manil_temp/m_invoice_pdf.html', context)
+    result = BytesIO()
+
+    pdf = pisa.CreatePDF(BytesIO(rendered_html.encode("UTF-8")), dest=result)
+
+    if not pdf.err:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="invoice_{ord_no}.pdf"'
+        return response
+    else:
+        return HttpResponse('We had some errors with the PDF generation', status=500)
 
 
 def order_remarks(request):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
 
-    dispatch = Despatch_Details.objects.filter(
+    tickets = Order_Tickets.objects.filter(
         remarks__isnull=False,
         remarks_title__isnull=False,
         remarked_by__isnull=False,
         remarked_date__isnull=False
     )
 
-    return render(request, 'manil_temp/order_remarks.html', {'data': data, 'dispatch': dispatch})
+    return render(request, 'manil_temp/order_remarks.html', {'data': data, 'tickets': tickets})
 
 def order_remarks_view(request, ord_no):
     user_id = request.session.get('user_id')
-    data = Manil_User.objects.get(user_id=user_id)
+    data = get_object_or_404(Manil_User, user_id=user_id)
 
-    dispatch = Despatch_Details.objects.get(process_num = ord_no)
-       
+    tickets = get_object_or_404( Order_Tickets , process_num=ord_no)
 
-    return render(request, 'manil_temp/order_remarks_view.html', {'data': data, 'dispatch': dispatch})
+    images = Remarkes_images.objects.filter(process_num=ord_no)
 
+    return render(request, 'manil_temp/order_remarks_view.html', {'data': data,'tickets': tickets,'images': images })
 
 
 

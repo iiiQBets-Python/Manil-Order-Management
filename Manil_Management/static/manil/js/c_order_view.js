@@ -311,3 +311,6 @@ function handle_material(value) {
     subtotal_cal(value);
 }
 
+
+
+

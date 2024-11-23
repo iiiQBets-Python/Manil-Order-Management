@@ -21,6 +21,7 @@
             <thead>
                 <tr>
                     <th scope="col">SL No</th>
+                    <th scope="col">Ticket Details</th>
                     <th scope="col">Order No</th>
                     <th scope="col">Remark Title</th>
                     <th scope="col">Remarked By</th>
@@ -28,10 +29,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for i in dispatch %}
+                {% for i in tickets %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ i.process_num }}</td>
+                    <td>{{ i.ticket_num }} <br> {{i.ticket_date|date:'Y-m-d'}}</td>
+                    <td>{{ i.order_number }}</td>
                     <td>{{ i.remarks_title }}</td>
                     <td>{{ i.remarked_by }} <br> {{ i.remarked_date|date:'Y-m-d'}}  </td>
                     <td>

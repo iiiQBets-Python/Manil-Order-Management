@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'messages.css' %}">
 
     <style>
         * {
@@ -394,26 +395,6 @@
         }
 
         @media screen and (max-width:768px) {
-            /* #content {
-                position: relative;
-                width: calc(100% - 60px);
-                transition: all .3s ease;
-            }
-
-            nav .nav-link,
-            nav .divider {
-                display: none;
-            }
-
-            #sidebar.hide+#content {
-                width: calc(100% - 0px);
-                left: 0px;
-            }
-
-            #sidebar.hide {
-                max-width: 0px;
-            } */
-
            /* Sidebar should be hidden initially and only shown on hover */
            #sidebar {
                 position: absolute;
@@ -478,6 +459,10 @@
 </head>
 
 <body>
+    <!-- Floating Alert for Success Messages -->
+    <div id="floating-alert-success" class="floating-alert-success">
+        <span id="floating-alert-success-message"></span>
+    </div>
     <!-- SIDEBAR -->
     <section id="sidebar" class="toggle_hide">
         <a href="#" class="brand" style="padding-left: 80px;">Manil <i class='bx bx-menu toggle-sidebar tog_btn2' style="color: black; margin-left: 80px;"></i> </a>
@@ -490,10 +475,11 @@
             <li><a href="{% url 'cust_user_master' %}"><i class='bx bxs-chart icon'></i> Client User</a></li>
             <li><a href="{% url 'chaipoint_user' %}"><i class="fas fa-users icon"></i> Chaipoint User</a></li>
             <li><a href="{% url 'material_master' %}"><i class="fas fa-boxes icon"></i> Material Master</a></li>
-            <li><a href="{% url 'material_cost' %}"><i class="fas fa-dollar-sign icon"></i> Material Cost</a></li>            
+            <li><a href="{% url 'material_cost' %}"><i class="fas fa-dollar-sign icon"></i> Material Cost</a></li>
+            <li><a href="{% url 'client_order_' %}"><i class="fas fa-receipt icon"></i> Client Order Table</a></li>            
             <li><a href="{% url 'manil_order_' %}"><i class="fas fa-receipt icon"></i> Manil Order Table</a></li>
-            <li><a href="{% url 'client_order_' %}"><i class="fas fa-receipt icon"></i> Client Order Table</a></li>
             <li><a href="{% url 'manil_dispatch' %}"><i class='fas fa-truck icon'></i>Manil Dispatch</a></li>
+            <li><a href="{% url 'm_invoice_table' %}"><i class='bx bxs-chart icon'></i>Invoice</a></li>
             <li><a href="{% url 'order_remarks' %}"><i class='fas fa-boxes icon'></i>Order Remarks</a></li>
             <li><a href="{% url 'manil_ticket' %}"><i class="fas fa-tools icon"></i> Manil Ticket</a></li>
             <li><a href="{% url 'robo_master' %}"><i class="fas fa-robot icon"></i> Robo Master</a></li>
@@ -525,6 +511,7 @@
                 <i class='bx bxs-message-square-dots icon'></i>
                 <span class="badge">8</span>
             </a> -->
+            
             <span class="divider"></span>
             <div class="profile_name">
                 {{data.first_name}} {{data.last_name}}
@@ -540,6 +527,9 @@
             </div>
         </nav>
         <!-- NAVBAR -->
+
+        <!-- Backdrop element at the root level -->
+        <div id="page-backdrop" class="page-backdrop"></div>
         <!-- MAIN -->
         <main>
             {% block content %}
@@ -547,6 +537,30 @@
             {% endblock %}
         </main>
     </section>
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' in message.tags %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var successAlertElement = document.getElementById('floating-alert-success');
+                        var successMessage = document.getElementById('floating-alert-success-message');
+
+                        // Set the success message and display the floating alert
+                        successMessage.textContent = "{{ message|safe }}";
+                        successAlertElement.style.display = 'block';
+                        successAlertElement.classList.add('show');
+
+                        // Hide the success alert automatically after 2 seconds
+                        setTimeout(function () {
+                            successAlertElement.classList.remove('show');
+                            successAlertElement.style.display = 'none';
+                        }, 3000); // 2 seconds delay for success alert
+                    });
+                </script>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
