@@ -117,7 +117,7 @@
     <!-- Back and Print Buttons -->
     <div class="form-buttons mt-4 text-center">
         <button class="btn btn-secondary btn-sm me-1" onclick="window.history.back()">Back</button>
-        {% if order.status != 'Dispatched' %}
+        {% if order.status != 'Dispatched' and order.status != 'Delivered' and order.status != 'Remarked' %}
          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#dispatchmodal">Dispatch Order</button>
         {% endif %} 
     </div>
@@ -171,6 +171,32 @@
   </div>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const deliveryDateField = document.getElementById("expected_delivery_date");
+  
+      // Get the current date in YYYY-MM-DD format
+      const today = new Date().toISOString().split("T")[0];
+  
+      // Set the minimum value of the date field to today (so user cannot pick a past date)
+      deliveryDateField.setAttribute("min", today);
+  
+      // Validate when the user changes the date
+      deliveryDateField.addEventListener("input", function () {
+        const selectedDate = deliveryDateField.value;
+  
+        // If the selected date is less than today's date, show validation message
+        if (selectedDate < today) {
+          deliveryDateField.setCustomValidity("The Expected Delivery Date cannot be today or in the past.");
+          deliveryDateField.reportValidity();
+        } else {
+          // Clear the custom validity message
+          deliveryDateField.setCustomValidity("");
+        }
+      });
+    });
+  </script>
+  
   
 <!-- {% if success_msg %}
 <script>     

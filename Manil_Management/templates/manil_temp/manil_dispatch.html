@@ -45,8 +45,11 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                                <li><a class="dropdown-item btn-edit" href=""><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                                <li>
+                                    <a class="dropdown-item btn-delete" href="#" data-href="{% url 'delete_m_dispatch' i.id %}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </td>
@@ -55,6 +58,9 @@
             </tbody>
         </table>
     </div>
+
+    
+
 
     <!-- The Modal -->
     <!-- <div class="modal fade" id="dispatchModal" tabindex="-1" aria-labelledby="dispatchModalLabel" aria-hidden="true">
@@ -124,6 +130,10 @@
         </div>
     </div> -->
 </div>
+
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

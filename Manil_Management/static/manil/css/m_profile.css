@@ -1,0 +1,31 @@
+
+.main-body {
+    padding: 20px;
+}
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+img.rounded-circle {
+    border: 2px solid #a7654f;
+}
+h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.text-header{
+    color: #cf3400;
+    font-weight: bold;
+}
+.card-body {
+    padding: 1.5rem;
+}
+.btn-info, .btn-warning {
+    font-weight: 600;
+    padding: 0.5rem 1.2rem;
+}
+.text-end {
+    text-align: right;
+}

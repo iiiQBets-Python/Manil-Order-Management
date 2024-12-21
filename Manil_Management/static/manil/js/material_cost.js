@@ -37,12 +37,19 @@ document.getElementById('client_id').addEventListener('change', function () {
 document.getElementById('material_name').addEventListener('change', function () {
   var selectedOption = this.options[this.selectedIndex];
   var material_code = selectedOption.getAttribute('data-material-code');
+  var hsn_code = selectedOption.getAttribute('data-hsn-code');
 
   if (material_code) {
     document.getElementById('material_code').value = material_code;
   } else {
     document.getElementById('material_code').value = null;
   }
+  if (hsn_code) {
+    document.getElementById('hsn_code').value = hsn_code;
+  } else {
+    document.getElementById('hsn_code').value = null;
+  }
+
 });
 
 

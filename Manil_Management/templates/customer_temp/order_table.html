@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="{% static 'customer/css/order_table.css' %}">
 <link rel="stylesheet" href="{% static 'messages.css' %}">
 
+
 {% endblock styles %}
 
 
@@ -53,8 +54,14 @@
                 <ul class="dropdown-menu" aria-labelledby="actionMenu1">
                   <!-- <li><a class="dropdown-item btn-read" href="#"><i class="fas fa-eye"></i>View</a></li>
                   <li><a class="dropdown-item btn-invoice" href="#"><i class="fas fa-file-download"></i> Invoice</a></li> -->
-                  <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i>Edit</a></li>
-                  <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i>Delete</a></li>
+
+                  <li>
+                    <a class="dropdown-item btn-delete" 
+                       href="#" 
+                       data-href="{% url 'delete_c_order' i.order_number %}">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </a>
+                  </li>
                 </ul>
               </div>
             </td>
@@ -78,7 +85,7 @@
 
       <!-- Modal Body -->
       <div class="modal-body">
-        <form id="OrderForm" method="post">
+        <form id="OrderForm" method="post" action="{% url 'order_table' %}">
           {% csrf_token %}
           <div class="row">   
             
@@ -120,23 +127,30 @@
                         <select class="form-control" id="material_name_1" name="material_name_1" onchange="handle_material(1)" required>
                           <option value="" disabled selected>Select material</option>
                           {% for i in mat_list %}
-                          <option value="{{ i.material_name }}" {% for j in cost_det %} {% if j.material_code == i.material_code %} uom="{{ j.unit_of_measurement }}" base_prince="{{j.cost_per_unit}}" {% endif %} {% endfor %}  cgst="{{i.cgst_rate}}" sgst="{{i.sgst_rate}}" igst="{{i.igst_rate}}">{{ i.material_name }}</option>
+                          <option value="{{ i.material_name }}" {% for j in cost_det %} {% if j.material_code == i.material_code %} uom="{{ j.unit_of_measurement }}" base_prince="{{j.cost_per_unit}}" {% endif %} {% endfor %}  cgst="{{i.cgst_rate}}" sgst="{{i.sgst_rate}}" igst="{{i.igst_rate}}"  hsn_code="{{i.hsn_code}}" >{{ i.material_name }}</option>
                           {% endfor %}
                         </select>                                            
                         <label for="material_name_1">Material Name</label>
                       </div>
                     </div>
+                     <!-- HSN Code -->
+                     <div class="col-lg-2 col-sm-12 mb-3">
+                      <div class="form-floating">
+                        <input type="text" class="form-control" id="hsn_code_1" name="hsn_code_1" placeholder="" readonly required>
+                        <label for="hsn_code_1">HSN Code</label>
+                      </div>
+                    </div>
                     <!-- Unit of Measure -->
-                    <div class="col-lg-3 col-sm-12 mb-3">
+                    <div class="col-lg-2 col-sm-12 mb-3">
                       <div class="form-floating">
                         <input type="text" class="form-control" id="uom_1" name="uom_1" placeholder="" readonly required>
                         <label for="uom_1">Unit of Measure</label>
                       </div>
                     </div>
                     <!-- Quantity -->
-                    <div class="col-lg-3 col-sm-12 mb-3">
+                    <div class="col-lg-2 col-sm-12 mb-3">
                       <div class="form-floating">
-                        <input type="number" step="1" class="form-control" id="qty_1" name="qty_1" oninput="subtotal_cal(1)" placeholder="" required>
+                        <input type="number" step="1" class="form-control" id="qty_1" name="qty_1" oninput="subtotal_cal(1)" min="1"  placeholder="" required>
                         <label for="qty_1">Quantity</label>
                       </div>
                     </div>
@@ -191,11 +205,11 @@
               </div>
             </div>
 
-            <div class="col-md-6 form-group mt-4">
+            <div class="col-md-6 col-sm-12 form-group mt-4">
               <input type="text" class="form-control" id="amt_in_words" name="amt_in_words" placeholder=" " readonly required>              
               <label for="amt_in_words" class="form-label">Amount in Words</label>
             </div>
-            <div class="col-md-6 form-group mt-4">
+            <div class="col-md-6 col-sm-12 form-group mt-4">
               <input type="number" step="0.01" class="form-control" id="grand_total" name="grand_total" placeholder=" " readonly required>
               <label for="grand_total" class="form-label">Grand Total</label>
             </div>
@@ -210,6 +224,28 @@
     </div>
   </div>
 </div>
+
+ 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.body; // Parent container for dynamically added inputs
+
+    // Event delegation for input fields with IDs starting with "qty_"
+    container.addEventListener("input", function (event) {
+      const target = event.target;
+      if (target.id && target.id.startsWith("qty_")) {
+        const quantity = parseInt(target.value, 10);
+
+        if (!isNaN(quantity) && quantity === 0) {
+          target.setCustomValidity("Quantity cannot be zero.");
+          target.reportValidity(); // Show the validation message
+        } else {
+          target.setCustomValidity(""); // Clear the validation message
+        }
+      }
+    });
+  });
+</script>
 
 
 {% if messages %}
@@ -256,6 +292,10 @@
     };
 </script>
 {% endif %} -->
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

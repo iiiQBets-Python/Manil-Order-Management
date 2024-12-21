@@ -132,9 +132,7 @@
 .modal-title {
     font-weight: bold;
 }
-#modal_container{
-    margin-left: -180px;
-}
+
 
 /* Floating label form group */
 .form-group {

@@ -4,164 +4,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice</title>
+    <title>Invoice Template</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Invoice Container */
-        .invoice-container {
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            background-color: rgb(230, 230, 230);
+        }
+
+        .main{
             max-width: 800px;
-            margin: auto;
+            margin: 20px auto;
             padding: 20px;
-            background: #fff;
-            font-size: 14px;
-            color: #333;
-            border: 1px solid #dee2e6;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            border: 1px solid black;
+            background-color: white;
         }
 
-        /* Header and Footer */
+        .logo-container {
+            text-align: center;
+            padding: 15px 0 0 0; 
+        }
+
+        .logo {
+            max-width: 300px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
         .invoice-header {
+            text-align: center;
+            border: 1px solid black; 
+            padding: 10px;
+            border-bottom: none
+        }
+
+        .invoice-header h2 {
+            font-size: 20px;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #dee2e6;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            margin: 0;
+            border: 1px solid black; 
+            border-bottom: none
         }
-        .company-details {
-            text-align: left;
-            font-size: 16px;
-            margin-bottom: -50px;
+
+        .col-md-12 {
+            padding: 10px 5px 0 5px;
+            border-bottom: none
         }
-        .invoice-info {
-            text-align: right;
+
+        .col-md-6 {
+            width: 50%;
+            padding: 10px;
+            border-right: 1px solid black; 
+            border-bottom: none
+        }
+
+        .col-md-6:last-child {
+            border-right: none; /* Removes right border for the last column */
+        }
+
+        .table {
+            width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+            border: 1px solid black; 
+            border-bottom: none
+        }
+
+        .table th{
+            background-color: rgb(190, 190, 190);
+        }
+
+        .table th, .table td {
+            padding: 10px; /* Ensures text is well-spaced and readable */
             font-size: 14px;
-        }
-        .invoice-footer {
             text-align: center;
-            border-top: 2px solid #dee2e6;
-            padding-top: 10px;
-            margin-top: 20px;
+            border: 1px solid black; 
+            border-bottom: none;
         }
 
-        /* Section Titles */
-        .section-title {
-            font-weight: bold;
-            background-color: #f8f9fa;
-            padding: 8px;
-            border: 1px solid #dee2e6;
-            margin-top: 20px;
+        .footer {
+            border: 1px solid black; 
         }
 
-        /* Section Styling */
-        .section-content {
-            padding: 15px;
-            border: 1px solid #dee2e6;
-            background-color: #fefefe;
+        .footer .row {
+            display: flex;
+            margin: 0;
+            border: none; 
+        }
+
+        .footer .col-md-6 {
+            width: 50%;
+            padding: 10px;
+            border-right: 1px solid black; /* Right border for left column */
+        }
+
+        .footer .col-md-6:last-child {
+            border-right: none; /* Removes right border for the last column */
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px; /* Adjusts spacing between images */
+        }
+
+        .signature-section img {
+            max-width: 120px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .footer .signature-section p {
             margin-top: 10px;
-        }
-
-        /* Line Items Table */
-        .line-items th, .line-items td {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #dee2e6;
-        }
-
-        /* Summary Section */
-        .summary-section {
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            background-color: #f8f9fa;
-            margin-top: 20px;
             font-weight: bold;
+            text-align: center;
         }
+
+        .footer .signature-section .signature {
+            max-width: 150px;
+            height: auto;
+            margin: 10px auto;
+        }
+
     </style>
 </head>
 <body>
-<div class="invoice-container">
-    <!-- Header: Company Info and Invoice Details -->
-    <div class="invoice-header">
-        <!-- Left Side: Company Details -->
-        <div class="company-details">
-            <strong>Manil Technology pvt ltd</strong>
+    <div class="main">
+        <div class="logo-container">
+            <img src="/media/invoice/manil.jpg" alt="Manil Advisors Logo" class="logo">
         </div>
-
-        <!-- Right Side: Invoice Info -->
-        <div class="invoice-info">
-            <h3>Invoice</h3>
-            <span><strong>Number : </strong>{{ invoice.invoice_num }}</span><br>
-            <span> <strong>Date : </strong>{{ invoice.invoice_date|date:'Y-m-d' }}</span>
+        <div class="container">
+            <div class="invoice-header">
+                <h2>TAX INVOICE</h2>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Manil Advisors</strong></p>
+                    <p>{{ manil_det.billing_address }}<br>
+                    {{ manil_det.billing_city }}, {{ manil_det.billing_state }} - {{ manil_det.billing_pin }}<br>
+                    GSTIN - {{ manil_det.billing_gst_number }}<br>
+                    MSME Registration No: {{ manil_det.msme_number }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p>Invoice Number: XXXXXXXXX</p>
+                    <p>Invoice Date: XXXXXXX</p>
+                </div>
+            </div>
+    
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>BILL TO:</strong></p>
+                    <p>{{ client_det.billing_address }}r<br>
+                        {{ client_det.billing_city }}, {{ client_det.shipping_state }} - {{ client_det.billing_pin }}<br>
+                    GSTIN: {{ client_det.billing_gst_number }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>SHIP TO:</strong></p>
+                    <p>{{ order.shipping_address }}<br>
+                    {{ order.shipping_city }}, {{ order.billing_state }} - {{ order.shipping_pin }}<br>
+                    GSTIN: {{ client_det.shipping_gst_number }}</p>
+                </div>
+            </div>
+    
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Ref:PO Authority {{ order.po_authority }} and PO date {{ order.po_authority_date }}</p>
+                </div>
+            </div>
+    
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>SI No</th>
+                        <th>Particular</th>
+                        <th>Nos</th>
+                        <th>Unit Price</th>
+                        <th>GST %</th>
+                        <th>HSN Code</th>
+                        <th>IGST Amt</th>
+                        <th>Total Amount (Rs.)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in ord_det %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ i.material_name }}</td>
+                        <td>{{ i.qty }} {{ i.uom }}</td>
+                        <td>₹{{ i.base_price }}</td>
+                        <td>{{ i.gst_rate }}%</td>
+                        <td>{{ i.hsn_code }}</td>
+                        <td>{{ i.gst_amt }}</td>
+                        <td>₹{{ i.sub_total }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="7" class="text-end"><strong>Total</strong></td>
+                        <td><strong>Rs.{{ order.grand_total }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+    
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Total amount in words: <strong>{{ order.ammount_words }}</strong></p>
+                </div>
+            </div>
+    
+        
+            <div class="footer">
+                <div class="row">
+                    <!-- Left Text Column -->
+                    <div class="col-md-6">
+                        <p>All Cheques/Demand Drafts/Wire transfers should be made favouring <br>
+                        MANIL ADVISORS<br>
+                        Account Number: XXXXXXXXXXXX (Will be Shared Later)<br>
+                        IFSC Code: XXXXXXXXXXXX (Will be Shared Later)<br>
+                        HDFC Bank Ltd, Malleswaram Branch</p>
+                    </div>
+            
+                    <!-- Right Signature Column -->
+                    <div class="col-md-6 signature-section d-flex">
+                        <div>
+                            <p>For MANIL ADVISORS</p>
+                            <img src="/media/invoice/sign.jpg" alt="Authorized Signatory" class="signature">
+                            <p>Authorised Signatory</p>
+                        </div>
+                        <div>
+                            <img src="/media/invoice/image.png" alt="Additional Signature" class="signature">
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Print and Back Buttons -->
+            <div class="form-buttons text-center mt-3">
+                <button class="btn btn-secondary btn-sm me-2" onclick="window.history.back()">Back</button>
+            </div>
+            
         </div>
     </div>
-
-    <!-- Order Details -->
-    <div class="section-title">Order Details</div>
-    <div class="section-content">
-        <div class="row">
-            <div class="col-md-6"><p><strong>Order Number:</strong> {{ order.order_number }}</p></div>
-            <div class="col-md-6"><p><strong>Client Name:</strong> {{ client_det.client_name }}</p></div>
-            <div class="col-md-6"><p><strong>Order Date:</strong> {{ order.creation_date|date:'Y-m-d' }}</p></div>
-            <div class="col-md-6"><p><strong>Client Number:</strong> {{ client_det.client_id }}</p></div>
-            <div class="col-md-6"><p><strong>Order By:</strong> {{ order.created_by }}</p></div>
-        </div>
-    </div>
-
-    <!-- Shipping Details -->
-    <div class="section-title">Shipping Details</div>
-    <div class="section-content">
-        <div class="row">
-            <div class="col-md-12"><p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p></div>
-            <div class="col-md-6"><p><strong>City:</strong> {{ order.shipping_city }}</p></div>
-            <div class="col-md-6"><p><strong>State:</strong> {{ order.shipping_state }}</p></div>
-            <div class="col-md-6"><p><strong>Pin Code:</strong> {{ order.shipping_pin }}</p></div>
-        </div>
-    </div>
-
-    <!-- Line Items Table -->
-    <div class="section-title mb-2">Ordered Items</div>
-    <table class="table table-bordered line-items">
-        <thead>
-            <tr>
-                <th>Material Name</th>
-                <th>Quantity</th>
-                <th>Base Price</th>
-                <th>GST Type</th>
-                <th>GST Rate (%)</th>
-                <th>Sub Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for i in ord_det %}
-            <tr>
-                <td>{{ i.material_name }}</td>
-                <td>{{ i.qty }} {{ i.uom }}</td>
-                <td>₹{{ i.base_price }}</td>
-                <td>{{ i.gst_type }}</td>
-                <td>{{ i.gst_rate }}%</td>
-                <td>₹{{ i.sub_total }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- Summary: Grand Total and Amount in Words -->
-    <div class="summary-section">
-        <p><strong>Amount in Words:</strong> {{ order.ammount_words }}</p>
-        <p><strong>Grand Total:</strong> ₹{{ order.grand_total }}</p>
-    </div>
-
-    <!-- Footer with Terms and Conditions -->
-    <div class="invoice-footer">
-        <p>Thank you for your business! <br> 
-           <em>Terms and conditions apply. Contact us for inquiries.</em></p>
-    </div>
-
-    <!-- Print and Back Buttons -->
-    <div class="form-buttons text-center mt-3">
-        <button class="btn btn-secondary btn-sm me-2" onclick="window.history.back()">Back</button>
-    </div>
-</div>
-
 </body>
 </html>

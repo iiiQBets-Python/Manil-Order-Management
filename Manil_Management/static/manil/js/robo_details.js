@@ -52,3 +52,51 @@ document.getElementById('robot_id').addEventListener('change', function () {
   }
   
 });
+
+document.querySelectorAll('[id^="client_id-"]').forEach(function (clientIdElement) {
+  clientIdElement.addEventListener('change', function () {
+    var selectedOption = this.options[this.selectedIndex];
+    var modalId = this.id.split('-')[1]; // Extract the modal ID
+    var clientName = selectedOption.getAttribute('data-client-name');
+    var clientLocation = selectedOption.getAttribute('data-location');
+
+    var clientNameField = document.getElementById(`client_name-${modalId}`);
+    var clientLocationField = document.getElementById(`location-${modalId}`);
+
+    if (clientName) {
+      clientNameField.value = clientName;
+    } else {
+      clientNameField.value = null;
+    }
+
+    if (clientLocation) {
+      clientLocationField.value = clientLocation;
+    } else {
+      clientLocationField.value = null;
+    }
+  });
+});
+
+document.querySelectorAll('[id^="robot_id-"]').forEach(function (robotIdElement) {
+  robotIdElement.addEventListener('change', function () {
+    var selectedOption = this.options[this.selectedIndex];
+    var modalId = this.id.split('-')[1]; // Extract the modal ID
+    var roboName = selectedOption.getAttribute('data-robo-name');
+    var roboType = selectedOption.getAttribute('data-robo-type');
+
+    var robotNameField = document.getElementById(`robot_name-${modalId}`);
+    var robotTypeField = document.getElementById(`robot_type-${modalId}`);
+
+    if (roboName) {
+      robotNameField.value = roboName;
+    } else {
+      robotNameField.value = null;
+    }
+
+    if (roboType) {
+      robotTypeField.value = roboType;
+    } else {
+      robotTypeField.value = null;
+    }
+  });
+});

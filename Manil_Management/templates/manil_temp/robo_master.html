@@ -27,7 +27,6 @@
                     <th scope="col">Robo ID</th>
                     <th scope="col">Robo Name</th>
                     <th scope="col">Robo Type</th>
-                    <th scope="col">Description</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -38,15 +37,18 @@
                     <td>{{ robot.robot_id }}</td>
                     <td>{{ robot.robot_name }}</td>
                     <td>{{ robot.robot_type }}</td>
-                    <td>{{ robot.description }}</td>
                     <td>
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
-                                <li><a class="dropdown-item btn-edit" ><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                                <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_roboModal-{{robot.id}}" ><i class="fas fa-edit"></i> Edit</a></li>
+                                <li>
+                                    <a class="dropdown-item btn-delete" href="#" data-href="{% url 'delete_robot' robot.id %}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </td>
@@ -55,47 +57,90 @@
             </tbody>
         </table>
     </div>
+</div>
 
-    <!-- The Modal -->
-    <div class="modal fade" id="roboModal" tabindex="-1" aria-labelledby="roboModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content container-custom">
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title" id="roboModalLabel">Manil Form</h4>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                
-                <!-- Modal Body -->
-                <div class="modal-body">
-                    <form id="RoboForm" method="post">
-                        {% csrf_token %}
-                        <div class="row">                            
-                            <div class="col-md-6 form-group">
-                                <input type="text" class="form-control" id="robo_name" name="robo_name" {% if robo_name %} value="{{robo_name}}" {% endif %} placeholder=" " required>
-                                <label for="robo_name" class="form-label">Robo Name</label>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <input type="text" class="form-control" id="robot_type" name="robot_type" {% if robot_type %} value="{{robot_type}}" {% endif %} placeholder=" " required>
-                                <label for="robot_type" class="form-label">Robo Type</label>
-                            </div>
-                            <div class="col-md-12 form-group">
-                                <textarea class="form-control" id="description" name="description" placeholder=" " required> {% if description %}{{description}}{% endif %}</textarea>
-                                <label for="description" class="text-label">Description</label>
-                            </div>
+
+<!-- The Modal -->
+<div class="modal fade" id="roboModal" tabindex="-1" aria-labelledby="roboModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content container-custom">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title" id="roboModalLabel">Manil Form</h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form id="RoboForm" method="post" action="{% url 'robo_master' %}">
+                    {% csrf_token %}
+                    <div class="row">                            
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" id="robo_name" name="robo_name" {% if robo_name %} value="{{robo_name}}" {% endif %} placeholder=" " required>
+                            <label for="robo_name" class="form-label">Robo Name</label>
                         </div>
-                        <div class="form-buttons">
-                            <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
-                            <button class="btn btn-success">Save</button>
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" id="robot_type" name="robot_type" {% if robot_type %} value="{{robot_type}}" {% endif %} placeholder=" " required>
+                            <label for="robot_type" class="form-label">Robo Type</label>
                         </div>
-                    </form>
-                </div>
+                        <div class="col-md-12 form-group">
+                            <textarea type="text" class="form-control" id="description" name="description" placeholder=" " required>{% if description %}{{description}}{% endif %}</textarea>
+                            <label for="description" class="text-label">Description</label>
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button class="btn btn-danger" type="button" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                        <button class="btn btn-success" type="submit">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
 
+{% for i in robots %}
+<div class="modal fade" id="edit_roboModal-{{i.id}}" tabindex="-1" aria-labelledby="edit_roboModalLabel-{{i.id}}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content container-custom">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title" id="edit_roboModalLabel-{{i.id}}">Manil Form</h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form id="edit_RoboForm-{{i.id}}" method="post" action="{% url 'edit_robot_master' i.id %}">
+                    {% csrf_token %}
+                    <div class="row">    
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" id="robo_id-{{i.id}}" name="edit_robo_id"  value="{{i.robot_id}}"  placeholder=" " readonly required>
+                            <label for="robo_id-{{i.id}}" class="form-label">Robo ID</label>
+                        </div>                        
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" id="robo_name-{{i.id}}" name="edit_robo_name"  value="{{i.robot_name}}"  placeholder=" " required>
+                            <label for="robo_name-{{i.id}}" class="form-label">Robo Name</label>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <input type="text" class="form-control" id="robot_type-{{i.id}}" name="edit_robot_type"  value="{{i.robot_type}}"  placeholder=" " required>
+                            <label for="robot_type-{{i.id}}" class="form-label">Robo Type</label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <textarea class="form-control" id="description-{{i.id}}" name="edit_description" placeholder=" " required> {{i.description}}</textarea>
+                            <label for="description-{{i.id}}" class="text-label">Description</label>
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button class="btn btn-danger" type="button" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                        <button class="btn btn-success" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 
 {% if success_msg %}
@@ -118,6 +163,9 @@
     };
 </script>
 {% endif %}
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

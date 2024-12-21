@@ -296,6 +296,8 @@ function handle_material(value) {
   var c_gst = selectedOption.getAttribute('cgst');
   var s_gst = selectedOption.getAttribute('sgst');
   var i_gst = selectedOption.getAttribute('igst');
+  
+  var hsn_code = selectedOption.getAttribute('hsn_code');
 
 
   if (in_side) {
@@ -315,6 +317,12 @@ function handle_material(value) {
     document.getElementById(`base_price_${value}`).value = baseprince;
   } else {
     document.getElementById(`base_price_${value}`).value = null;
+  }
+
+  if (hsn_code) {
+    document.getElementById(`hsn_code_${value}`).value = hsn_code;
+  } else {
+    document.getElementById(`hsn_code_${value}`).value = null;
   }
 
   subtotal_cal(value);

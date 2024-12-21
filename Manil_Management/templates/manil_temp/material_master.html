@@ -13,10 +13,10 @@
 {% block content %}
 <div class="container-fluid table-container display responsive wrap fade-in">
 
-   <!-- Floating Alert for Success Messages -->
-   <div id="floating-alert-success" class="floating-alert-success">
-    <span id="floating-alert-success-message"></span>
-   </div>
+  <!-- Floating Alert for Success Messages -->
+  <div id="floating-alert-success" class="floating-alert-success">
+  <span id="floating-alert-success-message"></span>
+  </div>
 
   <!-- Floating Alert for Error Messages -->
   <div id="floating-alert-error" class="floating-alert-error">
@@ -24,60 +24,67 @@
     <button id="error-alert-ok" class="btn btn-danger btn-sm" onclick="openModal()"> OK </button>
   </div>
 
-    <div class="d-flex align-items-center position-relative">
-      <div id="dataTables_filter_container" class="me-3">
-            <!-- This will be populated by jQuery -->
-      </div>
-
-      <button type="button" class="btn btn-add"  data-bs-toggle="modal" data-bs-target="#materialModal">
-        Add Material
-      </button>
+  <div class="d-flex align-items-center position-relative">
+    <div id="dataTables_filter_container" class="me-3">
+          <!-- This will be populated by jQuery -->
     </div>
- <div class="table-responsive">
-  <table class="table" id="form_data_table">
-    <thead>
-        <tr>
-            <th scope="col">S.No</th>
-            <th scope="col">Material Code</th>
-            <th scope="col">Material Name</th>
-            <th scope="col">HSN Code</th>
-            <th scope="col">UOM</th>
-            <th scope="col">Start Date</th>
-            <th scope="col">End Date</th>
-            <th scope="col">Creation Details</th>
-            <th scope="col">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for material in materials %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ material.material_code }}</td>
-            <td>{{ material.material_name }}</td>
-            <td>{{ material.hsn_code }}</td>
-            <td>{{ material.unit_of_measurement }}</td>
-            <td>{{ material.start_date|date:"d/m/Y" }}</td>
-            <td>{{ material.end_date|date:"d/m/Y" }}</td>
-            <td>{{ material.created_by }}<br>{{ material.creation_date|date:"d/m/Y" }}</td>
-            <td>
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
-                        <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_materialModal-{{ material.id }}"><i class="fas fa-edit"></i> Edit</a></li>
-                        <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                    </ul>
-                </div>
-            </td>
-        </tr>
-        
-        {% endfor %}
-    </tbody>
-</table>
 
-    </div>
+    <button type="button" class="btn btn-add"  data-bs-toggle="modal" data-bs-target="#materialModal">
+      Add Material
+    </button>
   </div>
+  <div class="table-responsive">
+    <table class="table" id="form_data_table">
+      <thead>
+          <tr>
+              <th scope="col">S.No</th>
+              <th scope="col">Material Code</th>
+              <th scope="col">Material Name</th>
+              <th scope="col">HSN Code</th>
+              <th scope="col">UOM</th>
+              <th scope="col">Start Date</th>
+              <th scope="col">End Date</th>
+              <th scope="col">Creation Details</th>
+              <th scope="col">Action</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for material in materials %}
+          <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ material.material_code }}</td>
+              <td>{{ material.material_name }}</td>
+              <td>{{ material.hsn_code }}</td>
+              <td>{{ material.unit_of_measurement }}</td>
+              <td>{{ material.start_date|date:"d/m/Y" }}</td>
+              <td>{{ material.end_date|date:"d/m/Y" }}</td>
+              <td>{{ material.created_by }}<br>{{ material.creation_date|date:"d/m/Y" }}</td>
+              <td>
+                  <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
+                          <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_materialModal-{{ material.id }}"><i class="fas fa-edit"></i> Edit</a></li>
+                          <li>
+                            <a class="dropdown-item btn-delete" 
+                               href="#" 
+                               data-href="{% url 'delete_material' material.id %}">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </a>
+                        </li>
+                      </ul>
+                  </div>
+              </td>
+          </tr>
+          
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
  
  <!-- The Modal -->
  <div class="modal fade" id="materialModal" tabindex="-1" aria-labelledby="materialModalLabel" aria-hidden="true">
@@ -96,42 +103,131 @@
           {% csrf_token %}
           <div class="row">
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="material_name" name="material_name" {% if material_name %} value="{{material_name}}" {% endif %} maxlength="15" placeholder=" " required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="material_name" 
+                name="material_name" 
+                {% if material_name %} value="{{material_name}}" {% endif %} 
+                maxlength="15" 
+                placeholder=" " 
+                required 
+              >
               <label for="material_name" class="form-label">Material Name</label>
             </div>
+            
             <div class="col-md-6 form-group">
-                <input type="text" class="form-control" id="hsn_code" name="hsn_code" {% if hsn_code %} value="{{hsn_code}}" {% endif %} placeholder=" " required>
-                <label for="hsn_code" class="form-label"> HSN Code</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="hsn_code" 
+                name="hsn_code" 
+                {% if hsn_code %} value="{{hsn_code}}" {% endif %} 
+                placeholder=" " 
+                required 
+              >
+              <label for="hsn_code" class="form-label">HSN Code</label>
             </div>
+            
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="unit_of_measurement" name="unit_of_measurement" {% if unit_of_measurement %} value="{{unit_of_measurement}}" {% endif %}  placeholder=" " required>
-              <label for="unit_of_measurement" class="form-label"> Unit of measurement</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="unit_of_measurement" 
+                name="unit_of_measurement" 
+                {% if unit_of_measurement %} value="{{unit_of_measurement}}" {% endif %} 
+                placeholder=" " 
+                required 
+              >
+              <label for="unit_of_measurement" class="form-label">Unit of Measurement</label>
             </div>
+            
             <div class="col-md-6 form-group">
-              <input type="number" class="form-control" id="Base_Price" name="Base_Price" {% if Base_Price %} value="{{Base_Price}}" {% endif %} placeholder=" " required>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="Base_Price" 
+                name="Base_Price" 
+                {% if Base_Price %} value="{{Base_Price}}" {% endif %} 
+                placeholder=" " 
+                min="1"
+                required 
+              >
               <label for="Base_Price" class="form-label">Base Price</label>
             </div>
+            
             <div class="col-md-4 form-group">
-              <input type="number" class="form-control" id="igst_rate" name="igst_rate" oninput="validate_igst()" {% if igst_rate %} value="{{igst_rate}}" {% endif %}  placeholder=" " required>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="igst_rate" 
+                name="igst_rate" 
+                min="1"
+                max="100"
+                {% if igst_rate %} value="{{igst_rate}}" {% endif %} 
+                placeholder=" " 
+                required 
+              >
               <label for="igst_rate" class="form-label">IGST Rate (%)</label>
             </div>
+            
             <div class="col-md-4 form-group">
-                <input type="number" class="form-control" id="cgst_rate" name="cgst_rate" readonly {% if cgst_rate %} value="{{cgst_rate}}" {% endif %} placeholder=" " required>
-                <label for="cgst_rate" class="form-label">CGST Rate (%)</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="cgst_rate" 
+                name="cgst_rate"
+                min="1"
+                max="100" 
+                readonly 
+                {% if cgst_rate %} value="{{cgst_rate}}" {% endif %} 
+                placeholder=" " 
+                required 
+              >
+              <label for="cgst_rate" class="form-label">CGST Rate (%)</label>
             </div>
+            
             <div class="col-md-4 form-group">
-              <input type="number" class="form-control" id="sgst_rate" name="sgst_rate" readonly {% if sgst_rate %} value="{{sgst_rate}}" {% endif %} placeholder=" " required>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="sgst_rate" 
+                name="sgst_rate" 
+                min="1"
+                max="100"
+                readonly 
+                {% if sgst_rate %} value="{{sgst_rate}}" {% endif %} 
+                placeholder=" " 
+                required 
+              >
               <label for="sgst_rate" class="form-label">SGST Rate (%)</label>
             </div>
             
             <div class="col-md-6 form-group">
-              <input type="date" class="form-control" id="start_date" name="start_date" {% if start_date %} value="{{start_date}}" {% endif %}  placeholder=" " required>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="start_date" 
+                name="start_date" 
+                {% if start_date %} value="{{start_date}}" {% endif %} 
+                placeholder=" " 
+                required 
+              >
               <label for="start_date" class="form-label">Start Date</label>
             </div>
+            
             <div class="col-md-6 form-group">
-                <input type="date" class="form-control" id="end_date" name="end_date" {% if end_date %} value="{{end_date}}" {% endif %}  placeholder=" " required>
-                <label for="end_date" class="form-label">End Date</label>
-            </div>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="end_date" 
+                name="end_date" 
+                {% if end_date %} value="{{end_date}}" {% endif %} 
+                placeholder=" " 
+                required 
+              >
+              <label for="end_date" class="form-label">End Date</label>
+            </div>            
           </div>
           <div class="form-buttons">
             <button class="btn btn-danger" type="button" data-bs-dismiss="modal" aria-label="hidden">Close</button>
@@ -142,6 +238,87 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const hsnCodeInput = document.getElementById("hsn_code");
+    const igstRateInput = document.getElementById("igst_rate");
+    const cgstRateInput = document.getElementById("cgst_rate");
+    const sgstRateInput = document.getElementById("sgst_rate");
+    const basePriceInput = document.getElementById("Base_Price");
+    const startDateInput = document.getElementById("start_date");
+    const endDateInput = document.getElementById("end_date");
+
+    // Validate HSN Code: Must be exactly 4 or 8 digits
+    hsnCodeInput.addEventListener("input", function () {
+      const value = hsnCodeInput.value;
+      if (!/^\d{4}$/.test(value) && !/^\d{8}$/.test(value) && value.length > 0) {
+        hsnCodeInput.setCustomValidity("Please enter valid HNS code(HSN Code must be 4 or 8 digits).");
+      } else {
+        hsnCodeInput.setCustomValidity(""); // Clear error
+      }
+    });
+
+    // Validate Base Price: Must not be 0
+    basePriceInput.addEventListener("input", function () {
+      const basePrice = parseFloat(basePriceInput.value);
+      if (basePrice === 0) {
+        basePriceInput.setCustomValidity("Base Price cannot be Zero.");
+      } else {
+        basePriceInput.setCustomValidity(""); // Clear error
+      }
+    });
+
+    // Automatically calculate CGST and SGST from IGST
+    igstRateInput.addEventListener("input", function () {
+      const igstValue = parseFloat(igstRateInput.value);
+
+      // Validate IGST Rate: Must be between 0 and 100
+      if (igstValue < 0 || igstValue > 100) {
+        igstRateInput.setCustomValidity("IGST must be between 0 and 100.");
+        cgstRateInput.value = "";
+        sgstRateInput.value = "";
+      } else {
+        igstRateInput.setCustomValidity(""); // Clear error
+        if (!isNaN(igstValue)) {
+          const halfValue = (igstValue / 2).toFixed(2); // Split into two halves
+          cgstRateInput.value = halfValue;
+          sgstRateInput.value = halfValue;
+        } else {
+          cgstRateInput.value = "";
+          sgstRateInput.value = "";
+        }
+      }
+    });
+
+    // Validate End Date: Must not be earlier than Start Date
+    endDateInput.addEventListener("change", function () {
+      const startDate = new Date(startDateInput.value);
+      const endDate = new Date(endDateInput.value);
+
+      if (endDate < startDate) {
+        endDateInput.setCustomValidity("End Date cannot be earlier than Start Date.");
+      } else {
+        endDateInput.setCustomValidity(""); // Clear error
+      }
+    });
+
+    // Re-validate End Date when Start Date changes
+    startDateInput.addEventListener("change", function () {
+      const startDate = new Date(startDateInput.value);
+      const endDate = new Date(endDateInput.value);
+
+      if (endDate && endDate < startDate) {
+        endDateInput.setCustomValidity("End Date cannot be earlier than Start Date.");
+      } else {
+        endDateInput.setCustomValidity(""); // Clear error
+      }
+    });
+  });
+</script>
+
+
+
 
 {% for i in materials %}
   <div class="modal fade" id="edit_materialModal-{{ i.id }}" tabindex="-1" aria-labelledby="edit_materialModallLabel-{{ i.id }}" aria-hidden="true">
@@ -206,17 +383,100 @@
       </div>
     </div>
   </div>
+  <script>
+    function validate_edit_igst(id) {
+      const igstRate = document.getElementById(`edit_igst_rate-${id}`).value;
+      const halfRate = (Number(igstRate) / 2); 
+      document.getElementById(`edit_cgst_rate-${id}`).value = halfRate;
+      document.getElementById(`edit_sgst_rate-${id}`).value = halfRate;
+    }
+  </script>
 {% endfor %}
 
 <script>
-  function validate_edit_igst(id) {
-    const igstRate = document.getElementById(`edit_igst_rate-${id}`).value;
-    const halfRate = (Number(igstRate) / 2); 
-    document.getElementById(`edit_cgst_rate-${id}`).value = halfRate;
-    document.getElementById(`edit_sgst_rate-${id}`).value = halfRate;
-  }
-</script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Select all modals for Material Edit
+    const modals = document.querySelectorAll('[id^="edit_materialModal-"]');
 
+    modals.forEach(modal => {
+        const id = modal.id.split('-')[1]; // Extract the dynamic ID suffix from modal ID
+
+        // Dynamic element selectors
+        const hsnCodeInput = document.getElementById(`hsn_code-${id}`);
+        const igstRateInput = document.getElementById(`edit_igst_rate-${id}`);
+        const cgstRateInput = document.getElementById(`edit_cgst_rate-${id}`);
+        const sgstRateInput = document.getElementById(`edit_sgst_rate-${id}`);
+        const basePriceInput = document.getElementById(`Base_Price-${id}`);
+        const startDateInput = document.getElementById(`start_date-${id}`);
+        const endDateInput = document.getElementById(`end_date-${id}`);
+
+        // HSN Code Validation: Must be 4 or 8 digits
+        if (hsnCodeInput) {
+            hsnCodeInput.addEventListener("input", function () {
+                const value = hsnCodeInput.value;
+                if (!/^\d{4}$/.test(value) && !/^\d{8}$/.test(value) && value.length > 0) {
+                    hsnCodeInput.setCustomValidity("HSN Code must be exactly 4 or 8 digits.");
+                } else {
+                    hsnCodeInput.setCustomValidity("");
+                }
+            });
+        }
+
+        // Base Price Validation: Cannot be 0
+        if (basePriceInput) {
+            basePriceInput.addEventListener("input", function () {
+                const basePrice = parseFloat(basePriceInput.value);
+                if (basePrice === 0 || isNaN(basePrice)) {
+                    basePriceInput.setCustomValidity("Base Price cannot be zero.");
+                } else {
+                    basePriceInput.setCustomValidity("");
+                }
+            });
+        }
+
+        // IGST Validation and Calculation of CGST and SGST
+        if (igstRateInput && cgstRateInput && sgstRateInput) {
+            igstRateInput.addEventListener("input", function () {
+                const igstValue = parseFloat(igstRateInput.value);
+
+                if (igstValue < 0 || igstValue > 100) {
+                    igstRateInput.setCustomValidity("IGST Rate must be between 0 and 100.");
+                    cgstRateInput.value = "";
+                    sgstRateInput.value = "";
+                } else {
+                    igstRateInput.setCustomValidity("");
+                    if (!isNaN(igstValue)) {
+                        const halfValue = (igstValue / 2).toFixed(2);
+                        cgstRateInput.value = halfValue;
+                        sgstRateInput.value = halfValue;
+                    } else {
+                        cgstRateInput.value = "";
+                        sgstRateInput.value = "";
+                    }
+                }
+            });
+        }
+
+        // End Date Validation: Must not be earlier than Start Date
+        function validateDates() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            if (endDate < startDate) {
+                endDateInput.setCustomValidity("End Date cannot be earlier than Start Date.");
+            } else {
+                endDateInput.setCustomValidity("");
+            }
+        }
+
+        if (startDateInput && endDateInput) {
+            startDateInput.addEventListener("change", validateDates);
+            endDateInput.addEventListener("change", validateDates);
+        }
+    });
+  });
+
+</script>
 
 {% if messages %}
     {% for message in messages %}
@@ -290,6 +550,9 @@
     };
 </script>
 {% endif %} -->
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

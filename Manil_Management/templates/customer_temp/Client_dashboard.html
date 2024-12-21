@@ -8,21 +8,42 @@
 {% endblock styles %}
 
 {% block content %}
+
+<div class="order_container">
+    <!-- Cards -->
+    <div class="grid grid-cols-4 mb-3">
+        <div class="card">
+            <h2>Total Orders</h2>
+            <p class="blue-text">{{ total_orders }}</p>
+        </div>
+        <div class="card">
+            <h2>Orders Received</h2>
+            <p class="green-text">{{ received_orders }}</p>
+        </div>
+        <div class="card">
+            <h2>Orders Pending</h2>
+            <p class="purple-text">{{ pending_orders }}</p>
+        </div>
+        <div class="card">
+            <h2>Orders Remarked</h2>
+            <p class="red-text">{{ remarked_orders }}</p>
+        </div>
+    </div>
+</div>
+
 <div class="main-container">
     <!-- Main Content -->
     <div class="content-area">
-        
-
         <main class="main-content">
             <div class="grid-container-wrapper">
                 <!-- Scroll left button -->
                 <button class="scroll-button scroll-button-left">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-            
+
                 <!-- Grid container with 20 cards -->
                 <div class="grid-container">
-                    {% for i in range_20 %}
+                    {% for robot in robot_details %}
                     <div class="card">
                         <div class="card-content">
                             <div class="card-header">
@@ -31,31 +52,23 @@
                                 </div>
                                 <div class="details">
                                     <dl>
-                                        <dt>Robo</dt>
+                                        <dt>{{ robot.robot_name }}</dt>
                                         <dd class="details-info">
-                                            <span class="stats">150/200</span>
-                                            <span class="stats-change">
-                                                <i class="fas fa-arrow-up"></i> 75%
-                                            </span>
+                                            <span class="stats">Location: {{ robot.location }}</span>
+                                            <span class="stats-change">{{ robot.status }}</span>
                                         </dd>
                                     </dl>
                                 </div>
                             </div>
                             <div class="progress-container">
-                                <div class="progress-bar">
-                                    <div class="progress" style="width: 75%;"></div>
-                                </div>
-                                <p>Remaining: 50 | Re-order level: Below 20</p>
-                            </div>
-                            <div class="card-actions">
-                                <button class="btn btn-primary">Place Order</button>
-                                <button class="btn btn-success">Raise Ticket</button>
+                                <p><strong>Type: {{ robot.robot_type }}</strong></p>
+                                <p><strong>Installation Date: {{ robot.installation_date }}</strong></p>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
-            
+
                 <!-- Scroll right button -->
                 <button class="scroll-button scroll-button-right">
                     <i class="fas fa-chevron-right"></i>
@@ -81,15 +94,24 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for i in orders_last_5 %}
                             <tr>
-                                <td>#001</td>
-                                <td>2024-09-19</td>
-                                <td>₹100</td>
-                                <td><span class="status status-green">Shipped</span></td>
+                                <td>{{ i.order_number }}</td>
+                                <td>{{ i.order_date }}</td>
+                                <td>Rs.{{ i.grand_total }}</td>
+                                <td>
+                                    <span class="status 
+                                        {% if i.status == 'Delivered' %} status-green 
+                                        {% elif i.status == 'Pending' %} status-red 
+                                        {% elif i.status == 'Remarked' %} status-yellow 
+                                        {% else %} status-blue {% endif %}">
+                                        {{ i.status }}
+                                    </span>
+                                </td>
                                 <td><span class="status status-blue">Paid</span></td>
                                 <td><a href="#" class="link">View</a></td>
                             </tr>
-                            <!-- More rows... -->
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -97,6 +119,7 @@
         </main>
     </div>
 </div>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {

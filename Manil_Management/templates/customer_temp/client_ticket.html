@@ -53,8 +53,17 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                                <li><a class="dropdown-item btn-read" href="{% url 'c_ticket_view' i.ticket_num %}"><i class="fas fa-eye"></i>View</a></li>
+                                {% if not i.res_description %}
+                                    <li><a class="dropdown-item btn-edit" href="#"  data-bs-toggle="modal" data-bs-target="#edit_ticketModal-{{i.id}}"><i class="fas fa-edit"></i>Edit</a></li>
+                                {% endif %}
+                                <li>
+                                    <a class="dropdown-item btn-delete" 
+                                       href="#" 
+                                       data-href="{% url 'delete_c_robot_ticket' i.id %}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </td>
@@ -77,7 +86,7 @@
                 
                 <!-- Modal Body -->
                 <div class="modal-body">
-                    <form id="MaintenanceForm" method="post">
+                    <form id="MaintenanceForm" method="post" action="{% url 'client_ticket' %}">
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6 form-group">
@@ -119,6 +128,62 @@
     </div>
 </div>
 
+{% for i in tickets %}
+    <!-- The Modal -->
+    <div class="modal fade" id="edit_ticketModal-{{i.id}}" tabindex="-1" aria-labelledby="edit_ticketModalLabel-{{i.id}}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content container-custom">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title" id="edit_ticketModalLabel-{{i.id}}">Manil Ticket Form</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="edit_TicketForm-{{i.id}}" method="post" action="{% url 'edit_ticket' i.id %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="ticket_num" name="ticket_num" placeholder=" " value="{{i.ticket_num}}" readonly required>
+                                <label for="ticket_num" class="form-label">Ticket Number</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="ticket_date" name="ticket_date" placeholder=" " value="{{i.ticket_date|date:'d/m/Y'}}" readonly required>
+                                <label for="ticket_date" class="form-label">Ticket Date</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="robot_id" readonly name="robot_id" value="{{i.robot_id}}" placeholder=" " required>
+                                <label for="robot_id" class="form-label">Robo ID</label>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" class="form-control" id="robot_name" readonly name="robot_name" value="{{i.robot_name}}" placeholder=" " required>
+                                <label for="robot_name" class="form-label">Robo Name</label>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="date" class="form-control" id="Maintenance_Date" name="edit_Maintenance_Date"  placeholder=" " value="{{i.Maintenance_Date|date:'Y-m-d'}}"  required>
+                                <label for="Maintenance_Date" class="form-label">Date of Maintenance</label>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="complaint_title" name="edit_complaint_title" placeholder=" " value="{{i.complaint_title}}"  required>
+                                <label for="complaint_title" class="form-label">Complaint Title</label>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <textarea type="text" class="form-control" id="cmp_description" name="edit_cmp_description" placeholder=" "required> {{i.cmp_description}} </textarea>
+                                <label for="cmp_description" class="form-label">Complaint Description</label>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button class="btn btn-danger" type="button" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                            <button class="btn btn-success" type="submit">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endfor %}
 
 {% if messages %}
     {% for message in messages %}
@@ -143,6 +208,10 @@
         {% endif %}
     {% endfor %}
 {% endif %}
+
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

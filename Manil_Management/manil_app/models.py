@@ -49,7 +49,7 @@ class Manil_User(models.Model):
     deleted_by = models.CharField(max_length=100, blank=True, null=True)
     pwd_date = models.DateTimeField(null=True) 
     reg_status = models.BooleanField(default=0)
-    upadated_date = models.DateTimeField(blank=True, null=True)
+    updated_date = models.DateTimeField(blank=True, null=True)
     updated_by = models.CharField(max_length=100,blank=True,null=True)
 
     def save(self, *args, **kwargs):        
@@ -133,12 +133,13 @@ class Costing_Table(models.Model):
     location = models.CharField(max_length=255)    
     material_code = models.CharField(max_length=50)
     material_name = models.CharField(max_length=255)    
+    hsn_code = models.CharField(max_length=10)
     cost_per_unit = models.BigIntegerField()
     start_date = models.DateField()
     end_date = models.DateField()
     creation_date = models.DateTimeField()
     created_by = models.CharField(max_length=100) 
-    upadated_date = models.DateTimeField( null=True)
+    updated_date = models.DateTimeField( null=True)
     updated_by = models.CharField(max_length=100,null=True)
 
     unit_of_measurement = models.CharField(max_length=50, null=True)   
@@ -163,7 +164,7 @@ class Material_Master(models.Model):
     end_date = models.DateField()
     creation_date = models.DateTimeField()
     created_by = models.CharField(max_length=100)
-    upadated_date = models.DateTimeField( null=True)
+    updated_date = models.DateTimeField( null=True)
     updated_by = models.CharField(max_length=100,null=True)
 
     def __str__(self):
@@ -232,7 +233,7 @@ class Client_user(models.Model):
     created_by = models.CharField(max_length=100)    
     deletion_date = models.DateTimeField(blank=True, null=True)
     deleted_by = models.CharField(max_length=100, blank=True, null=True) 
-    upadated_date = models.DateTimeField(blank=True, null=True)
+    updated_date = models.DateTimeField(blank=True, null=True)
     updated_by = models.CharField(max_length=100,blank=True,null=True)
 
     def save(self, *args, **kwargs):        
@@ -279,6 +280,8 @@ class chai_point_user(models.Model):
     reg_status = models.BooleanField(default=0)
     creation_date = models.DateTimeField()
     created_by = models.CharField(max_length=100)    
+    updated_date = models.DateTimeField( null=True)
+    updated_by = models.CharField(max_length=100,null=True)
     deletion_date = models.DateTimeField(blank=True, null=True)
     deleted_by = models.CharField(max_length=100, blank=True, null=True)
 
@@ -342,6 +345,7 @@ class client_order(models.Model):
 class client_order_details(models.Model):
     order_number = models.CharField(max_length=100)
     material_name = models.CharField(max_length=255)
+    hsn_code = models.CharField(max_length=10)
     uom = models.CharField(max_length=50) 
     qty = models.BigIntegerField()
     base_price = models.BigIntegerField() 
@@ -383,6 +387,7 @@ class manil_order(models.Model):
 class manil_order_details(models.Model):
     process_num = models.CharField(max_length=100)    
     material_name = models.CharField(max_length=255)
+    hsn_code = models.CharField(max_length=10)
     uom = models.CharField(max_length=50) 
     qty = models.BigIntegerField()
     base_price = models.BigIntegerField()
@@ -445,6 +450,8 @@ class Robot_Master(models.Model):
     description = models.TextField(null=True, blank=True)
     creation_date = models.DateTimeField()
     created_by = models.CharField(max_length=100)
+    updated_date = models.DateTimeField( null=True)
+    updated_by = models.CharField(max_length=100,null=True)
 
     def _str_(self):
         return self.robot_name
@@ -468,11 +475,59 @@ class Robot_Details(models.Model):
     description = models.TextField(null=True, blank=True)
     creation_date = models.DateTimeField()
     created_by = models.CharField(max_length=100)
+    updated_date = models.DateTimeField( null=True)
+    updated_by = models.CharField(max_length=100,null=True)
 
     def _str_(self):
         return f"{self.client_name} - {self.robot_name}"
 
 
+class Manil_emails(models.Model):
+    username1 = models.CharField(max_length=100)
+    email1 = models.EmailField()
+    username2 = models.CharField(max_length=100, blank=True, null=True)
+    email2 = models.EmailField(blank=True, null=True)
+    username3 = models.CharField(max_length=100, blank=True, null=True)
+    email3 = models.EmailField(blank=True, null=True)
+    username4 = models.CharField(max_length=100, blank=True, null=True)
+    email4 = models.EmailField(blank=True, null=True)
+    username5 = models.CharField(max_length=100, blank=True, null=True)
+    email5 = models.EmailField(blank=True, null=True)
 
+    def __str__(self):
+        return self.username1
+
+
+class Chaipoint_emails(models.Model):
+    username1 = models.CharField(max_length=100)
+    email1 = models.EmailField()
+    username2 = models.CharField(max_length=100, blank=True, null=True)
+    email2 = models.EmailField(blank=True, null=True)
+    username3 = models.CharField(max_length=100, blank=True, null=True)
+    email3 = models.EmailField(blank=True, null=True)
+    username4 = models.CharField(max_length=100, blank=True, null=True)
+    email4 = models.EmailField(blank=True, null=True)
+    username5 = models.CharField(max_length=100, blank=True, null=True)
+    email5 = models.EmailField(blank=True, null=True)
+
+    def __str__(self):
+        return self.username1
+
+
+class Client_emails(models.Model):
+    client_id = models.CharField(max_length=50, unique=True)
+    username1 = models.CharField(max_length=100)
+    email1 = models.EmailField()
+    username2 = models.CharField(max_length=100, blank=True, null=True)
+    email2 = models.EmailField(blank=True, null=True)
+    username3 = models.CharField(max_length=100, blank=True, null=True)
+    email3 = models.EmailField(blank=True, null=True)
+    username4 = models.CharField(max_length=100, blank=True, null=True)
+    email4 = models.EmailField(blank=True, null=True)
+    username5 = models.CharField(max_length=100, blank=True, null=True)
+    email5 = models.EmailField(blank=True, null=True)
+
+    def __str__(self):
+        return self.client_id
 
 

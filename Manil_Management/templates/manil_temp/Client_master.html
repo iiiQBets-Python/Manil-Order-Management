@@ -64,7 +64,13 @@
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="actionMenu">
                   <li><a class="dropdown-item btn-edit" href="#" data-bs-toggle="modal" data-bs-target="#editclientModal-{{ i.id }}"><i class="fas fa-edit"></i> Edit</a></li>
-                  <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                  <li>
+                    <a class="dropdown-item btn-delete" 
+                       href="#" 
+                       data-href="{% url 'delete_client_master' i.id %}">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </a>
+                  </li>
                 </ul>
               </div>
             </td>
@@ -74,6 +80,8 @@
       </table>
     </div>
 </div>
+
+
 
  <!-- The Modal -->
  <div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
@@ -92,39 +100,128 @@
           {% csrf_token %}
           <div class="row">
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="client_name" name="client_name" {% if client_name %} value="{{client_name}}" {% endif %} maxlength="15" placeholder=" " required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="client_name" 
+                name="client_name" 
+                {% if client_name %} value="{{client_name}}" {% endif %} 
+                maxlength="30" 
+                placeholder=" " 
+                required
+              >
               <label for="client_name" class="form-label">Client Name</label>
             </div>
+            
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="client_S_name" name="client_S_name" {% if client_S_name %} value="{{client_S_name}}" {% endif %} maxlength="15" list="snameList" placeholder=" " required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="client_S_name" 
+                name="client_S_name" 
+                {% if client_S_name %} value="{{client_S_name}}" {% endif %} 
+                maxlength="15" 
+                list="snameList" 
+                placeholder=" " 
+                required
+              >
               <label for="client_S_name" class="form-label">Client Short Name</label>                          
               <datalist id="snameList"></datalist>
             </div>
+            
             <div class="col-md-6 form-group">
-                <input type="number" class="form-control" id="phone_number" name="phone_number" {% if phone_number %} value="{{phone_number}}" {% endif %} placeholder=" " required>
-                <label for="phone_number" class="form-label">Phone No</label>
+              <input 
+                type="tel" 
+                class="form-control" 
+                id="phone_number" 
+                name="phone_number" 
+                {% if phone_number %} value="{{phone_number}}" {% endif %} 
+                pattern="^[0-9]{10}$" 
+                maxlength="10"
+                placeholder=" " 
+                required 
+                oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Please enter a valid 10-digit phone number.');" 
+              >
+              <label for="phone_number" class="form-label">Phone No</label>
             </div>
+            
+            
             <div class="col-md-6 form-group">
-                <input type="email" class="form-control" id="email_id" name="email_id" {% if email_id %} value="{{email_id}}" {% endif %} placeholder=" " required>
-                <label for="email_id" class="form-label">Email ID</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="email_id" 
+                name="email_id" 
+                {% if email_id %} value="{{email_id}}" {% endif %} 
+                placeholder=" " 
+                required
+                oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Please enter a valid email address.');"
+              >
+              <label for="email_id" class="form-label">Email ID</label>
             </div>
+            
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="client_location" name="client_location" {% if client_location %} value="{{client_location}}" {% endif %} placeholder=" " required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="client_location" 
+                name="client_location" 
+                {% if client_location %} value="{{client_location}}" {% endif %} 
+                placeholder=" " 
+                required
+                oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Please enter the client location.');"
+              >
               <label for="client_location" class="form-label">Location</label>
             </div>
+            
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="pan" name="pan" {% if pan %} value="{{pan}}" {% endif %} minlength="8" maxlength="15" placeholder=" " required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="pan" 
+                name="pan" 
+                {% if pan %} value="{{pan}}" {% endif %} 
+                placeholder=" " 
+                pattern="[A-Z]{5}[0-9]{4}[A-Z]"
+                maxlength="10" 
+                minlength="10" 
+                required
+                oninput="this.value = this.value.toUpperCase(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('PAN must be 10 characters long (e.g., ABCDE1234F).');"
+              >
               <label for="pan" class="form-label">PAN No</label>
             </div>
+            
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="contact_person_name" name="contact_person_name" {% if contact_person_name %} value="{{contact_person_name}}" {% endif %} min="1" max="365" placeholder=" " required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="contact_person_name" 
+                name="contact_person_name" 
+                {% if contact_person_name %} value="{{contact_person_name}}" {% endif %} 
+                maxlength="30" 
+                placeholder=" " 
+                required
+                oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Please enter the contact person\'s name (up to 30 characters).');"
+              >
               <label for="contact_person_name" class="form-label">Contact Person</label>
             </div>
+            
             <div class="col-md-6 form-group">
-              <input type="text" class="form-control" id="fssai_number" name="fssai_number" {% if fssai_number %} value="{{fssai_number}}" {% endif %} min="1" max="365" placeholder=" " required>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="fssai_number" 
+                name="fssai_number" 
+                {% if fssai_number %} value="{{fssai_number}}" {% endif %} 
+                maxlength="14"
+                placeholder=" " 
+                pattern="[0-9]{14}" 
+                required
+                inputmode="numeric" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('FSSAI number must be a 14-digit numeric code.');"
+              >
               <label for="fssai_number" class="form-label">FSSAI No</label>
-            </div>  
-
+            </div>
             <!-- Checkbox: Same as Billing Address -->
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="sameAsBilling" onchange="check_validate()" name="sameAsBilling">
@@ -136,7 +233,7 @@
             <!-- Tabs for Billing and Shipping Details -->
             <ul class="nav nav-tabs mb-1" id="billingShippingTabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="billing-tab" type="button" role="tab" aria-controls="billing" aria-selected="true">Billing Details</button>                                
+                <button class="nav-link active" id="billing-tab" data-bs-toggle="tab" data-bs-target="#billing" type="button" role="tab" aria-controls="billing" aria-selected="true">Billing Details</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="shipping-tab" type="button" role="tab" aria-controls="shipping" aria-selected="false">Shipping Details</button>
@@ -148,23 +245,66 @@
               <div class="tab-pane fade show active" id="billing" role="tabpanel" aria-labelledby="billing-tab">
                 <div class="row mt-2">
                   <div class="col-md-12 form-group">
-                    <textarea class="form-control" id="billing_address" name="billing_address" oninput="next_btn_enable()"  placeholder=" " required></textarea>
+                    <textarea 
+                      class="form-control" 
+                      id="billing_address" 
+                      name="billing_address" 
+                      oninput="next_btn_enable(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Billing Address is required.');" 
+                      placeholder=" " 
+                      required></textarea>
                     <label for="billing_address" class="text-label">Billing Address</label>
                   </div>
+                  
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="billing_city" name="billing_city" oninput="next_btn_enable()" placeholder=" " required>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="billing_city" 
+                      name="billing_city" 
+                      oninput="next_btn_enable(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('City is required.');" 
+                      placeholder=" " 
+                      required>
                     <label for="billing_city" class="form-label">City</label>
                   </div>
+                  
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="billing_state" name="billing_state" oninput="next_btn_enable()" placeholder=" " required>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="billing_state" 
+                      name="billing_state" 
+                      oninput="next_btn_enable(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('State is required.');" 
+                      placeholder=" " 
+                      required>
                     <label for="billing_state" class="form-label">State</label>
                   </div>
+                  
                   <div class="col-md-6 form-group">
-                    <input type="number" class="form-control" id="billing_pin" name="billing_pin" oninput="next_btn_enable()" placeholder=" " required>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="billing_pin" 
+                      name="billing_pin" 
+                      placeholder=" " 
+                      pattern="[0-9]{6}" 
+                      maxlength="6"
+                      oninput="next_btn_enable(); this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Pin Code must be a 6-digit number.');" 
+                      required>
                     <label for="billing_pin" class="form-label">Pin Code</label>
                   </div>
+                  
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="billing_gst_number" name="billing_gst_number" oninput="next_btn_enable()" placeholder=" " required>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="billing_gst_number" 
+                      name="billing_gst_number" 
+                      placeholder=" " 
+                      pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}[Z]{1}[A-Z0-9]{1}" 
+                      inputmode="numeric" 
+                      maxlength="15"
+                      oninput="next_btn_enable(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('GST Number must follow the format: 15 alphanumeric characters (e.g., 27ABCDE1234F1Z5).');" 
+                      required>
                     <label for="billing_gst_number" class="form-label">Billing GST No</label>
                   </div>
                 </div>
@@ -175,23 +315,64 @@
               <div class="tab-pane fade" id="shipping" role="tabpanel" aria-labelledby="shipping-tab">
                 <div class="row mt-2">
                   <div class="col-md-12 form-group">
-                    <textarea class="form-control" id="shipping_address" name="shipping_address"  placeholder=" " required></textarea>
+                    <textarea 
+                      class="form-control" 
+                      id="shipping_address" 
+                      name="shipping_address" 
+                      placeholder=" " 
+                      oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Shipping Address is required.');" 
+                      required></textarea>
                     <label for="shipping_address" class="text-label">Shipping Address</label>
                   </div>
+                  
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="shipping_city" name="shipping_city" placeholder=" " required>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="shipping_city" 
+                      name="shipping_city" 
+                      placeholder=" " 
+                      oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('City is required.');" 
+                      required>
                     <label for="shipping_city" class="form-label">City</label>
                   </div>
+                  
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="shipping_state" name="shipping_state" placeholder=" " required>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="shipping_state" 
+                      name="shipping_state" 
+                      placeholder=" " 
+                      oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('State is required.');" 
+                      required>
                     <label for="shipping_state" class="form-label">State</label>
                   </div>
+                  
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="shipping_pin" name="shipping_pin" placeholder=" " required>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="shipping_pin" 
+                      name="shipping_pin" 
+                      placeholder=" " 
+                      pattern="[0-9]{6}" 
+                      oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Pin Code must be a 6-digit number.');" 
+                      required>
                     <label for="shipping_pin" class="form-label">Pin Code</label>
                   </div>
+                  
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="shipping_gst_number" name="shipping_gst_number" placeholder=" " required>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="shipping_gst_number" 
+                      name="shipping_gst_number" 
+                      placeholder=" " 
+                      maxlength="15"
+                      pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}[Z]{1}[A-Z0-9]{1}" 
+                      oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('GST Number must follow the format: 15 alphanumeric characters (e.g., 27ABCDE1234F1Z5).');" 
+                      required>
                     <label for="shipping_gst_number" class="form-label">Shipping GST No</label>
                   </div>
                 </div>
@@ -209,6 +390,22 @@
     </div>
   </div>
 </div>
+
+<script>
+  function check_validate() {
+    if (document.getElementById('sameAsBilling').checked) {
+        document.getElementById('shipping_address').value = document.getElementById('billing_address').value;
+        document.getElementById('shipping_city').value = document.getElementById('billing_city').value;
+        document.getElementById('shipping_state').value = document.getElementById('billing_state').value;
+        document.getElementById('shipping_pin').value = document.getElementById('billing_pin').value;
+    } else {
+        document.getElementById('shipping_address').value = '';
+        document.getElementById('shipping_city').value = '';
+        document.getElementById('shipping_state').value = '';
+        document.getElementById('shipping_pin').value = '';
+    }
+}
+</script>
 
 {% for i in client_m %}
 
@@ -229,33 +426,51 @@
             <div class="row">
               <!-- Client Name -->
               <div class="col-md-6 form-group">
-                <input type="text" class="form-control" id="client_name-{{ i.id }}" name="edit_client_name" value="{{ i.client_name }}" placeholder=" " required>
+                <input type="text" class="form-control" id="client_name-{{ i.id }}" name="edit_client_name" value="{{ i.client_name }}" placeholder=" " readonly required>
                 <label for="client_name-{{ i.id }}" class="form-label">Client Name</label>
               </div>
               <!-- Client Short Name -->
               <div class="col-md-6 form-group">
-                <input type="text" class="form-control" id="client_S_name-{{ i.id }}" name="edit_client_S_name" value="{{ i.client_S_name }}" maxlength="15" list="snameList" placeholder=" " required>
+                <input type="text" class="form-control" id="client_S_name-{{ i.id }}" name="edit_client_S_name" value="{{ i.client_S_name }}" maxlength="15" list="snameList" placeholder=" " readonly required>
                 <label for="client_S_name-{{ i.id }}" class="form-label">Client Short Name</label>
                 <datalist id="snameList"></datalist>
               </div>
               <!-- Phone Number -->
               <div class="col-md-6 form-group">
-                <input type="number" class="form-control" id="phone_number-{{ i.id }}" name="edit_phone_number" value="{{ i.phone_number }}" placeholder=" " required>
+                <input type="tel" class="form-control" id="phone_number-{{ i.id }}" name="edit_phone_number" value="{{ i.phone_number }}"  
+                pattern="^[0-9]{10}$" 
+                maxlength="10"
+                placeholder=" " 
+                required 
+                oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Please enter a valid 10-digit phone number.');" >
                 <label for="phone_number-{{ i.id }}" class="form-label">Phone No</label>
               </div>
               <!-- Email -->
               <div class="col-md-6 form-group">
-                <input type="email" class="form-control" id="email_id-{{ i.id }}" name="edit_email_id" value="{{ i.email_id }}" placeholder=" " required>
+                <input type="email" class="form-control" id="email_id-{{ i.id }}" name="edit_email_id" value="{{ i.email_id }}"  
+                placeholder=" " 
+                required
+                oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Please enter a valid email address.');">
                 <label for="email_id-{{ i.id }}" class="form-label">Email ID</label>
               </div>
               <!-- Location -->
               <div class="col-md-6 form-group">
-                <input type="text" class="form-control" id="client_location-{{ i.id }}" name="edit_client_location" value="{{ i.client_location }}" placeholder=" " required>
+                <input type="text" class="form-control" id="client_location-{{ i.id }}" name="edit_client_location" value="{{ i.client_location }}"                 
+                placeholder=" " 
+                required
+                oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Please enter the client location.');">
                 <label for="client_location-{{ i.id }}" class="form-label">Location</label>
               </div>
               <!-- PAN Number -->
               <div class="col-md-6 form-group">
-                <input type="text" class="form-control" id="pan-{{ i.id }}" name="edit_pan" value="{{ i.pan }}" minlength="8" maxlength="15" placeholder=" " required>
+                <input type="text" class="form-control" id="pan-{{ i.id }}" name="edit_pan" value="{{ i.pan }}"                 
+                placeholder=" " 
+                pattern="[A-Z]{5}[0-9]{4}[A-Z]"
+                maxlength="10" 
+                minlength="10" 
+                required
+                oninput="this.value = this.value.toUpperCase(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('PAN must be 10 characters long (e.g., ABCDE1234F).');"
+                >
                 <label for="pan-{{ i.id }}" class="form-label">PAN No</label>
               </div>
               <!-- Contact Person -->
@@ -265,23 +480,28 @@
               </div>
               <!-- FSSAI Number -->
               <div class="col-md-6 form-group">
-                <input type="text" class="form-control" id="fssai_number-{{ i.id }}" name="edit_fssai_number" value="{{ i.fssai_number }}" placeholder=" " required>
+                <input type="text" class="form-control" id="fssai_number-{{ i.id }}" name="edit_fssai_number" value="{{ i.fssai_number }}"  maxlength="14"
+                placeholder=" " 
+                pattern="[0-9]{14}" 
+                required
+                inputmode="numeric" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('FSSAI number must be a 14-digit numeric code.');">
                 <label for="fssai_number-{{ i.id }}" class="form-label">FSSAI No</label>
               </div>
             </div>
 
             <!-- Checkbox: Same as Billing Address -->
             <div class="form-check mb-3">
-              <input class="form-check-input" type="checkbox" id="sameAsBilling-{{ i.id }}" onchange="check_validate()" name="edit_sameAsBilling" {% if i.same_as_billing %} checked {% endif %}>
+              <input class="form-check-input" type="checkbox" id="sameAsBilling-{{ i.id }}" onchange="check_validate('{{ i.id }}')" name="edit_sameAsBilling" {% if i.same_as_billing %} checked {% endif %}>
               <label class="form-check-label" for="sameAsBilling-{{ i.id }}">
                 Shipping Address same as Billing Address
               </label>
             </div>
 
-            <!-- Tabs for Billing and Shipping Details -->
+           <!-- Tabs for Billing and Shipping Details -->
             <ul class="nav nav-tabs mb-1" id="billingShippingTabs-{{ i.id }}" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="billing-tab-{{ i.id }}" data-bs-toggle="tab" data-bs-target="#billing-{{ i.id }}" type="button" role="tab" aria-controls="billing-{{ i.id }}" aria-selected="true">Billing Details</button>                                 
+                <button class="nav-link active" id="billing-tab-{{ i.id }}" data-bs-toggle="tab" data-bs-target="#billing-{{ i.id }}" type="button" role="tab" aria-controls="billing-{{ i.id }}" aria-selected="true">Billing Details</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="shipping-tab-{{ i.id }}" data-bs-toggle="tab" data-bs-target="#shipping-{{ i.id }}" type="button" role="tab" aria-controls="shipping-{{ i.id }}" aria-selected="false">Shipping Details</button>
@@ -294,23 +514,39 @@
               <div class="tab-pane fade show active" id="billing-{{ i.id }}" role="tabpanel" aria-labelledby="billing-tab-{{ i.id }}">
                 <div class="row mt-2">
                   <div class="col-md-12 form-group">
-                    <textarea class="form-control" id="billing_address-{{ i.id }}" name="edit_billing_address" oninput="next_btn_enable()" placeholder=" " required>{{ i.billing_address }}</textarea>
+                    <textarea class="form-control" id="billing_address-{{ i.id }}" name="edit_billing_address" oninput="toggleNext('{{ i.id }}'); next_btn_enable(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Billing Address is required.');" 
+                    placeholder=" " 
+                    required>{{ i.billing_address }}</textarea>
                     <label for="billing_address-{{ i.id }}" class="text-label">Billing Address</label>
                   </div>
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="billing_city-{{ i.id }}" name="edit_billing_city" oninput="next_btn_enable()" value="{{ i.billing_city }}" placeholder=" " required>
+                    <input type="text" class="form-control" id="billing_city-{{ i.id }}" name="edit_billing_city"  value="{{ i.billing_city }}" oninput="toggleNext('{{ i.id }}'); next_btn_enable(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('City is required.');" 
+                    placeholder=" " 
+                    required>
                     <label for="billing_city-{{ i.id }}" class="form-label">City</label>
                   </div>
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="billing_state-{{ i.id }}" name="edit_billing_state" oninput="next_btn_enable()" value="{{ i.billing_state }}" placeholder=" " required>
+                    <input type="text" class="form-control" id="billing_state-{{ i.id }}" name="edit_billing_state"  value="{{ i.billing_state }}" oninput="toggleNext('{{ i.id }}'); next_btn_enable(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('State is required.');" 
+                    placeholder=" " 
+                    required>
                     <label for="billing_state-{{ i.id }}" class="form-label">State</label>
                   </div>
                   <div class="col-md-6 form-group">
-                    <input type="number" class="form-control" id="billing_pin-{{ i.id }}" name="edit_billing_pin" oninput="next_btn_enable()" value="{{ i.billing_pin }}" placeholder=" " required>
+                    <input type="number" class="form-control" id="billing_pin-{{ i.id }}" name="edit_billing_pin" value="{{ i.billing_pin }}"  placeholder=" " 
+                    pattern="[0-9]{6}" 
+                    maxlength="6"
+                    oninput="toggleNext('{{ i.id }}'); next_btn_enable(); this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Pin Code must be a 6-digit number.');" 
+                    required>
                     <label for="billing_pin-{{ i.id }}" class="form-label">Pin Code</label>
                   </div>
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="billing_gst_number-{{ i.id }}" name="edit_billing_gst_number" oninput="next_btn_enable()" value="{{ i.billing_gst_number }}" placeholder=" " required>
+                    <input type="text" class="form-control" id="billing_gst_number-{{ i.id }}" name="edit_billing_gst_number"  value="{{ i.billing_gst_number }}" 
+                    placeholder=" " 
+                    pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}[Z]{1}[A-Z0-9]{1}" 
+                    inputmode="numeric" 
+                    maxlength="15"
+                    oninput="toggleNext('{{ i.id }}'); next_btn_enable(); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('GST Number must follow the format: 15 alphanumeric characters (e.g., 27ABCDE1234F1Z5).');" 
+                    required>
                     <label for="billing_gst_number-{{ i.id }}" class="form-label">Billing GST No</label>
                   </div>
                 </div>
@@ -320,23 +556,40 @@
               <div class="tab-pane fade" id="shipping-{{ i.id }}" role="tabpanel" aria-labelledby="shipping-tab-{{ i.id }}">
                 <div class="row mt-2">
                   <div class="col-md-12 form-group">
-                    <textarea class="form-control" id="shipping_address-{{ i.id }}" name="edit_shipping_address" placeholder=" " required>{{ i.shipping_address }}</textarea>
+                    <textarea class="form-control" id="shipping_address-{{ i.id }}" name="edit_shipping_address" placeholder=" " 
+                    oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Shipping Address is required.');" 
+                    required>{{ i.shipping_address }}</textarea>
                     <label for="shipping_address-{{ i.id }}" class="text-label">Shipping Address</label>
                   </div>
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="shipping_city-{{ i.id }}" name="edit_shipping_city" value="{{ i.shipping_city }}" placeholder=" " required>
+                    <input type="text" class="form-control" id="shipping_city-{{ i.id }}" name="edit_shipping_city" value="{{ i.shipping_city }}" 
+                    placeholder=" " 
+                    oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('City is required.');" 
+                    required>
                     <label for="shipping_city-{{ i.id }}" class="form-label">City</label>
                   </div>
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="shipping_state-{{ i.id }}" name="edit-shipping_state" value="{{ i.shipping_state }}" placeholder=" " required>
+                    <input type="text" class="form-control" id="shipping_state-{{ i.id }}" name="edit_shipping_state" value="{{ i.shipping_state }}" 
+                    placeholder=" " 
+                    oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('State is required.');" 
+                    required>
                     <label for="shipping_state-{{ i.id }}" class="form-label">State</label>
                   </div>
                   <div class="col-md-6 form-group">
-                    <input type="number" class="form-control" id="shipping_pin-{{ i.id }}" name="edit_shipping_pin" value="{{ i.shipping_pin }}" placeholder=" " required>
+                    <input type="number" class="form-control" id="shipping_pin-{{ i.id }}" name="edit_shipping_pin" value="{{ i.shipping_pin }}" 
+                    placeholder=" " 
+                    pattern="[0-9]{6}" 
+                    oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('Pin Code must be a 6-digit number.');" 
+                    required>
                     <label for="shipping_pin-{{ i.id }}" class="form-label">Pin Code</label>
                   </div>
                   <div class="col-md-6 form-group">
-                    <input type="text" class="form-control" id="shipping_gst_number-{{ i.id }}" name="edit_shipping_gst_number" value="{{ i.shipping_gst_number }}" placeholder=" " required>
+                    <input type="text" class="form-control" id="shipping_gst_number-{{ i.id }}" name="edit_shipping_gst_number" value="{{ i.shipping_gst_number }}" 
+                    placeholder=" " 
+                    maxlength="15"
+                    pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}[Z]{1}[A-Z0-9]{1}" 
+                    oninput="this.setCustomValidity(''); if (!this.checkValidity()) this.setCustomValidity('GST Number must follow the format: 15 alphanumeric characters (e.g., 27ABCDE1234F1Z5).');" 
+                    required>
                     <label for="shipping_gst_number-{{ i.id }}" class="form-label">Shipping GST No</label>
                   </div>
                 </div>
@@ -345,9 +598,14 @@
 
             <!-- Modal Footer -->
             <div class="modal-footer">
-              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-success">Save Changes</button>
+              
+              <button type="button" class="btn btn-outline-secondary" id="backButton-{{ i.id }}" onclick="switchTab('{{ i.id }}', 'billing', 'shipping')" style="display: none;">Back</button>
+              <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-outline-primary" id="nextButton-{{ i.id }}" onclick="switchTab('{{ i.id }}', 'shipping', 'billing')">Next</button>
+              <button type="submit" class="btn btn-outline-success" id="saveChangesButton-{{ i.id }}" style="display: none;">Save Changes</button>
             </div>
+
+
           </form>
         </div>
 
@@ -355,21 +613,78 @@
     </div>
   </div>
 
-{% endfor %}
-
-<!-- JavaScript to handle tab navigation -->
-<script>
-  function showShippingTab(id) {
-    const billingTab = document.querySelector(`#billing-tab-${id}`);
-    const shippingTab = document.querySelector(`#shipping-tab-${id}`);
-
-    if (!billingTab.classList.contains('active')) {
-      return;
+  <script>
+    function toggleNext(id) {
+      // Enable "Next" button if all required billing fields are filled
+      const billingFields = [
+        `billing_address-${id}`,
+        `billing_city-${id}`,
+        `billing_state-${id}`,
+        `billing_pin-${id}`,
+        `billing_gst_number-${id}`,
+      ];
+      const allFilled = billingFields.every(
+        (field) => document.getElementById(field).value.trim() !== ""
+      );
+      document.getElementById(`nextButton-${id}`).disabled = !allFilled;
     }
 
-    shippingTab.click();
+    function switchTab(id, toTab, fromTab) {
+      // Switch between tabs
+      const nextTab = document.getElementById(`${toTab}-tab-${id}`);
+      const prevTab = document.getElementById(`${fromTab}-tab-${id}`);
+      const nextContent = document.getElementById(`${toTab}-${id}`);
+      const prevContent = document.getElementById(`${fromTab}-${id}`);
+
+      // Activate next tab and deactivate previous
+      nextTab.classList.add("active");
+      prevTab.classList.remove("active");
+
+      // Show next content and hide previous
+      nextContent.classList.add("show", "active");
+      prevContent.classList.remove("show", "active");
+
+      // Toggle button visibility
+      document.getElementById(`backButton-${id}`).style.display =
+        toTab === "billing" ? "none" : "inline-block";
+      document.getElementById(`nextButton-${id}`).style.display =
+        toTab === "shipping" ? "none" : "inline-block";
+      document.getElementById(`saveChangesButton-${id}`).style.display =
+        toTab === "shipping" ? "inline-block" : "none";
+    }
+
+    function check_validate(id) {
+      const sameAsBilling = document.getElementById(`sameAsBilling-${id}`);
+      const billingAddress = document.getElementById(`billing_address-${id}`);
+      const billingCity = document.getElementById(`billing_city-${id}`);
+      const billingState = document.getElementById(`billing_state-${id}`);
+      const billingPin = document.getElementById(`billing_pin-${id}`);
+      
+      const shippingAddress = document.getElementById(`shipping_address-${id}`);
+      const shippingCity = document.getElementById(`shipping_city-${id}`);
+      const shippingState = document.getElementById(`shipping_state-${id}`);
+      const shippingPin = document.getElementById(`shipping_pin-${id}`);
+
+      if (sameAsBilling.checked) {
+          shippingAddress.value = billingAddress.value || '';
+          shippingCity.value = billingCity.value || '';
+          shippingState.value = billingState.value || '';
+          shippingPin.value = billingPin.value || '';
+      } else {
+          shippingAddress.value = '';
+          shippingCity.value = '';
+          shippingState.value = '';
+          shippingPin.value = '';
+      }
   }
+
+
+
 </script>
+
+{% endfor %}
+
+
 
 
 
@@ -443,6 +758,10 @@
     };
 </script>
 {% endif %} -->
+
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

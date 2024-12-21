@@ -49,8 +49,14 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                                <li><a class="dropdown-item btn-edit" href="#" data-bs-toggle="modal" data-bs-target="#edit_dispatchmodal-{{i.id}}"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li>
+                                    <a class="dropdown-item btn-delete" 
+                                       href="#" 
+                                       data-href="{% url 'delete_cp_dispatch' i.id %}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </td>
@@ -60,6 +66,54 @@
         </table>
     </div>
 </div>
+
+{% for i in dispatch %}
+<div class="modal fade" id="edit_dispatchmodal-{{i.id}}" tabindex="-1" aria-labelledby="edit_dispatchmodalLabel-{{i.id}}" aria-hidden="true">
+    <div class="modal-dialog modal-lg" >
+      <div class="modal-content container-custom">
+    
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title" id="edit_dispatchmodalLabel-{{i.id}}">Dispatch</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+    
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <form id="edit_DispatchForm-{{i.id}}" method="post" action="{% url 'edit_dispatch' i.id %}">
+             {% csrf_token %}
+              <div class="row">
+                  <div class="col-md-6 form-group">
+                      <input type="text" class="form-control" id="process_number-{{i.id}}" name="process_number" value="{{i.process_num}}" maxlength="15" placeholder=" " readonly required>
+                      <label for="process_number-{{i.id}}" class="form-label">Order Process Number</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                      <input type="date" class="form-control" id="process_date-{{i.id}}" name="process_date" value="{{i.creation_date|date:'Y-m-d'}}" placeholder=" " readonly required>
+                      <label for="process_date-{{i.id}}" class="form-label">Order Process Date</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                      <input type="text" class="form-control" id="client_id-{{i.id}}" name="client_id" value="{{i.client_id}}"  placeholder=" " readonly required>
+                      <label for="client_id-{{i.id}}" class="form-label">Client ID</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                      <input type="text" class="form-control" id="client_name-{{i.id}}" name="client_name" value="{{i.client_name}}" placeholder=" " readonly required>
+                      <label for="client_name-{{i.id}}" class="form-label">Client Name</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                      <input type="date" class="form-control" id="expected_delivery_date-{{i.id}}" name="edit_expected_delivery_date" value="{{i.exp_del_dt|date:'Y-m-d'}}"  placeholder=" " required>
+                      <label for="expected_delivery_date-{{i.id}}" class="form-label">Expected Delivery Date</label>
+                  </div>
+              </div>
+              <div class="form-buttons">
+                  <button class="btn btn-danger" type="button" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                  <button class="btn btn-success" type="submit">Save</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
 
 
 {% if messages %}
@@ -85,6 +139,9 @@
         {% endif %}
     {% endfor %}
 {% endif %}
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

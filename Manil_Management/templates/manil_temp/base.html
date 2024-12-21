@@ -470,6 +470,7 @@
         <ul class="side-menu">
             <li><a href="{% url 'manil_dashboard'  %}"><i class='bx bxs-dashboard icon' class="active"></i>Dashboard</a></li>
             <li><a href="{% url 'manil_master' %}"><i class='fas fa-cogs icon'></i> Manil Master</a></li>
+            <li><a href="{% url 'manil_emails' %}"><i class='fas fa-cogs icon'></i> Manil Emails</a></li>
             <li><a href="{% url 'manil_user' %}"><i class="fas fa-users icon"></i> Manil User</a></li>
             <li><a href="{% url 'Client_master' %}"><i class='bx bxs-chart icon'></i> Client Master</a></li>
             <li><a href="{% url 'cust_user_master' %}"><i class='bx bxs-chart icon'></i> Client User</a></li>
@@ -520,7 +521,7 @@
                 <i class="fa fa-user"  aria-hidden="true"></i>
 
                 <ul class="profile-link">
-                    <li><a href="#"><i class='bx bxs-user-circle icon'></i>profile</a></li>
+                    <li><a href="{% url 'm_user_profile' data.user_id %}"><i class='bx bxs-user-circle icon'></i>profile</a></li>
                     <li><a href="#"><i class='bx bxs-cog'></i>settings</a></li>
                     <li><a href="{% url 'log_out' %}"><i class='bx bxs-log-out-circle'></i>logout</a></li>
                 </ul>

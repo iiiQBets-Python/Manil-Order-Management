@@ -63,7 +63,13 @@
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="actionMenu">
                   <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_userModel-{{i.id}}"><i class="fas fa-edit"></i> Edit</a></li>
-                  <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
+                  <li>
+                    <a class="dropdown-item btn-delete" 
+                       href="#" 
+                       data-href="{% url 'delete_user' i.id %}">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </a>
+                  </li>
                 </ul>
               </div>
             </td>
@@ -74,8 +80,11 @@
     </div>
 </div>
 
- <!-- The Modal -->
- <div class="modal fade" id="add_userModel" tabindex="-1" aria-labelledby="add_userModelLabel" aria-hidden="true">
+
+
+
+<!-- The Modal -->
+<div class="modal fade" id="add_userModel" tabindex="-1" aria-labelledby="add_userModelLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content container-custom">
   
@@ -99,9 +108,10 @@
               <label for="last_name" class="form-label">Last Name</label>
             </div>
             <div class="col-md-6 form-group">
-                <input type="number" class="form-control" id="phone_number" name="phone_number" {% if phone_number %} value="{{phone_number}}" {% endif %} placeholder=" " required>
-                <label for="phone_number" class="form-label">Phone No</label>
+              <input type="tel" class="form-control"  id="phone_number" name="phone_number"  {% if phone_number %} value="{{phone_number}}" {% endif %}  placeholder=" "  maxlength="10" required>
+              <label for="phone_number" class="form-label">Phone No</label>
             </div>
+          
             <div class="col-md-6 form-group">
                 <input type="email" class="form-control" id="email_id" name="email_id" {% if email_id %} value="{{email_id}}" {% endif %} placeholder=" " required>
                 <label for="email_id" class="form-label">Email ID</label>
@@ -120,14 +130,24 @@
                 <label for="role" class="form-label">User Role</label>
             </div>            
                    
-            <div class="col-md-6 form-group">
-                <input type="password" class="form-control" id="password" name="password" min="1" max="365" placeholder=" " required>
-                <label for="password" class="form-label">Password</label>
+            <!-- Password -->
+            <div class="col-md-6 form-group position-relative">
+              <input  type="password" class="form-control" id="password" name="password" minlength="8" maxlength="15" placeholder=" " required >
+              <label for="password" class="form-label">Password</label>
+              <span  class="position-absolute top-50 end-0 translate-middle-y me-3" onclick="togglePasswordVisibility('password', 'passwordIcon')" style="cursor: pointer;" >
+                  <i id="passwordIcon" class="fas fa-eye"></i>
+              </span>
             </div>
-            <div class="col-md-6 form-group">
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" min="1" max="365" placeholder=" " required>
-                <label for="confirm_password" class="form-label">Confirm Password</label>
+
+            <!-- Confirm Password -->
+            <div class="col-md-6 form-group position-relative">
+              <input  type="password" class="form-control" id="confirm_password" name="confirm_password" minlength="8" maxlength="15" placeholder=" " required >
+              <label for="confirm_password" class="form-label">Confirm Password</label>
+              <span class="position-absolute top-50 end-0 translate-middle-y me-3" onclick="togglePasswordVisibility('confirm_password', 'confirmPasswordIcon')" style="cursor: pointer;">
+                  <i id="confirmPasswordIcon" class="fas fa-eye"></i>
+              </span>
             </div>
+
           </div>
           <div class="form-buttons">
             <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
@@ -138,6 +158,73 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const phoneNumberInput = document.getElementById("phone_number");
+      const emailInput = document.getElementById("email_id");
+      const passwordInput = document.getElementById("password");
+      const confirmPasswordInput = document.getElementById("confirm_password");
+  
+      // Phone Number Validation
+      phoneNumberInput.addEventListener("input", function () {
+          const value = phoneNumberInput.value.replace(/[^0-9]/g, "");
+          phoneNumberInput.value = value; // Ensure only numbers are entered
+          if (value.length !== 10) {
+              phoneNumberInput.setCustomValidity("Please enter a valid 10-digit phone number.");
+          } else {
+              phoneNumberInput.setCustomValidity("");
+          }
+      });
+  
+      // Email Validation
+      emailInput.addEventListener("input", function () {
+          const email = emailInput.value;
+          const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          
+          if (emailPattern.test(email)) {
+              emailInput.setCustomValidity("");
+          } else {
+              emailInput.setCustomValidity("Please enter a valid email address.");
+          }
+      });
+
+
+  
+      // Password Validation
+      passwordInput.addEventListener("input", function () {
+          const pattern = /(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,15}/;
+          const isValid = pattern.test(passwordInput.value);
+          passwordInput.setCustomValidity(
+              isValid ? "" : "Password must be 8-15 characters, include a number, and a special character."
+          );
+      });
+  
+      // Confirm Password Validation
+      confirmPasswordInput.addEventListener("input", function () {
+          const password = passwordInput.value;
+          const confirmPassword = confirmPasswordInput.value;
+          confirmPasswordInput.setCustomValidity(
+              password === confirmPassword ? "" : "Passwords do not match."
+          );
+      });
+  });
+
+  function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+  }
+</script>
 
 {% for i in com_user %}
 <div class="modal fade" id="edit_userModel-{{i.id}}" tabindex="-1" aria-labelledby="edit_userModelLabel-{{i.id}}" aria-hidden="true">
@@ -164,7 +251,7 @@
               <label for="last_name-{{i.id}}" class="form-label">Last Name</label>
             </div>
             <div class="col-md-6 form-group">
-                <input type="number" class="form-control" id="phone_number-{{i.id}}" name="edit_phone_number"  value="{{i.phone_number}}"  placeholder=" " required>
+                <input type="tel" class="form-control" id="phone_number-{{i.id}}" name="edit_phone_number" maxlength="10" value="{{i.phone_number}}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')"  placeholder=" " required>
                 <label for="phone_number-{{i.id}}" class="form-label">Phone No</label>
             </div>
             <div class="col-md-6 form-group">
@@ -191,6 +278,44 @@
   </div>
 </div>
 {% endfor %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      // Select all modals for client users
+      const modals = document.querySelectorAll('[id^="edit_userModel-"]');
+      
+      modals.forEach(modal => {
+          const id = modal.id.split('-')[1]; // Extract user ID from modal ID
+
+          const phoneNumberInput = document.getElementById(`phone_number-${id}`);
+          const emailInput = document.getElementById(`email_id-${id}`);
+          
+          // Phone Number Validation
+          phoneNumberInput.addEventListener("input", function () {
+              const value = phoneNumberInput.value.replace(/[^0-9]/g, ""); // Allow only numbers
+              phoneNumberInput.value = value;
+              if (value.length !== 10) {
+                  phoneNumberInput.setCustomValidity("Please enter a valid 10-digit phone number.");
+              } else {
+                  phoneNumberInput.setCustomValidity(""); // Reset validity
+              }
+          });
+
+          // Email Validation
+          emailInput.addEventListener("input", function () {
+              const email = emailInput.value;
+              const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+              if (emailPattern.test(email)) {
+                  emailInput.setCustomValidity(""); // Reset validity
+              } else {
+                  emailInput.setCustomValidity("Please enter a valid email address.");
+              }
+          });
+      });
+  });
+</script>
+
 
 {% if messages %}
     {% for message in messages %}
@@ -267,7 +392,8 @@
 {% endif %} -->
 
 
-
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

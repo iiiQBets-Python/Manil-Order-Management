@@ -26,46 +26,51 @@
             Add Material Cost
         </button>
       </div>
-    <div class="table-responsive">
-      <table class="table" id="form_data_table">
-        <thead>
-            <tr>
-                <th scope="col">SL No</th>
-                <th scope="col">Client ID</th>
-                <th scope="col">Client Name</th>
-                <th scope="col">Location</th>
-                <th scope="col">Material Name</th>                
-                <th scope="col">Cost per Unit</th>
-                <th scope="col">Action</th>
-            </tr>
-        </thead>
-        <tbody id="table-body">
-            {% for costing in costings %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ costing.client_id }}</td>
-                <td>{{ costing.client_name }}</td>
-                <td>{{ costing.location }}</td>
-                <td>{{ costing.material_name }}</td>                
-                <td>{{ costing.cost_per_unit }}</td>
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
-                            <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_materialcostModal-{{costing.id}}"><i class="fas fa-edit"></i> Edit</a></li>
-                            <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-          
-            {% endfor %}
-        </tbody>
-    </table>
-    
-    </div>
+      <div class="table-responsive">
+        <table class="table" id="form_data_table">
+          <thead>
+              <tr>
+                  <th scope="col">SL No</th>
+                  <th scope="col">Client ID</th>
+                  <th scope="col">Client Name</th>
+                  <th scope="col">Location</th>
+                  <th scope="col">Material Name</th>                
+                  <th scope="col">Cost per Unit</th>
+                  <th scope="col">Action</th>
+              </tr>
+          </thead>
+          <tbody id="table-body">
+              {% for costing in costings %}
+              <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ costing.client_id }}</td>
+                  <td>{{ costing.client_name }}</td>
+                  <td>{{ costing.location }}</td>
+                  <td>{{ costing.material_name }}</td>                
+                  <td>{{ costing.cost_per_unit }}</td>
+                  <td>
+                      <div class="dropdown">
+                          <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                              <i class="fas fa-ellipsis-v"></i>
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="actionMenu{{ forloop.counter }}">
+                              <li><a class="dropdown-item btn-edit" data-bs-toggle="modal" data-bs-target="#edit_materialcostModal-{{costing.id}}"><i class="fas fa-edit"></i> Edit</a></li>
+                              <li>
+                                <a class="dropdown-item btn-delete" 
+                                  href="#" 
+                                  data-href="{% url 'delete_material_cost' costing.id %}">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </a>
+                            </li>
+                          </ul>
+                      </div>
+                  </td>
+              </tr>
+            
+              {% endfor %}
+          </tbody>
+        </table>
+      </div>
   </div>
   
     <!-- The Modal -->
@@ -84,6 +89,24 @@
             <form id="materialcostForm" method="post" action="{% url 'material_cost' %}">
               {% csrf_token %}
               <div class="row">
+                <div class="col-md-6 form-group">                  
+                  <select name="material_name" class="form-control" id="material_name" required>                                                            
+                    <option value="">--select--</option>                               
+                    {% for i in materials %}
+                    <option value="{{i.material_name}}" data-material-code="{{ i.material_code }}" data-hsn-code="{{ i.hsn_code }}">{{i.material_name}}</option>
+                    {% endfor %}
+                  </select>
+                  <label for="material_code" class="form-label">Material Name</label>
+                </div>
+                <div class="col-md-3 form-group">                  
+                  <input type="text" class="form-control" id="material_code" name="material_code" readonly  placeholder=" " required>
+                  <label for="material_code" class="form-label"> Material Code</label>
+                </div>
+                <div class="col-md-3 form-group">                  
+                  <input type="text" class="form-control" id="hsn_code" name="hsn_code" readonly  placeholder=" " required>
+                  <label for="hsn_code" class="form-label"> HSN Code</label>
+                </div>
+                
                 <div class="col-md-6 form-group">
                   <select name="client_id" class="form-control" id="client_id" required>                    
                     <option value="">--select--</option>                               
@@ -97,19 +120,7 @@
                   <input type="text" class="form-control" id="client_name" name="client_name" readonly  placeholder=" " required>
                   <label for="client_name" class="form-label"> Client Name</label>
                 </div>                
-                <div class="col-md-6 form-group">                  
-                  <select name="material_name" class="form-control" id="material_name" required>                                                            
-                    <option value="">--select--</option>                               
-                    {% for i in materials %}
-                    <option value="{{i.material_name}}" data-material-code="{{ i.material_code }}">{{i.material_name}}</option>
-                    {% endfor %}
-                  </select>
-                  <label for="material_code" class="form-label">Material Name</label>
-                </div>
-                <div class="col-md-6 form-group">                  
-                  <input type="text" class="form-control" id="material_code" name="material_code" readonly  placeholder=" " required>
-                  <label for="material_code" class="form-label"> Material Code</label>
-                </div>
+               
                 <div class="col-md-6 form-group">
                   <input type="text" class="form-control" id="client_location" name="client_location" readonly placeholder=" " required>
                   <label for="client_location" class="form-label">Location</label>
@@ -138,6 +149,49 @@
         </div>
       </div>
     </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {  
+
+        const cost_per_unit = document.getElementById("cost_per_unit");
+        const startDateInput = document.getElementById("start_date");
+        const endDateInput = document.getElementById("end_date");
+
+        // Validate Base Price: Must not be 0
+        cost_per_unit.addEventListener("input", function () {
+          const basePrice = parseFloat(cost_per_unit.value);
+          if (basePrice === 0) {
+            cost_per_unit.setCustomValidity("Cost per Unit cannot be Zero.");
+          } else {
+            cost_per_unit.setCustomValidity(""); // Clear error
+          }
+        });
+  
+        // Validate End Date: Must not be earlier than Start Date
+        endDateInput.addEventListener("change", function () {
+          const startDate = new Date(startDateInput.value);
+          const endDate = new Date(endDateInput.value);
+
+          if (endDate < startDate) {
+            endDateInput.setCustomValidity("End Date cannot be earlier than Start Date.");
+          } else {
+            endDateInput.setCustomValidity(""); // Clear error
+          }
+        });
+
+        // Re-validate End Date when Start Date changes
+        startDateInput.addEventListener("change", function () {
+          const startDate = new Date(startDateInput.value);
+          const endDate = new Date(endDateInput.value);
+
+          if (endDate && endDate < startDate) {
+            endDateInput.setCustomValidity("End Date cannot be earlier than Start Date.");
+          } else {
+            endDateInput.setCustomValidity(""); // Clear error
+          }
+        });
+    });
+  </script>
 
   {% for i in costings %}  
     <div class="modal fade" id="edit_materialcostModal-{{i.id}}" tabindex="-1" aria-labelledby="materialcostModalLabel-{{i.id}}" aria-hidden="true">
@@ -202,6 +256,58 @@
   {% endfor %}
 
 
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Select all modals dynamically based on ID pattern
+      const modals = document.querySelectorAll('[id^="edit_materialcostModal-"]');
+    
+      modals.forEach((modal) => {
+        // Extract the unique ID for each modal
+        const id = modal.id.split('-')[1];
+    
+        // Dynamic input selectors based on unique ID
+        const costPerUnit = document.getElementById(`cost_per_unit-${id}`);
+        const startDateInput = document.getElementById(`start_date-${id}`);
+        const endDateInput = document.getElementById(`end_date-${id}`);
+    
+        // Validate Cost per Unit: Must not be 0
+        costPerUnit.addEventListener("input", function () {
+          const costValue = parseFloat(costPerUnit.value);
+          if (costValue === 0) {
+            costPerUnit.setCustomValidity("Cost per Unit cannot be Zero.");
+          } else {
+            costPerUnit.setCustomValidity(""); // Clear error
+          }
+        });
+    
+        // Validate End Date: Must not be earlier than Start Date
+        endDateInput.addEventListener("change", function () {
+          const startDate = new Date(startDateInput.value);
+          const endDate = new Date(endDateInput.value);
+    
+          if (endDate < startDate) {
+            endDateInput.setCustomValidity("End Date cannot be earlier than Start Date.");
+          } else {
+            endDateInput.setCustomValidity(""); // Clear error
+          }
+        });
+    
+        // Re-validate End Date when Start Date changes
+        startDateInput.addEventListener("change", function () {
+          const startDate = new Date(startDateInput.value);
+          const endDate = new Date(endDateInput.value);
+    
+          if (endDate && endDate < startDate) {
+            endDateInput.setCustomValidity("End Date cannot be earlier than Start Date.");
+          } else {
+            endDateInput.setCustomValidity(""); // Clear error
+          }
+        });
+      });
+    });
+  </script>
+    
+
 
   {% if messages %}
   {% for message in messages %}
@@ -250,6 +356,8 @@
 </script>
 {% endif %} -->
 
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

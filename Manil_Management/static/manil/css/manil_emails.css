@@ -1,0 +1,85 @@
+/* General Styling */
+.Email-container {
+    max-width: 100%;
+    padding: 25px;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    position: relative; /* Needed to position buttons inside the container */
+}
+  
+.row {
+    margin-bottom: 15px;
+}
+  
+/* Section Heading */
+.section-heading {
+    font-size: 24px;
+    font-weight: bold;
+    color: #6d4c41;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #6d4c41;
+    padding-bottom: 5px;
+}
+  
+/* Email Items */
+.email-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+  
+.email-item-title {
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 5px;
+}
+  
+.editable-input {
+    border: 1px solid #e0e0e0;
+    background-color: #f9f9f9;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #333;
+    width: 100%;
+    transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+.editable-input.active {
+    border-color: #6d4c41;
+    background-color: white;
+}
+
+.editable-input.inactive {
+    border-color: #e0e0e0; /* Border color when inactive */
+}
+
+/* Buttons */
+.edit-btn,
+.save-btn {
+    background-color: #6d4c41;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-left: 10px;
+    position: absolute;
+    top: 15px;
+    right: 30px;
+}
+
+.edit-btn:hover,
+.save-btn:hover {
+    background-color: #cf3400;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .email-item {
+        flex-direction: column;
+    }
+}

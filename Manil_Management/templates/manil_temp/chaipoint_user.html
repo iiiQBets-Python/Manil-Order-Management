@@ -60,9 +60,15 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="actionMenu1">
-                                <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li>
-                                <li><a class="dropdown-item btn-delete" href="#"><i class="fas fa-trash-alt"></i> Delete</a></li>
-                            </ul>
+                                <li><a class="dropdown-item btn-edit" href="#" data-bs-toggle="modal" data-bs-target="#edit_chaipointModal-{{i.id}}"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li>
+                                    <a class="dropdown-item btn-delete" 
+                                       href="#" 
+                                       data-href="{% url 'delete_chaipoint_user' i.id %}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
+                                </li>
+                             </ul>
                         </div>
                     </td>
                 </tr>  
@@ -70,62 +76,197 @@
             </tbody>
         </table>
     </div>
+</div>
+
+<!-- The Modal -->
+<div class="modal fade" id="chaipointModal" tabindex="-1" aria-labelledby="chaipointModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content container-custom">
+            
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title" id="chaipointModalLabel">Chaipoint User Form</h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form id="ChaipointForm" method="post" action="{% url 'chaipoint_user' %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <!-- First Name -->
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" id="first_name" name="first_name" maxlength="15" placeholder=" " required>
+                            <label for="first_name" class="form-label">First Name</label>
+                        </div>
+                    
+                        <!-- Last Name -->
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" id="last_name" name="last_name" maxlength="15" placeholder=" " required>
+                            <label for="last_name" class="form-label">Last Name</label>
+                        </div>
+                    
+                        <!-- Phone Number -->
+                        <div class="col-md-6 form-group">
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" maxlength="10" placeholder=" " required>
+                            <label for="phone_number" class="form-label">Phone No</label>
+                        </div>
+                    
+                        <!-- Email ID -->
+                        <div class="col-md-6 form-group">
+                            <input type="email" class="form-control" id="email_id" name="email_id" placeholder=" " required>
+                            <label for="email_id" class="form-label">Email ID</label>
+                        </div>
+                    
+                        <!-- User Role -->
+                        <div class="col-md-6 form-group">
+                            <select name="role" class="form-control" id="role" required>
+                                <option value="">--select--</option>
+                                <option value="Manager">Manager</option>
+                                <option value="Operator">Operator</option>
+                            </select>
+                            <label for="role" class="form-label">User Role</label>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="col-md-6 form-group position-relative">
+                            <input  type="password" class="form-control" id="password" name="password" minlength="8" maxlength="15" placeholder=" " required >
+                            <label for="password" class="form-label">Password</label>
+                            <span  class="position-absolute top-50 end-0 translate-middle-y me-3" onclick="togglePasswordVisibility('password', 'passwordIcon')" style="cursor: pointer;" >
+                                <i id="passwordIcon" class="fas fa-eye"></i>
+                            </span>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="col-md-6 form-group position-relative">
+                            <input  type="password" class="form-control" id="confirm_password" name="confirm_password" minlength="8" maxlength="15" placeholder=" " required >
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <span class="position-absolute top-50 end-0 translate-middle-y me-3" onclick="togglePasswordVisibility('confirm_password', 'confirmPasswordIcon')" style="cursor: pointer;">
+                                <i id="confirmPasswordIcon" class="fas fa-eye"></i>
+                            </span>
+                        </div>
+
+
+                    </div>
+                    <div class="form-buttons">
+                        <button class="btn btn-danger"type="button"  data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                        <button class="btn btn-success" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const phoneNumberInput = document.getElementById("phone_number");
+        const emailInput = document.getElementById("email_id");
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirm_password");
     
-  
-    <!-- The Modal -->
-    <div class="modal fade" id="chaipointModal" tabindex="-1" aria-labelledby="chaipointModalLabel" aria-hidden="true">
+        // Phone Number Validation
+        phoneNumberInput.addEventListener("input", function () {
+            const value = phoneNumberInput.value.replace(/[^0-9]/g, "");
+            phoneNumberInput.value = value; // Ensure only numbers are entered
+            if (value.length !== 10) {
+                phoneNumberInput.setCustomValidity("Please enter a valid 10-digit phone number.");
+            } else {
+                phoneNumberInput.setCustomValidity("");
+            }
+        });
+    
+        // Email Validation
+        emailInput.addEventListener("input", function () {
+            const email = emailInput.value;
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (emailPattern.test(email)) {
+                emailInput.setCustomValidity("");
+            } else {
+                emailInput.setCustomValidity("Please enter a valid email address.");
+            }
+        });
+
+
+    
+        // Password Validation
+        passwordInput.addEventListener("input", function () {
+            const pattern = /(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,15}/;
+            const isValid = pattern.test(passwordInput.value);
+            passwordInput.setCustomValidity(
+                isValid ? "" : "Password must be 8-15 characters, include a number, and a special character."
+            );
+        });
+    
+        // Confirm Password Validation
+        confirmPasswordInput.addEventListener("input", function () {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            confirmPasswordInput.setCustomValidity(
+                password === confirmPassword ? "" : "Passwords do not match."
+            );
+        });
+    });
+
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+
+</script>
+    
+
+{% for i in cp_user %}
+    <div class="modal fade" id="edit_chaipointModal-{{i.id}}" tabindex="-1" aria-labelledby="edit_chaipointModalLabel-{{i.id}}" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content container-custom">
                 
                 <!-- Modal Header -->
                 <div class="modal-header">
-                    <h4 class="modal-title" id="chaipointModalLabel">Chaipoint User Form</h4>
+                    <h4 class="modal-title" id="edit_chaipointModalLabel-{{i.id}}">Chaipoint User Form</h4>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
                 <!-- Modal Body -->
                 <div class="modal-body">
-                    <form id="ChaipointForm" method="post">
+                    <form id="edit_ChaipointForm-{{i.id}}" method="post" action="{% url 'edit_chaipoint_user' i.id %}">
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-md-6 form-group">
-                                <input type="text" class="form-control" id="first_name" name="first_name" {% if first_name %} value="{{first_name}}" {% endif %} maxlength="15" placeholder=" " required>
-                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name-{{i.id}}" name="edit_first_name"  value="{{i.first_name}}"  maxlength="15" placeholder=" " required>
+                                <label for="first_name-{{i.id}}" class="form-label">First Name</label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <input type="text" class="form-control" id="last_name" name="last_name" {% if last_name %} value="{{last_name}}" {% endif %} maxlength="15" placeholder=" " required>
-                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name-{{i.id}}" name="edit_last_name"  value="{{i.last_name}}"  maxlength="15" placeholder=" " required>
+                                <label for="last_name-{{i.id}}" class="form-label">Last Name</label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <input type="email" class="form-control" id="email_id" name="email_id" {% if email_id %} value="{{email_id}}" {% endif %} placeholder=" " required>
-                                <label for="email_id" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email_id-{{i.id}}" name="edit_email_id"  value="{{i.email_id}}"  placeholder=" " required>
+                                <label for="email_id-{{i.id}}" class="form-label">Email</label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <input type="number" class="form-control" id="phone_number" name="phone_number" {% if phone_number %} value="{{phone_number}}" {% endif %} placeholder=" " required>
-                                <label for="phonenumber" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone_number-{{i.id}}" name="edit_phone_number" maxlength="10"  value="{{i.phone_number}}"  placeholder=" " maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                <label for="phone_number-{{i.id}}" class="form-label">Phone Number</label>
                             </div>
                             <div class="col-md-6 form-group">
-                                <select name="role" class="form-control" id="role" required>
-                                    {% if role %}
-                                    <option value="{{role}}">{{role}}</option>
-                                    {% else %}
-                                    <option value="">--select--</option>            
-                                    {% endif %}             
-                
+                                <select  class="form-control" id="role-{{i.id}}" name="edit_role" required>
+                                    <option value="{{i.role}}">{{i.role}}</option>
                                     <option value="Manager">Manager</option>                    
                                     <option value="Operator">Operator</option>                    
                                 </select>
-                                <label for="role" class="form-label">User Role</label>
+                                <label for="role-{{i.id}}" class="form-label">User Role</label>
                             </div>
-                            <div class="col-md-6 form-group">
-                                <input type="Password" class="form-control" id="password" name="password" placeholder=" " required>
-                                <label for="password" class="form-label">Password</label>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" min="1" max="365" placeholder=" " required>
-                                <label for="confirm_password" class="form-label">Confirm Password</label>
-                            </div>
-                            
                         </div>
                         <div class="form-buttons">
                             <button class="btn btn-danger"type="button"  data-bs-dismiss="modal" aria-label="hidden">Close</button>
@@ -136,7 +277,45 @@
             </div>
         </div>
     </div>
-</div>
+{% endfor %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Select all modals for Chaipoint users
+        const modals = document.querySelectorAll('[id^="edit_chaipointModal-"]');
+        
+        modals.forEach(modal => {
+            const id = modal.id.split('-')[1]; // Extract user ID from modal ID
+  
+            const phoneNumberInput = document.getElementById(`phone_number-${id}`);
+            const emailInput = document.getElementById(`email_id-${id}`);
+            
+            // Phone Number Validation
+            phoneNumberInput.addEventListener("input", function () {
+                const value = phoneNumberInput.value.replace(/[^0-9]/g, ""); // Allow only numbers
+                phoneNumberInput.value = value;
+                if (value.length !== 10) {
+                    phoneNumberInput.setCustomValidity("Please enter a valid 10-digit phone number.");
+                } else {
+                    phoneNumberInput.setCustomValidity(""); // Reset validity
+                }
+            });
+  
+            // Email Validation
+            emailInput.addEventListener("input", function () {
+                const email = emailInput.value;
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  
+                if (emailPattern.test(email)) {
+                    emailInput.setCustomValidity(""); // Reset validity
+                } else {
+                    emailInput.setCustomValidity("Please enter a valid email address.");
+                }
+            });
+        });
+    });
+</script>
+  
 
 {% if messages %}
     {% for message in messages %}
@@ -209,6 +388,9 @@
     };
 </script>
 {% endif %} -->
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

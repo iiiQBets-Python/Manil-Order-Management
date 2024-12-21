@@ -1,0 +1,119 @@
+{% extends "customer_temp/base.html" %}
+{% load static %}
+{% block title %} Profile Page {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'manil/css/m_profile.css' %}">
+    <link rel="stylesheet" href="{% static 'messages.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+
+    <div class="container">
+        <div class="main-body">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body d-flex align-items-center">
+                            <img src="{{ data.profile_picture|default:'https://bootdey.com/img/Content/avatar/avatar7.png' }}" 
+                                alt="User Image" class="rounded-circle" width="150" height="150">
+                            <div class="ms-4">
+                                <h2 class="mb-1">{{ data.first_name }} {{ data.last_name }}</h2>
+                                <h5 class="text-secondary mb-2">{{ data.role|default:"N/A" }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0 text-header">Full Name</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ data.first_name }} {{ data.last_name }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0 text-header">Email</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ data.email_id }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0 text-header">Mobile</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ data.phone_number|default:"Not provided" }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0 text-header">Role</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ data.role|default:"N/A" }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0 text-header">Date Of Joining</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    {{ data.creation_date|date:'m-d-Y' }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-12 text-end">
+                                    <a class="btn btn-info me-2" href="#">Edit Profile</a>
+                                    <a class="btn btn-warning" href="#">Change Password</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'success' in message.tags %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var successAlertElement = document.getElementById('floating-alert-success');
+                        var successMessage = document.getElementById('floating-alert-success-message');
+
+                        // Set the success message and display the floating alert
+                        successMessage.textContent = "{{ message|safe }}";
+                        successAlertElement.style.display = 'block';
+                        successAlertElement.classList.add('show');
+
+                        // Hide the success alert automatically after 2 seconds
+                        setTimeout(function () {
+                            successAlertElement.classList.remove('show');
+                            successAlertElement.style.display = 'none';
+                        }, 3000); // 2 seconds delay for success alert
+                    });
+                </script>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+{% endblock content %}
+
+
+
+

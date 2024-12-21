@@ -1,0 +1,147 @@
+{% extends "chaipoint_temp/base.html" %}
+{% load static %}
+{% block title %}Email Details{% endblock %}
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'manil/css/manil_emails.css' %}">
+{% endblock styles %}
+
+{% block content %}
+  <!-- Profile Information Section -->
+  <div class="Email-container">
+    <div class="Email-section">
+      <h2 class="section-heading">Client Emails</h2>
+  
+      <form action="" method="post" id="emailform">
+        {% csrf_token %}
+        <div class="row">
+          <!-- User 1 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 1</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="username1" 
+              id="username1" 
+              placeholder="" 
+              value="{{ emails.username1|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 1</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="email1" 
+              id="email1" 
+              value="{{ emails.email1|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 2 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 2</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="username2" 
+              id="username2" 
+              placeholder="" 
+              value="{{ emails.username2|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 2</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="email2" 
+              id="email2" 
+              value="{{ emails.email2|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 3 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 3</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="username3" 
+              id="username3" 
+              placeholder="" 
+              value="{{ emails.username3|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 3</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="email3" 
+              id="email3" 
+              value="{{ emails.email3|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 4 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 4</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="username4" 
+              id="username4" 
+              placeholder="" 
+              value="{{ emails.username4|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 4</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="email4" 
+              id="email4" 
+              value="{{ emails.email4|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 5 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 5</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="username5" 
+              id="username5" 
+              placeholder="" 
+              value="{{ emails.username5|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 5</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="email5" 
+              id="email5" 
+              value="{{ emails.email5|default:'' }}" 
+              readonly>
+          </div>
+        </div>
+  
+        <button class="edit-btn btn-sm " type="button" id="edit_1" onclick="enableForm()">Edit</button>
+        <button class="save-btn btn-sm" type="submit" id="submit_1" style="display: none;">Save</button>
+      </form>
+    </div>
+  </div>
+  
+
+
+{% endblock content %}
+
+{% block scripts %} 
+  {{ block.super }}
+  <script src="{% static 'manil/js/manil_emails.js' %}"></script>
+{% endblock scripts %}
