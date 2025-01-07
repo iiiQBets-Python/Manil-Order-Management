@@ -27,9 +27,9 @@
   <div class="d-flex align-items-center position-relative"> 
     <div id="dataTables_filter_container" class="me-2">        
     </div>
-    <button type="button" class="btn btn-add"  data-bs-toggle="modal" data-bs-target="#add_userModel">
+    <!-- <button type="button" class="btn btn-add"  data-bs-toggle="modal" data-bs-target="#add_userModel">
       Add Client User
-    </button>
+    </button> -->
   </div>
     
     <div class="table-responsive">
@@ -42,8 +42,8 @@
             <th scope="col">Role</th>
             <th scope="col">Email</th>
             <th scope="col">Phone No</th>
-            <th scope="col">Client Name</th>
-            <th scope="col">Action</th>
+            <!-- <th scope="col">Client Name</th>
+            <th scope="col">Action</th> -->
           </tr>
         </thead>
         <tbody>
@@ -55,7 +55,7 @@
             <td>{{i.role}}</td>
             <td>{{i.email_id}}</td>
             <td>{{i.phone_number}}</td>
-            <td>{{i.client_name}}</td>
+            <!-- <td>{{i.client_name}}</td>
             <td>
               <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -72,7 +72,7 @@
                   </li>
                 </ul>
               </div>
-            </td>
+            </td> -->
           </tr>
           {% endfor %}
         </tbody>
@@ -165,6 +165,23 @@
       const emailInput = document.getElementById("email_id");
       const passwordInput = document.getElementById("password");
       const confirmPasswordInput = document.getElementById("confirm_password");
+      const firstNameInput = document.getElementById("first_name");
+      const lastNameInput = document.getElementById("last_name");
+      
+      // First and Last Name Validation
+      const validateName = (input) => {
+          input.addEventListener("input", function () {
+              input.value = input.value.replace(/[0-9]/g, ""); // Remove numbers
+              if (/[0-9]/.test(input.value)) {
+                  input.setCustomValidity("Name cannot contain numbers.");
+              } else {
+                  input.setCustomValidity("");
+              }
+          });
+      };
+
+      validateName(firstNameInput);
+      validateName(lastNameInput);
   
       // Phone Number Validation
       phoneNumberInput.addEventListener("input", function () {
@@ -289,6 +306,23 @@
 
           const phoneNumberInput = document.getElementById(`phone_number-${id}`);
           const emailInput = document.getElementById(`email_id-${id}`);
+          const firstNameInput = document.getElementById(`first_name-${id}`);
+          const lastNameInput = document.getElementById(`last_name-${id}`);
+          
+          // First and Last Name Validation
+          const validateName = (input) => {
+              input.addEventListener("input", function () {
+                  input.value = input.value.replace(/[0-9]/g, ""); // Remove numbers
+                  if (/[0-9]/.test(input.value)) {
+                      input.setCustomValidity("Name cannot contain numbers.");
+                  } else {
+                      input.setCustomValidity("");
+                  }
+              });
+          };
+
+          validateName(firstNameInput);
+          validateName(lastNameInput);
           
           // Phone Number Validation
           phoneNumberInput.addEventListener("input", function () {

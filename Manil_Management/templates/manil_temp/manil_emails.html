@@ -12,7 +12,7 @@
     <div class="Email-section">
       <h2 class="section-heading">Manil Emails</h2>
   
-      <form action="" method="post" id="emailform">
+      <form action="" method="post" id="emailform1">
         {% csrf_token %}
         <div class="row">
           <!-- User 1 -->
@@ -21,10 +21,10 @@
             <input 
               type="text" 
               class="editable-input" 
-              name="username1" 
-              id="username1" 
+              name="m_username1" 
+              id="m_username1" 
               placeholder="" 
-              value="{{ emails.username1|default:'' }}" 
+              value="{{ m_emails.username1|default:'' }}" 
               readonly>
           </div>
           <div class="col-md-6 email-item">
@@ -32,9 +32,9 @@
             <input 
               type="email" 
               class="editable-input" 
-              name="email1" 
-              id="email1" 
-              value="{{ emails.email1|default:'' }}" 
+              name="m_email1" 
+              id="m_email1" 
+              value="{{ m_emails.email1|default:'' }}" 
               readonly>
           </div>
   
@@ -44,10 +44,10 @@
             <input 
               type="text" 
               class="editable-input" 
-              name="username2" 
-              id="username2" 
+              name="m_username2" 
+              id="m_username2" 
               placeholder="" 
-              value="{{ emails.username2|default:'' }}" 
+              value="{{ m_emails.username2|default:'' }}" 
               readonly>
           </div>
           <div class="col-md-6 email-item">
@@ -55,9 +55,9 @@
             <input 
               type="email" 
               class="editable-input" 
-              name="email2" 
-              id="email2" 
-              value="{{ emails.email2|default:'' }}" 
+              name="m_email2" 
+              id="m_email2" 
+              value="{{ m_emails.email2|default:'' }}" 
               readonly>
           </div>
   
@@ -67,10 +67,10 @@
             <input 
               type="text" 
               class="editable-input" 
-              name="username3" 
-              id="username3" 
+              name="m_username3" 
+              id="m_username3" 
               placeholder="" 
-              value="{{ emails.username3|default:'' }}" 
+              value="{{ m_emails.username3|default:'' }}" 
               readonly>
           </div>
           <div class="col-md-6 email-item">
@@ -78,9 +78,9 @@
             <input 
               type="email" 
               class="editable-input" 
-              name="email3" 
-              id="email3" 
-              value="{{ emails.email3|default:'' }}" 
+              name="m_email3" 
+              id="m_email3" 
+              value="{{ m_emails.email3|default:'' }}" 
               readonly>
           </div>
   
@@ -90,10 +90,10 @@
             <input 
               type="text" 
               class="editable-input" 
-              name="username4" 
-              id="username4" 
+              name="m_username4" 
+              id="m_username4" 
               placeholder="" 
-              value="{{ emails.username4|default:'' }}" 
+              value="{{ m_emails.username4|default:'' }}" 
               readonly>
           </div>
           <div class="col-md-6 email-item">
@@ -101,9 +101,9 @@
             <input 
               type="email" 
               class="editable-input" 
-              name="email4" 
-              id="email4" 
-              value="{{ emails.email4|default:'' }}" 
+              name="m_email4" 
+              id="m_email4" 
+              value="{{ m_emails.email4|default:'' }}" 
               readonly>
           </div>
   
@@ -113,10 +113,10 @@
             <input 
               type="text" 
               class="editable-input" 
-              name="username5" 
-              id="username5" 
+              name="m_username5" 
+              id="m_username5" 
               placeholder="" 
-              value="{{ emails.username5|default:'' }}" 
+              value="{{ m_emails.username5|default:'' }}" 
               readonly>
           </div>
           <div class="col-md-6 email-item">
@@ -124,20 +124,483 @@
             <input 
               type="email" 
               class="editable-input" 
-              name="email5" 
-              id="email5" 
-              value="{{ emails.email5|default:'' }}" 
+              name="m_email5" 
+              id="m_email5" 
+              value="{{ m_emails.email5|default:'' }}" 
+              readonly>
+          </div>
+        </div>
+
+        {% if m_email_data_exists %}
+            <button class="edit-btn" type="button" id="toggle_btn_1" onclick="enable_form1('edit')">Edit</button>
+        {% else %}
+            <button class="add-btn" type="button" id="toggle_btn_1" onclick="enable_form1('add')">Add</button>
+        {% endif %}
+        <button class="save-btn btn-sm" type="submit" id="submit_1" style="display: none;">Save</button>
+
+      </form>
+    </div>
+  </div>
+
+  
+
+  <!-- Profile Information Section -->
+  <div class="Email-container">
+    <div class="Email-section">
+      <h2 class="section-heading">Client Emails</h2>
+  
+      <form action="" method="post" id="emailform3">
+        {% csrf_token %}
+        <div class="row">
+          <!--  Client Id -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Client ID</div>
+            <select id="client_id" name="client_id" class="editable-input" onchange="filterByClientId()">
+              <option value="">Select Client</option>
+              {% for client in clients %}
+                <option value="{{ client.client_id }}" {% if client.client_id == selected_client_id %}selected{% endif %}>
+                  {{ client.client_id }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6"></div>
+          {% if c_email_data_exists %}
+          {% for i in  c_emails %}
+             <!-- User 1 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 1</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username1" 
+              id="c_username1" 
+              placeholder="" 
+              value="{{ i.username1|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 1</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email1" 
+              id="c_email1" 
+              value="{{ i.email1|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 2 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 2</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username2" 
+              id="c_username2" 
+              placeholder="" 
+              value="{{ i.username2|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 2</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email2" 
+              id="c_email2" 
+              value="{{ i.email2|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 3 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 3</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username3" 
+              id="c_username3" 
+              placeholder="" 
+              value="{{ i.username3|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 3</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email3" 
+              id="c_email3" 
+              value="{{ i.email3|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 4 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 4</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username4" 
+              id="c_username4" 
+              placeholder="" 
+              value="{{ i.username4|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 4</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email4" 
+              id="c_email4" 
+              value="{{ i.email4|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 5 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 5</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username5" 
+              id="c_username5" 
+              placeholder="" 
+              value="{{ i.username5|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 5</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email5" 
+              id="c_email5" 
+              value="{{ i.email5|default:'' }}" 
+              readonly>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 1</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username1" 
+              id="c_username1" 
+              placeholder="" 
+              value="{{ username1|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 1</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email1" 
+              id="c_email1" 
+              value="{{ email1|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 2 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 2</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username2" 
+              id="c_username2" 
+              placeholder="" 
+              value="{{ username2|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 2</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email2" 
+              id="c_email2" 
+              value="{{ email2|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 3 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 3</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username3" 
+              id="c_username3" 
+              placeholder="" 
+              value="{{ username3|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 3</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email3" 
+              id="c_email3" 
+              value="{{ email3|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 4 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 4</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username4" 
+              id="c_username4" 
+              placeholder="" 
+              value="{{ username4|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 4</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email4" 
+              id="c_email4" 
+              value="{{ email4|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 5 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 5</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="c_username5" 
+              id="c_username5" 
+              placeholder="" 
+              value="{{ username5|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 5</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="c_email5" 
+              id="c_email5" 
+              value="{{ email5|default:'' }}" 
+              readonly>
+          </div>
+          {% endif %}
+         
+        </div>
+          <!-- Conditional buttons -->
+          {% if c_email_data_exists %}
+          <button class="edit-btn" type="button" id="toggle_btn_3" onclick="enable_form3('edit')">Edit</button>
+          {% else %}
+          <button class="add-btn" type="button" id="toggle_btn_3" onclick="enable_form3('add')">Add</button>
+          {% endif %}
+          <button class="save-btn btn-sm" type="submit" id="submit_3" style="display: none;">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Profile Information Section -->
+  <div class="Email-container">
+    <div class="Email-section">
+      <h2 class="section-heading">Chaipoint Emails</h2>
+  
+      <form action="" method="post" id="emailform2">
+        {% csrf_token %}
+        <div class="row">
+          <!-- User 1 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 1</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="cp_username1" 
+              id="cp_username1" 
+              placeholder="" 
+              value="{{ cp_emails.username1|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 1</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="cp_email1" 
+              id="cp_email1" 
+              value="{{ cp_emails.email1|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 2 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 2</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="cp_username2" 
+              id="cp_username2" 
+              placeholder="" 
+              value="{{ cp_emails.username2|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 2</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="cp_email2" 
+              id="cp_email2" 
+              value="{{ cp_emails.email2|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 3 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 3</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="cp_username3" 
+              id="cp_username3" 
+              placeholder="" 
+              value="{{ cp_emails.username3|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 3</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="cp_email3" 
+              id="cp_email3" 
+              value="{{ cp_emails.email3|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 4 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 4</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="cp_username4" 
+              id="cp_username4" 
+              placeholder="" 
+              value="{{ cp_emails.username4|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 4</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="cp_email4" 
+              id="cp_email4" 
+              value="{{ cp_emails.email4|default:'' }}" 
+              readonly>
+          </div>
+  
+          <!-- User 5 -->
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">User Name 5</div>
+            <input 
+              type="text" 
+              class="editable-input" 
+              name="cp_username5" 
+              id="cp_username5" 
+              placeholder="" 
+              value="{{ cp_emails.username5|default:'' }}" 
+              readonly>
+          </div>
+          <div class="col-md-6 email-item">
+            <div class="email-item-title">Email ID 5</div>
+            <input 
+              type="email" 
+              class="editable-input" 
+              name="cp_email5" 
+              id="cp_email5" 
+              value="{{ cp_emails.email5|default:'' }}" 
               readonly>
           </div>
         </div>
   
-        <button class="edit-btn btn-sm " type="button" id="edit_1" onclick="enableForm()">Edit</button>
-        <button class="save-btn btn-sm" type="submit" id="submit_1" style="display: none;">Save</button>
+        {% if cp_email_data_exists %}
+            <button class="edit-btn" type="button" id="toggle_btn_2" onclick="enable_form2('edit')">Edit</button>
+        {% else %}
+            <button class="add-btn" type="button" id="toggle_btn_2" onclick="enable_form2('add')">Add</button>
+        {% endif %}
+        <button class="save-btn btn-sm" type="submit" id="submit_2" style="display: none;">Save</button>
       </form>
     </div>
   </div>
   
+  
+<script>
+  function enable_form1(action) {
+    var inputs = document.querySelectorAll('#emailform1 .editable-input');
+    inputs.forEach(function (input) {
+        input.classList.add('active'); 
+        input.removeAttribute('readonly');
+    });
 
+    var toggleBtn = document.getElementById('toggle_btn_1');
+    if (action === 'edit' || action === 'add') {
+        toggleBtn.style.display = 'none';
+    }
+    document.getElementById('submit_1').style.display = 'block';
+}
+
+
+
+function enable_form2(action) {
+    var inputs = document.querySelectorAll('#emailform2 .editable-input');
+    inputs.forEach(function (input) {
+        input.classList.add('active'); 
+        input.removeAttribute('readonly');
+    });
+
+    var toggleBtn = document.getElementById('toggle_btn_2');
+    if (action === 'edit' || action === 'add') {
+        toggleBtn.style.display = 'none';
+    }
+    document.getElementById('submit_2').style.display = 'block';
+}
+
+
+
+function enable_form3(action) {
+    var inputs = document.querySelectorAll('#emailform3 .editable-input');
+    inputs.forEach(function (input) {
+        input.classList.add('active'); 
+        input.removeAttribute('readonly');
+    });
+
+    var toggleBtn = document.getElementById('toggle_btn_3');
+    if (action === 'edit' || action === 'add') {
+        toggleBtn.style.display = 'none';
+    }
+    document.getElementById('submit_3').style.display = 'block';
+}
+</script>
+
+<script>
+  function filterByClientId() {
+      const clientId = document.getElementById('client_id').value;
+      const url = new URL(window.location.href);
+      url.searchParams.set('client_id', clientId);
+      window.location.href = url; // Reloads the page with the selected client_id as a query parameter
+  }
+</script>
 
 {% endblock content %}
 

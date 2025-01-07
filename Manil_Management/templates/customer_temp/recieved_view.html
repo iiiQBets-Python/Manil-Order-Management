@@ -86,7 +86,7 @@
                 </tr>
             </thead>
             <tbody class="text-center">
-                {% for i in ord_det %}
+                {% for i in c_ord_det %}
                 <tr>
                     <td>{{i.material_name}}</td>
                     <td>{{i.qty}} {{i.uom}}</td>
@@ -103,12 +103,12 @@
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card p-3 shadow-sm">
-                <p><strong>Amount in Words: </strong>{{order.ammount_words}}.</p>
+                <p><strong>Amount in Words: </strong>{{c_order.ammount_words}}.</p>
             </div>
         </div>
         <div class="col-md-6">
             <div class="card p-3 shadow-sm">
-                <p><strong>Grand Total: Rs. {{order.grand_total}} </strong> </p>
+                <p><strong>Grand Total: Rs. {{c_order.grand_total}} </strong> </p>
             </div>
         </div>
     </div>
@@ -179,6 +179,7 @@
                         <div class="col-md-12 form-group">
                             <input type="file" class="form-control" id="image" name="image" placeholder=" " multiple   required>
                             <label for="image" class="form-label">Images</label>
+                            <span style="color: red;">Uploading DC Images is Mandatory</span>
                         </div>
                        
                     </div>

@@ -49,9 +49,6 @@
     color: #ffffff;
     border-bottom: 2px solid #dee2e6;
 }
-
-
-
 .table th, .table td {
     text-align: center;
     vertical-align: middle;
@@ -122,26 +119,22 @@
     background-color: #6d4c41;
     color: #ffff;
 }
-
 .modal-body {
     padding-top: 25px;
     border: 1px solid #dbdbdb;
     border-radius: 0 0 5px 5px;
 }
-
 .modal-title {
     font-weight: bold;
 }
 #modal_container{
     margin-left: -180px;
 }
-
 /* Floating label form group */
 .form-group {
     position: relative;
     margin-bottom: 1.5rem;
 }
-
 .form-label {
     position: absolute;
     top: 50%;
@@ -153,7 +146,6 @@
     transition: 0.2s ease all;
     pointer-events: none;
 }
-
 .form-control {
     border: none;
     border-radius: 0px;

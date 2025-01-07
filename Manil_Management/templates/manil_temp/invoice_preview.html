@@ -159,8 +159,8 @@
                     MSME Registration No: {{ manil_det.msme_number }}</p>
                 </div>
                 <div class="col-md-6">
-                    <p>Invoice Number: XXXXXXXXX</p>
-                    <p>Invoice Date: XXXXXXX</p>
+                    <p>Invoice Number: </p>
+                    <p>Invoice Date:</p>
                 </div>
             </div>
     
@@ -212,7 +212,11 @@
                     </tr>
                     {% endfor %}
                     <tr>
-                        <td colspan="7" class="text-end"><strong>Total</strong></td>
+                        <td colspan="3" class="text-end"><strong>Total</strong></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td><strong>Rs.{{ order.grand_total }}</strong></td>
                     </tr>
                 </tbody>

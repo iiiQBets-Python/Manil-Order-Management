@@ -1,17 +1,46 @@
-function enableForm() {
-    const inputs = document.querySelectorAll('.editable-input');
-    inputs.forEach(input => {
-        if (input.hasAttribute('readonly')) {
-            input.classList.remove('active');
-            input.classList.add('inactive'); // Add inactive class when readonly
-        } else {
-            input.classList.remove('inactive');
-            input.classList.add('active'); // Add active class when editable
-        }
-        input.removeAttribute('readonly'); // Make inputs editable
+
+function enable_form(action) {
+    var inputs = document.querySelectorAll('#emailform1 .editable-input');
+    inputs.forEach(function (input) {
+        input.classList.add('active'); 
+        input.removeAttribute('readonly');
     });
 
-    // Show save button and hide edit button
-    document.getElementById('edit_1').style.display = 'none';
-    document.getElementById('submit_1').style.display = 'inline-block';
+    var toggleBtn = document.getElementById('toggle_btn_1');
+    if (action === 'edit' || action === 'add') {
+        toggleBtn.style.display = 'none';
+    }
+    document.getElementById('submit_1').style.display = 'block';
+}
+
+
+
+function enable_form(action) {
+    var inputs = document.querySelectorAll('#emailform2 .editable-input');
+    inputs.forEach(function (input) {
+        input.classList.add('active'); 
+        input.removeAttribute('readonly');
+    });
+
+    var toggleBtn = document.getElementById('toggle_btn_2');
+    if (action === 'edit' || action === 'add') {
+        toggleBtn.style.display = 'none';
+    }
+    document.getElementById('submit_2').style.display = 'block';
+}
+
+
+
+function enable_form3(action) {
+    var inputs = document.querySelectorAll('#emailform3 .editable-input');
+    inputs.forEach(function (input) {
+        input.classList.add('active'); 
+        input.removeAttribute('readonly');
+    });
+
+    var toggleBtn = document.getElementById('toggle_btn_3');
+    if (action === 'edit' || action === 'add') {
+        toggleBtn.style.display = 'none';
+    }
+    document.getElementById('submit_3').style.display = 'block';
 }

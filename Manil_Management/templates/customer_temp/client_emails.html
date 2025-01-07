@@ -70,7 +70,7 @@
               name="username3" 
               id="username3" 
               placeholder="" 
-              value="{{ emails.username3 }}" 
+              value="{{ emails.username3|default:'' }}" 
               readonly>
           </div>
           <div class="col-md-6 email-item">
@@ -131,7 +131,11 @@
           </div>
         </div>
   
-        <button class="edit-btn btn-sm " type="button" id="edit_1" onclick="enableForm()">Edit</button>
+        {% if email_data_exists %}
+            <button class="edit-btn" type="button" id="toggle_btn" onclick="enable_form('edit')">Edit</button>
+        {% else %}
+            <button class="add-btn" type="button" id="toggle_btn" onclick="enable_form('add')">Add</button>
+        {% endif %}
         <button class="save-btn btn-sm" type="submit" id="submit_1" style="display: none;">Save</button>
       </form>
     </div>

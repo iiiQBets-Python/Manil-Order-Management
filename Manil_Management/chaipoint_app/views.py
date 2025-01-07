@@ -36,6 +36,15 @@ def cp_emails(request):
     data = chai_point_user.objects.get(user_id = user_id)
     emails = Chaipoint_emails.objects.first()
 
+    email_data_exists = any([
+        emails.username1, emails.email1,
+        emails.username2, emails.email2,
+        emails.username3, emails.email3,
+        emails.username4, emails.email4,
+        emails.username5, emails.email5
+    ]) if emails else False
+
+
     if emails is None:
         emails = Chaipoint_emails()
 
@@ -58,7 +67,7 @@ def cp_emails(request):
         return redirect('cp_emails')
     
     
-    return render (request, 'chaipoint_temp/cp_emails.html', {'data':data, 'emails':emails})
+    return render (request, 'chaipoint_temp/cp_emails.html', {'data':data, 'emails':emails, 'email_data_exists':email_data_exists})
 
 def cp_add_user(request):
     user_id = request.session.get('user_id')

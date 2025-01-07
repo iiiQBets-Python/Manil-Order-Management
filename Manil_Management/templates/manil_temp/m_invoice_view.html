@@ -151,28 +151,27 @@
             
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>Manil Advisors</strong></p>
-                    <p>{{ manil_det.billing_address }}<br>
+                    <p><strong>{{ manil_det.company_name }}</strong> <br>
+                    {{ manil_det.billing_address }}<br>
                     {{ manil_det.billing_city }}, {{ manil_det.billing_state }} - {{ manil_det.billing_pin }}<br>
                     GSTIN - {{ manil_det.billing_gst_number }}<br>
                     MSME Registration No: {{ manil_det.msme_number }}</p>
                 </div>
                 <div class="col-md-6">
-                    <p>Invoice Number: XXXXXXXXX</p>
-                    <p>Invoice Date: XXXXXXX</p>
+                   <p>Invoice Number:{{invoice.invoice_num}} <br> Invoice Date: {{invoice.invoice_date|date:"d-m-Y"}}</p>
                 </div>
             </div>
     
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>BILL TO:</strong></p>
-                    <p>{{ client_det.billing_address }}r<br>
+                    <p><strong>BILL TO:</strong> <br>
+                        {{ client_det.billing_address }}r<br>
                         {{ client_det.billing_city }}, {{ client_det.shipping_state }} - {{ client_det.billing_pin }}<br>
                     GSTIN: {{ client_det.billing_gst_number }}</p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>SHIP TO:</strong></p>
-                    <p>{{ order.shipping_address }}<br>
+                    <p><strong>SHIP TO:</strong> <br>
+                        {{ order.shipping_address }}<br>
                     {{ order.shipping_city }}, {{ order.billing_state }} - {{ order.shipping_pin }}<br>
                     GSTIN: {{ client_det.shipping_gst_number }}</p>
                 </div>
@@ -211,7 +210,11 @@
                     </tr>
                     {% endfor %}
                     <tr>
-                        <td colspan="7" class="text-end"><strong>Total</strong></td>
+                        <td colspan="3" class="text-end"><strong>Total</strong></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td><strong>Rs.{{ order.grand_total }}</strong></td>
                     </tr>
                 </tbody>

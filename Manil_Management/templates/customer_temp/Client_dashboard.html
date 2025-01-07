@@ -66,6 +66,8 @@
                             </div>
                         </div>
                     </div>
+                    {% empty %}
+                     <p style="margin-left: 40%; color: rgb(161, 60, 255); font-size: larger; font-weight:600 ;">Robots are not added yet</p>
                     {% endfor %}
                 </div>
 
@@ -89,7 +91,7 @@
                                 <th>Date</th>
                                 <th>Amount</th>
                                 <th>Delivery Status</th>
-                                <th>Payment Status</th>
+                                <!-- <th>Payment Status</th> -->
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -108,7 +110,7 @@
                                         {{ i.status }}
                                     </span>
                                 </td>
-                                <td><span class="status status-blue">Paid</span></td>
+                                <!-- <td><span class="status status-blue">Paid</span></td> -->
                                 <td><a href="#" class="link">View</a></td>
                             </tr>
                             {% endfor %}

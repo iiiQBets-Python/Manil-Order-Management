@@ -98,13 +98,29 @@
                   </select>
                   <label for="material_code" class="form-label">Material Name</label>
                 </div>
-                <div class="col-md-3 form-group">                  
+                <div class="col-md-6 form-group">                  
                   <input type="text" class="form-control" id="material_code" name="material_code" readonly  placeholder=" " required>
                   <label for="material_code" class="form-label"> Material Code</label>
                 </div>
-                <div class="col-md-3 form-group">                  
+                <div class="col-md-6 form-group">                  
                   <input type="text" class="form-control" id="hsn_code" name="hsn_code" readonly  placeholder=" " required>
                   <label for="hsn_code" class="form-label"> HSN Code</label>
+                </div>
+
+                <div class="col-md-6 form-group">
+                  <select 
+                    class="form-control" 
+                    id="unit_of_measurement" 
+                    name="unit_of_measurement" 
+                    required
+                  >
+                    <option value="" disabled selected>--Select--</option>
+                    <option value="Grms">Grms</option>
+                    <option value="Kg">Kg</option>
+                    <option value="Ltr">Ltr</option>
+                    <option value="Cups">Cups</option>
+                  </select>
+                  <label for="unit_of_measurement" class="form-label">Unit of Measurement</label>
                 </div>
                 
                 <div class="col-md-6 form-group">
@@ -226,8 +242,14 @@
                   <label for="material_code-{{i.id}}" class="form-label"> Material Code</label>
                 </div>
                 <div class="col-md-6 form-group">
-                  <input type="text" class="form-control" id="client_location-{{i.id}}" name="edit_location" value="{{i.location}}" readonly placeholder=" " required>
-                  <label for="client_location-{{i.id}}" class="form-label">Location</label>
+                  <select type="text" class="form-control" id="unit_of_measurement-{{i.id}}" name="edit_uom" placeholder=" " required>
+                    <option value="{{i.unit_of_measurement}}"selected>{{i.unit_of_measurement}}</option>
+                    <option value="Grms">Grms</option>
+                    <option value="Kg">Kg</option>
+                    <option value="Ltr">Ltr</option>
+                    <option value="Cups">Cups</option>
+                  </select>  
+                  <label for="unit_of_measurement-{{i.id}}" class="form-label">Unit Of Measurement</label>
                 </div>
                 
                 <div class="col-md-6 form-group">

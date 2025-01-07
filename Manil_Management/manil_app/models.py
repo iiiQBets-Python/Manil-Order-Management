@@ -13,22 +13,22 @@ class Manil_db(models.Model):
     fssai_number = models.CharField(max_length=50, blank=True, null=True)
     msme_number = models.CharField(max_length=50, blank=True, null=True)
 
-    bank_name = models.CharField(max_length=100)    
-    branch = models.CharField(max_length=100)
-    ifsc = models.CharField(max_length=50)
-    account_number = models.CharField(max_length=50)
-    bank_address = models.TextField()
+    bank_name = models.CharField(max_length=100, blank=True, null=True)    
+    branch = models.CharField(max_length=100, blank=True, null=True)
+    ifsc = models.CharField(max_length=50, blank=True, null=True)
+    account_number = models.CharField(max_length=50, blank=True, null=True)
+    bank_address = models.TextField(blank=True, null=True)
 
-    billing_gst_number = models.CharField(max_length=50, unique=True)
+    billing_gst_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     billing_address = models.TextField()
-    billing_city = models.CharField(max_length=50, null=True)
-    billing_state = models.CharField(max_length=50, null=True)
+    billing_city = models.CharField(max_length=50, blank=True, null=True)
+    billing_state = models.CharField(max_length=50, blank=True, null=True)
     billing_pin = models.BigIntegerField(null=True)
     
-    shipping_gst_number = models.CharField(max_length=50, unique=True)
+    shipping_gst_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     shipping_address = models.TextField()
-    shipping_city = models.CharField(max_length=50, null=True)
-    shipping_state = models.CharField(max_length=50, null=True)
+    shipping_city = models.CharField(max_length=50, blank=True, null=True)
+    shipping_state = models.CharField(max_length=50, blank=True, null=True)
     shipping_pin = models.BigIntegerField(null=True)
 
 
@@ -147,6 +147,8 @@ class Costing_Table(models.Model):
     cgst_rate = models.DecimalField(null=True, max_digits=5, decimal_places=2, default=0.00)
     sgst_rate = models.DecimalField(null=True, max_digits=5, decimal_places=2, default=0.00)
     igst_rate = models.BigIntegerField(null=True)
+    conversion_rate = models.IntegerField(default=1)
+
 
     def __str__(self):
         return self.client_name
@@ -166,6 +168,7 @@ class Material_Master(models.Model):
     created_by = models.CharField(max_length=100)
     updated_date = models.DateTimeField( null=True)
     updated_by = models.CharField(max_length=100,null=True)
+    conversion_rate = models.IntegerField(default=1)
 
     def __str__(self):
         return self.material_name
@@ -531,3 +534,12 @@ class Client_emails(models.Model):
         return self.client_id
 
 
+class Notification(models.Model):
+    title = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)  
+    is_read = models.BooleanField(default=False)  
+    created_by = models.CharField(max_length=100)  # The user for whom the notification is intended
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title

@@ -165,15 +165,10 @@
             color: var(--dark-grey);
             transition: all 0.3s ease;
             white-space: nowrap;
-
-        }
-
-        #sidebar.hide:hover .divider {
-            text-align: left;
         }
 
         #sidebar.hide .divider {
-            text-align: center;
+            display: none;
         }
 
         #sidebar .side-dropdown {
@@ -452,6 +447,79 @@
         .fa-user:hover{
             cursor: pointer;
         }
+
+        #sidebar .badge {
+            background-color: var(--red);
+            color: var(--light);
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        #sidebar .badge:empty {
+            display: flex;
+        }
+
+        .notification {
+            position: relative;
+            display: inline-block;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #000;
+            font-size: 24px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        nav .badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            border-radius: 50%;
+            padding: 2px 6px;
+        }
+
+        .notification-list {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            width: 300px;
+            display: none; /* Hidden by default */
+            z-index: 1000;
+        }
+
+        .notification-list li {
+            list-style: none;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .notification-list li:last-child {
+            border-bottom: none;
+        }
+
+        .notification-list a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .notification-list a:hover {
+            background-color: #f5f5f5;
+            color: #000;
+        }
+
+
     </style>
     {% block styles %}
     {% endblock %}
@@ -465,26 +533,44 @@
     </div>
     <!-- SIDEBAR -->
     <section id="sidebar" class="toggle_hide">
-        <a href="#" class="brand" style="padding-left: 80px;">Manil <i class='bx bx-menu toggle-sidebar tog_btn2' style="color: black; margin-left: 80px;"></i> </a>
+        <a href="#" class="brand" style="padding-left: 80px;">MANIL <i class='bx bx-menu toggle-sidebar tog_btn2' style="color: black; margin-left: 80px;"></i> </a>
         
         <ul class="side-menu">
+            <li class="divider" data-text="Manil">Manil</li>
             <li><a href="{% url 'manil_dashboard'  %}"><i class='bx bxs-dashboard icon' class="active"></i>Dashboard</a></li>
             <li><a href="{% url 'manil_master' %}"><i class='fas fa-cogs icon'></i> Manil Master</a></li>
-            <li><a href="{% url 'manil_emails' %}"><i class='fas fa-cogs icon'></i> Manil Emails</a></li>
+            <li><a href="{% url 'manil_emails' %}"><i class='fas fa-cogs icon'></i> Email Master</a></li>
             <li><a href="{% url 'manil_user' %}"><i class="fas fa-users icon"></i> Manil User</a></li>
+            <li><a href="{% url 'material_master' %}"><i class="fas fa-boxes icon"></i> Material Master</a></li>
+            <li><a href="{% url 'robo_master' %}"><i class="fas fa-robot icon"></i> Robo Master</a></li>
+            <li class="divider" data-text="Client">Client</li>
             <li><a href="{% url 'Client_master' %}"><i class='bx bxs-chart icon'></i> Client Master</a></li>
             <li><a href="{% url 'cust_user_master' %}"><i class='bx bxs-chart icon'></i> Client User</a></li>
-            <li><a href="{% url 'chaipoint_user' %}"><i class="fas fa-users icon"></i> Chaipoint User</a></li>
-            <li><a href="{% url 'material_master' %}"><i class="fas fa-boxes icon"></i> Material Master</a></li>
             <li><a href="{% url 'material_cost' %}"><i class="fas fa-dollar-sign icon"></i> Material Cost</a></li>
-            <li><a href="{% url 'client_order_' %}"><i class="fas fa-receipt icon"></i> Client Order Table</a></li>            
+            <li><a href="{% url 'robo_details' %}"><i class="fas fa-robot icon"></i> Robo Details</a></li>
+            <li class="divider" data-text="Chaipoint">Chaipoint</li>
+            <li><a href="{% url 'chaipoint_user' %}"><i class="fas fa-users icon"></i> Chaipoint User</a></li>
+            <li class="divider" data-text="Order And Invoice">Order And Invoice</li>
+            <li>
+                <a href="{% url 'client_order_' %}">
+                    <i class="fas fa-receipt icon"></i> 
+                    Client Order Table
+                    <span class="badge" style="margin-left: 8px;">
+                        {% if order_placed_count %}
+                            {{ order_placed_count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                   </span>
+                 </a>
+            </li>
+                       
             <li><a href="{% url 'manil_order_' %}"><i class="fas fa-receipt icon"></i> Manil Order Table</a></li>
             <li><a href="{% url 'manil_dispatch' %}"><i class='fas fa-truck icon'></i>Manil Dispatch</a></li>
             <li><a href="{% url 'm_invoice_table' %}"><i class='bx bxs-chart icon'></i>Invoice</a></li>
-            <li><a href="{% url 'order_remarks' %}"><i class='fas fa-boxes icon'></i>Order Remarks</a></li>
+            <li class="divider" data-text="Tickets">Tickets</li>
+            <li><a href="{% url 'order_remarks' %}"><i class='fas fa-boxes icon'></i>Order Tickets</a></li>
             <li><a href="{% url 'manil_ticket' %}"><i class="fas fa-tools icon"></i> Manil Ticket</a></li>
-            <li><a href="{% url 'robo_master' %}"><i class="fas fa-robot icon"></i> Robo Master</a></li>
-            <li><a href="{% url 'robo_details' %}"><i class="fas fa-robot icon"></i> Robo Details</a></li>
             
         </ul>
     </section>
@@ -504,11 +590,27 @@
                 </div>
             </form>
 
+            <div class="notification">
+                <a href="#" class="nav-link">
+                    <i class='bx bxs-bell icon'></i>
+                    <span class="badge">{% if unread_count %} {{ unread_count }}  {% else %} 0 {% endif %} </span>
+                </a>
+                <ul class="notification-list">
+                    {% for i in notifications %}
+                        <li>
+                            <a href="#">{{ i.message }}</a>
+                        </li>
+                    {% empty %}
+                        <li>
+                            <a href="#">No new notifications</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+
+
             <!-- <a href="#" class="nav-link">
-                <i class='bx bxs-bell icon'></i>
-                <span class="badge">5</span>
-            </a>
-            <a href="#" class="nav-link">
                 <i class='bx bxs-message-square-dots icon'></i>
                 <span class="badge">8</span>
             </a> -->
@@ -659,6 +761,23 @@
         imgProfile.addEventListener('click', function () {
             dropdownProfile.classList.toggle('show');
         })
+
+        document.querySelector('.nav-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    const notificationList = document.querySelector('.notification-list');
+    const isVisible = notificationList.style.display === 'block';
+    notificationList.style.display = isVisible ? 'none' : 'block';
+});
+
+// Optional: Close notifications when clicking outside
+document.addEventListener('click', function (e) {
+    const notification = document.querySelector('.notification');
+    const notificationList = document.querySelector('.notification-list');
+    if (!notification.contains(e.target)) {
+        notificationList.style.display = 'none';
+    }
+});
+
 
 
     </script>

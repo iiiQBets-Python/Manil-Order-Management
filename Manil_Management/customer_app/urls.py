@@ -7,6 +7,7 @@ urlpatterns = [
     path('client_report', client_report, name='client_report'),
     path('client_emails', client_emails, name='client_emails'),
     path('order_table', order_table, name='order_table'),
+    path('client_order_view/<str:ord_no>',client_order_view,name='client_order_view'),
     path('edit_order_table', edit_order_table, name='edit_order_table'),
     path('Client_dispatch', Client_dispatch, name='Client_dispatch'),
     path('received_view/<str:ord_no>',received_view,name='received_view'),

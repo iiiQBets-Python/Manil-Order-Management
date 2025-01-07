@@ -12,13 +12,31 @@ from xhtml2pdf import pisa
 from io import BytesIO
 from django.shortcuts import render, redirect
 from django.conf import settings
+from num2words import num2words
+from django.core.mail import EmailMessage
+from django.conf import settings
 
 
-# Create your views here.
 def base(request):
     user_id = request.session.get('user_id')
-    data = Manil_User.objects.get(user_id = user_id)
-    return render(request, 'manil_temp/base.html',{'data':data})
+    data = Manil_User.objects.get(user_id=user_id)
+
+    order_placed_count = client_order.objects.filter(status="Order Placed").count()
+
+    # Fetch unread notifications
+    notifications = Notification.objects.filter(is_read=False).order_by('-created_at')
+    
+    # Count the unread notifications
+    unread_count = notifications.count()
+
+    return render(request, 'manil_temp/base.html', {
+        'data': data,
+        'order_placed_count': order_placed_count,
+        'unread_count': unread_count,
+        'notifications': notifications,  
+    })
+
+
 
 
 def login_page(request):
@@ -68,6 +86,8 @@ def log_out(request):
         request.session.clear()
     return redirect('login_page')
 
+from datetime import datetime, timedelta    
+
 def manil_dashboard(request):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
@@ -78,6 +98,7 @@ def manil_dashboard(request):
     processed_orders = c_orders.filter(status='Dispatched').count()
     pending_orders = c_orders.filter(status='Order Placed').count()
     delivered_orders = c_orders.filter(status='Delivered').count()
+    remarked_orders = c_orders.filter(status='Remarked').count()
 
     # Tickets
     m_tickets = Robo_Ticket.objects.all()
@@ -85,20 +106,64 @@ def manil_dashboard(request):
     solved_tickets = m_tickets.filter(status='Closed').count()
     pending_tickets = m_tickets.filter(status='Open').count()
 
+    # Filter Orders
+    filter_type = request.GET.get('filter', 'all')
+    today = datetime.now()
+    if filter_type == 'day':
+        filtered_orders = client_order.objects.filter(order_date__date=today.date())
+    elif filter_type == 'week':
+        start_of_week = today - timedelta(days=today.weekday())
+        filtered_orders = client_order.objects.filter(order_date__date__gte=start_of_week.date())
+    elif filter_type == 'month':
+        filtered_orders = client_order.objects.filter(order_date__month=today.month, order_date__year=today.year)
+    else:
+        filtered_orders = client_order.objects.all()
+
+    # Filter Tickets
+    ticket_filter_type = request.GET.get('ticket_filter', 'all')
+    if ticket_filter_type == 'day':
+        filtered_tickets = Robo_Ticket.objects.filter(creation_date__date=today.date())
+    elif ticket_filter_type == 'week':
+        start_of_week = today - timedelta(days=today.weekday())
+        filtered_tickets = Robo_Ticket.objects.filter(creation_date__date__gte=start_of_week.date())
+    elif ticket_filter_type == 'month':
+        filtered_tickets = Robo_Ticket.objects.filter(creation_date__month=today.month, creation_date__year=today.year)
+    else:
+        filtered_tickets = Robo_Ticket.objects.all()
+
+    # Ticket Counts
+    filtered_ticket_count = filtered_tickets.count()
+
+    # Order Counts
+    filtered_order_count = filtered_orders.count()
+   
+
+    # All Orders and Tickets
+    all_orders = client_order.objects.all()
+    all_tickets = Robo_Ticket.objects.all()
+
     context = {
+        'filtered_orders': filtered_orders,
+        'all_orders': all_orders,
+        'filtered_order_count': filtered_order_count,
+        'filtered_tickets': filtered_tickets,
+        'all_tickets': all_tickets,
+        'filtered_ticket_count': filtered_ticket_count,
+        'data': data,
         'c_orders': c_orders,
         'm_tickets': m_tickets,
-        'data': data,
         'total_orders': total_orders,
         'processed_orders': processed_orders,
         'pending_orders': pending_orders,
         'delivered_orders':delivered_orders,
+        'remarked_orders': remarked_orders,
         'total_tickets': total_tickets,
         'solved_tickets': solved_tickets,
         'pending_tickets': pending_tickets,
     }
 
     return render(request, 'manil_temp/manil_dashboard.html', context)
+
 
 def forgot_password(request):
     return render(request, 'Base/forgot_password.html')
@@ -107,7 +172,9 @@ def manil_master(request):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id = user_id)
     C_data = Manil_db.objects.first()
-
+     
+    if not C_data:
+        C_data = Manil_db() 
     
     if request.method == 'POST':        
         
@@ -129,11 +196,11 @@ def manil_master(request):
 
         if 'billing_gst_number' in request.POST:
             # Billing Details Form (form3)
-            C_data.billing_gst_number = request.POST.get('billing_gst_number')
+            C_data.billing_gst_number = request.POST.get('billing_gst_number') 
             C_data.billing_address = request.POST.get('billing_address')
             C_data.billing_city = request.POST.get('billing_city')
             C_data.billing_state = request.POST.get('billing_state')
-            C_data.billing_pin = request.POST.get('billing_pin')
+            C_data.billing_pin = request.POST.get('billing_pin') or None
 
         if 'shipping_gst_number' in request.POST:
             # Shipping Details Form (form4)
@@ -141,40 +208,117 @@ def manil_master(request):
             C_data.shipping_address = request.POST.get('shipping_address')
             C_data.shipping_city = request.POST.get('shipping_city')
             C_data.shipping_state = request.POST.get('shipping_state')
-            C_data.shipping_pin = request.POST.get('shipping_pin')
+            C_data.shipping_pin = request.POST.get('shipping_pin') or None
         
         C_data.save()
     
     
     return render (request, 'manil_temp/manil_master.html', {'data':data, 'C_data':C_data})
 
+
 def manil_emails(request):
     user_id = request.session.get('user_id')
-    data = Manil_User.objects.get(user_id = user_id)
-    emails = Manil_emails.objects.first()
+    data = get_object_or_404(Manil_User, user_id=user_id)
+    clients = Client_Master.objects.all()
 
-    if not emails: 
-        emails = Manil_emails()
+    # Initialize Manil Emails and Chaipoint Emails
+    m_emails = Manil_emails.objects.first() or Manil_emails()
+    cp_emails = Chaipoint_emails.objects.first() or Chaipoint_emails()
 
-    if request.method == 'POST':        
-        
-        emails.username1 = request.POST.get('username1')
-        emails.email1 = (request.POST.get('email1'))
-        emails.username2 = request.POST.get('username2')
-        emails.email2 = (request.POST.get('email2'))
-        emails.username3 = request.POST.get('username3')
-        emails.email3 = (request.POST.get('email3'))
-        emails.username4 = request.POST.get('username4')
-        emails.email4 = (request.POST.get('email4'))
-        emails.username5 = request.POST.get('username5')
-        emails.email5 = (request.POST.get('email5'))
-       
-        emails.save()
-
-        return redirect('manil_emails')
+    selected_client_id = request.POST.get('client_id')
     
-    
-    return render (request, 'manil_temp/manil_emails.html', {'data':data, 'emails':emails})
+    # Fetch all client emails for the selected client_id
+    c_emails = Client_emails.objects.all()
+
+    selected_client_id = request.GET.get('client_id', None)
+
+    if selected_client_id:
+        c_emails = Client_emails.objects.filter(client_id=selected_client_id)
+        c_email_data_exists = c_emails.exists()
+    else:
+        c_emails = Client_emails.objects.none()  # Or default data
+        c_email_data_exists = False
+
+    m_email_data_exists = any([m_emails.username1, m_emails.email1,
+                               m_emails.username2, m_emails.email2,
+                               m_emails.username3, m_emails.email3,
+                               m_emails.username4, m_emails.email4,
+                               m_emails.username5, m_emails.email5]) if m_emails else False
+
+    cp_email_data_exists = any([cp_emails.username1, cp_emails.email1,
+                                cp_emails.username2, cp_emails.email2,
+                                cp_emails.username3, cp_emails.email3,
+                                cp_emails.username4, cp_emails.email4,
+                                cp_emails.username5, cp_emails.email5]) if cp_emails else False
+
+    c_email_data_exists = any([email.client_id for email in c_emails]) if c_emails else False
+
+    if request.method == 'POST':
+        # Check if the form for Manil Emails was submitted
+        if 'm_username1' in request.POST:
+            m_emails.username1 = request.POST.get('m_username1')
+            m_emails.email1 = request.POST.get('m_email1')
+            m_emails.username2 = request.POST.get('m_username2')
+            m_emails.email2 = request.POST.get('m_email2')
+            m_emails.username3 = request.POST.get('m_username3')
+            m_emails.email3 = request.POST.get('m_email3')
+            m_emails.username4 = request.POST.get('m_username4')
+            m_emails.email4 = request.POST.get('m_email4')
+            m_emails.username5 = request.POST.get('m_username5')
+            m_emails.email5 = request.POST.get('m_email5')
+            m_emails.save()
+            return redirect('manil_emails')  # Redirect after updating Manil Emails
+
+        # Check if the form for Chaipoint Emails was submitted
+        elif 'cp_username1' in request.POST:
+            cp_emails.username1 = request.POST.get('cp_username1')
+            cp_emails.email1 = request.POST.get('cp_email1')
+            cp_emails.username2 = request.POST.get('cp_username2')
+            cp_emails.email2 = request.POST.get('cp_email2')
+            cp_emails.username3 = request.POST.get('cp_username3')
+            cp_emails.email3 = request.POST.get('cp_email3')
+            cp_emails.username4 = request.POST.get('cp_username4')
+            cp_emails.email4 = request.POST.get('cp_email4')
+            cp_emails.username5 = request.POST.get('cp_username5')
+            cp_emails.email5 = request.POST.get('cp_email5')
+            cp_emails.save()
+            return redirect('manil_emails')  # Redirect after updating Chaipoint Emails
+
+        # Handle form for Client Emails based on client_id (primary key)
+        elif 'client_id' in request.POST:
+            client_id = request.POST.get('client_id')
+
+            # Check if emails already exist for the selected client_id
+            c_emails_instance, created = Client_emails.objects.update_or_create(
+                client_id=client_id,
+                defaults={
+                    'username1': request.POST.get('c_username1'),
+                    'email1': request.POST.get('c_email1'),
+                    'username2': request.POST.get('c_username2'),
+                    'email2': request.POST.get('c_email2'),
+                    'username3': request.POST.get('c_username3'),
+                    'email3': request.POST.get('c_email3'),
+                    'username4': request.POST.get('c_username4'),
+                    'email4': request.POST.get('c_email4'),
+                    'username5': request.POST.get('c_username5'),
+                    'email5': request.POST.get('c_email5')
+                }
+            )
+            return redirect('manil_emails') 
+
+    context = {
+        'data': data,
+        'clients': clients,
+        'm_emails': m_emails,
+        'cp_emails': cp_emails,
+        'c_emails': c_emails,
+        'selected_client_id' : selected_client_id,
+        'm_email_data_exists': m_email_data_exists,
+        'cp_email_data_exists': cp_email_data_exists,
+        'c_email_data_exists': c_email_data_exists,
+    }
+
+    return render(request, 'manil_temp/manil_emails.html', context)
 
 
 def manil_user(request):
@@ -620,8 +764,9 @@ def material_master(request):
         igst_rate = request.POST.get('igst_rate')
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')    
+        conversion_rate = request.POST.get('conversion_rate')
         
-        print('cgst_rate', cgst_rate)   
+        #print('cgst_rate', cgst_rate)   
 
         context = {
             'material_name':material_name, 'hsn_code':hsn_code, 'unit_of_measurement':unit_of_measurement, 'Base_Price':Base_Price, 'cgst_rate':cgst_rate, 'sgst_rate':sgst_rate,
@@ -659,7 +804,8 @@ def material_master(request):
             start_date=start_date,
             end_date=end_date,
             creation_date=timezone.now() + timedelta(hours=5, minutes=30),
-            created_by=data.first_name  # Assuming you have user authentication
+            created_by=data.first_name, # Assuming you have user authentication
+            conversion_rate = conversion_rate
         )
         new_material.save()
 
@@ -679,6 +825,7 @@ def edit_material_master(request, id):
         materials.material_name = materials.material_name     
         materials.hsn_code = request.POST.get('edit_hsn_code')
         materials.unit_of_measurement = request.POST.get('edit_uom')
+        materials.conversion_rate = request.POST.get('edit_conversion_rate')
         materials.Base_Price = request.POST.get('edit_Base_Price')
         materials.cgst_rate = Decimal(request.POST.get('edit_cgst_rate'))
         materials.sgst_rate = Decimal(request.POST.get('edit_sgst_rate'))
@@ -715,6 +862,7 @@ def material_cost(request):
         cost_per_unit = request.POST.get('cost_per_unit')
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
+        unit_of_measurement = request.POST.get('unit_of_measurement')
 
         mat_rec = Material_Master.objects.get(material_code = material_code)
                
@@ -732,7 +880,8 @@ def material_cost(request):
             creation_date=timezone.now() + timedelta(hours=5, minutes=30),
             created_by=data.first_name,
 
-            unit_of_measurement=mat_rec.unit_of_measurement,
+            unit_of_measurement= unit_of_measurement,
+            conversion_rate = mat_rec.conversion_rate,
             Base_Price=mat_rec.Base_Price,
             cgst_rate=mat_rec.cgst_rate,
             sgst_rate=mat_rec.sgst_rate,
@@ -758,10 +907,10 @@ def edit_material_cost(request,id):
     if request.method == 'POST':
         costings.client_id = costings.client_id
         costings.client_name = costings.client_name
-        costings.location = costings.location
         costings.material_code = costings.material_code 
-        costings.material_name = costings.material_name         
+        costings.material_name = costings.material_name  
         
+        costings.unit_of_measurement = request.POST.get('edit_uom')
         costings.cost_per_unit = request.POST.get('edit_cost_per_unit')
         costings.start_date = request.POST.get('edit_start_date')
         costings.end_date = request.POST.get('edit_end_date')
@@ -878,6 +1027,17 @@ def client_order_(request):
         )
         client_order_new.save()
 
+        notification_message = f"Your order has been placed successfully on {timezone.now().strftime('%d-%m-%Y %H:%M')}."
+        notification_title = f"Order Update"
+
+        # Create a new notification for the logged-in user
+        notification = Notification(
+            created_by = data.user_id,
+            message=notification_message,
+            title = notification_title
+        )
+        notification.save()
+
         manil_email_obj = Manil_emails.objects.first()
 
         # Extract the email fields from the first entry (if it exists)
@@ -942,7 +1102,7 @@ def client_order_(request):
         <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>S.No</th>
                     <th>Material Name</th>
                     <th>UOM</th>
                     <th>Quantity</th>
@@ -1061,42 +1221,43 @@ def edit_client_order(request, order_number):
 
     return render(request, 'manil_temp/client_order.html', context)
 
-
-
-from django.core.mail import EmailMessage
-from django.conf import settings
-
-def c_order_view(request, ord_no):    
+def c_order_view(request, ord_no):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
 
-    ord_no = ord_no
-    order = client_order.objects.get(order_number=ord_no)
-
     all_orders = manil_order.objects.all()
-
-    client_det = Client_Master.objects.get(client_id=order.client_id)
-
+    order = client_order.objects.get(order_number=ord_no)
     ord_det = client_order_details.objects.filter(order_number=ord_no)
-
+    client_det = Client_Master.objects.get(client_id=order.client_id)
     mat_list = Material_Master.objects.all()
-
-    context = {
-        'data': data,
-        'order': order,
-        'client_det': client_det,
-        'ord_det': ord_det,
-        'mat_list': mat_list
-    }
     
-    if request.method == 'POST':
-        
-        no_of_sec = request.POST.get('no_of_sec')
+    new_values = {}
+    grand_total = 0
+
+    for i in ord_det:
+        for j in mat_list:
+            if i.material_name == j.material_name:
+                new_qty = i.qty * j.conversion_rate
+                sub_total = new_qty * j.Base_Price
+                sub_total = round(sub_total + (sub_total * (i.gst_rate / 100)))
+
+                # Initialize dictionary entry if not exists
+                if i.material_name not in new_values:
+                    new_values[i.material_name] = {}
+
+                # Assign values
+                new_values[i.material_name]['qty'] = new_qty
+                new_values[i.material_name]['sub_total'] = sub_total
+
+    for key, value in new_values.items():
+        grand_total += value['sub_total']
+
+    grand_total_word = num2words(grand_total).title()
+
+    if request.method == "POST":
 
         order_number = request.POST.get('order_number')
-
         old_order = client_order.objects.get(order_number=order_number)
-
         amt_in_words = request.POST.get('amt_in_words')
         grand_total = request.POST.get('grand_total')                
 
@@ -1113,32 +1274,7 @@ def c_order_view(request, ord_no):
             new_value = pre + new_suffix
         else:           
             new_value = 'PRS001' 
-
-        # Save order details
-        for i in range(1, int(no_of_sec) + 1):            
-            material_name = request.POST.get(f'material_name_{i}')
-            uom = request.POST.get(f'uom_{i}')
-            qty = request.POST.get(f'qty_{i}')
-            base_price = request.POST.get(f'base_price_{i}')
-            gst_type = request.POST.get(f'gst_type_{i}')
-            gst_rate = request.POST.get(f'gst_rate_{i}')
-            gst_amt = request.POST.get(f'gst_amt_{i}')
-            sub_total = request.POST.get(f'sub_total_{i}')        
-
-            manil_order_new = manil_order_details(
-                process_num=new_value,
-                material_name=material_name,
-                uom=uom,
-                qty=qty,
-                base_price=base_price,
-                gst_type=gst_type,
-                gst_rate=gst_rate,
-                gst_amt=round(float(gst_amt)),
-                sub_total=round(float(sub_total))
-            )
-            manil_order_new.save()
-
-        # Save the main order
+       
         manil_order_new = manil_order(
             process_num=new_value,
             client_id=old_order.client_id,   
@@ -1166,19 +1302,41 @@ def c_order_view(request, ord_no):
         old_order.authorised_by = data.first_name
         old_order.save()
 
-        # Prepare and send email notifications
+        for i in ord_det:
+            material = Material_Master.objects.get(material_name=i.material_name)
+            gst_amount = round(i.qty * material.conversion_rate * material.Base_Price * (i.gst_rate / 100))
+            sub_total = round(i.qty * material.conversion_rate * material.Base_Price + gst_amount)
+
+            manil_order_details.objects.create(
+                process_num=manil_order_new.process_num,
+                material_name=i.material_name,
+                hsn_code=material.hsn_code,
+                uom=material.unit_of_measurement,
+                qty=i.qty * material.conversion_rate,
+                base_price=material.Base_Price,
+                gst_type=i.gst_type,
+                gst_rate=i.gst_rate,
+                gst_amt=gst_amount,
+                sub_total=sub_total
+            )
+
+        # Prepare email details
         order_details_rows = ""
-        for i in range(1, int(no_of_sec) + 1):
+        for idx, i in enumerate(ord_det, start=1):
+            material = Material_Master.objects.get(material_name=i.material_name)
+            gst_amount = round(i.qty * material.conversion_rate * material.Base_Price * (i.gst_rate / 100))
+            sub_total = round(i.qty * material.conversion_rate * material.Base_Price + gst_amount)
+            
             order_details_rows += f"""
             <tr>
-                <td>{i}</td>
-                <td>{request.POST.get(f'material_name_{i}')}</td>
-                <td>{request.POST.get(f'uom_{i}')}</td>
-                <td>{request.POST.get(f'qty_{i}')}</td>
-                <td>{request.POST.get(f'base_price_{i}')}</td>
-                <td>{request.POST.get(f'gst_rate_{i}')}%</td>
-                <td>{request.POST.get(f'gst_amt_{i}')}</td>
-                <td>{request.POST.get(f'sub_total_{i}')}</td>
+                <td>{idx}</td>
+                <td>{i.material_name}</td>
+                <td>{i.qty * material.conversion_rate}</td>
+                <td>{material.unit_of_measurement}</td>
+                <td>{material.Base_Price}</td>
+                <td>{i.gst_rate}%</td>
+                <td>{gst_amount}</td>
+                <td>{sub_total}</td>
             </tr>
             """
 
@@ -1193,10 +1351,10 @@ def c_order_view(request, ord_no):
         <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>S.No</th>
                     <th>Material Name</th>
-                    <th>UOM</th>
                     <th>Quantity</th>
+                    <th>UOM</th>
                     <th>Base Price</th>
                     <th>GST Rate</th>
                     <th>GST Amount</th>
@@ -1213,38 +1371,29 @@ def c_order_view(request, ord_no):
         <p>Thank you!</p>
         """
 
+        # Fetch email recipients
         manil_email_obj = Manil_emails.objects.first()
-
-        # Extract the email fields from the first entry (if it exists)
-        if manil_email_obj:
-            manil_emails = [
-                manil_email_obj.email1,
-                manil_email_obj.email2,
-                manil_email_obj.email3,
-                manil_email_obj.email4,
-                manil_email_obj.email5
-            ]
-        else:
-            manil_emails = []
-
         chaipoint_email_obj = Chaipoint_emails.objects.first()
 
-        # Extract the email fields from the first entry (if it exists)
-        if chaipoint_email_obj:
-            chaipoint_emails = [
-                chaipoint_email_obj.email1,
-                chaipoint_email_obj.email2,
-                chaipoint_email_obj.email3,
-                chaipoint_email_obj.email4,
-                chaipoint_email_obj.email5
-            ]
-        else:
-            chaipoint_emails = []    
+        manil_emails = [
+            manil_email_obj.email1,
+            manil_email_obj.email2,
+            manil_email_obj.email3,
+            manil_email_obj.email4,
+            manil_email_obj.email5
+        ] if manil_email_obj else []
 
-        # Combine Manil and Chaipoint emails
+        chaipoint_emails = [
+            chaipoint_email_obj.email1,
+            chaipoint_email_obj.email2,
+            chaipoint_email_obj.email3,
+            chaipoint_email_obj.email4,
+            chaipoint_email_obj.email5
+        ] if chaipoint_email_obj else []
+
         recipient_list = manil_emails + chaipoint_emails
 
-        # Prepare and send email
+        # Send email
         email = EmailMessage(
             subject='Order Processed Notification',
             body=email_body,
@@ -1254,10 +1403,22 @@ def c_order_view(request, ord_no):
         email.content_subtype = 'html'
         email.send(fail_silently=False)
 
-        messages.success(request, 'Your order has been placed.')
+        messages.success(request, "Your order has been placed.")
         return redirect('manil_order_')
 
+    context = {
+        'data': data,
+        'order': order,
+        'ord_det': ord_det,
+        'client_det':client_det,
+        'mat_list': mat_list,
+        'new_values': new_values,
+        'grand_total': grand_total,
+        'grand_total_word': f"{grand_total_word} Rupees Only"
+    }
+
     return render(request, 'manil_temp/c_order_view.html', context)
+
 
 
 def manil_dispatch(request):
@@ -1632,8 +1793,6 @@ def invoice_preview(request, ord_no):
             else:
                 manil_emails = []
 
-        
-
             client_emails = []
             client_email_objs = Client_emails.objects.filter(client_id=order.client_id)  
             for client_email_obj in client_email_objs:
@@ -1702,7 +1861,7 @@ def m_invoice_view(request, ord_no):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id = user_id)
 
-    manil_det = Manil_db.objects.all()
+    manil_det = Manil_db.objects.first()
 
     order = client_order.objects.get(order_number = ord_no)
 
@@ -1724,8 +1883,6 @@ def m_invoice_view(request, ord_no):
 
 
 
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.colors import black, white, grey
 from io import BytesIO
@@ -1734,10 +1891,14 @@ from pathlib import Path
 from reportlab.lib.pagesizes import letter, A4
 import os 
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Flowable,PageBreak
 from reportlab.lib.units import inch
-from pathlib import Path
-
+from reportlab.lib import colors
+from reportlab.platypus import Image
+from reportlab.platypus import Flowable
+from reportlab.lib.pagesizes import A4
+import logging
+from reportlab.pdfgen import canvas
 
 def m_download_invoice(request, ord_no):
     # Fetch data
@@ -1752,61 +1913,64 @@ def m_download_invoice(request, ord_no):
     except Exception as e:
         return HttpResponse(str(e), status=404)
 
-    buffer = BytesIO()
-    try:
-        c = canvas.Canvas(buffer, pagesize=A4)
-        # Header Section
-        logo_path = Path("media/invoice/manil.jpg")  # Replace with actual path
-        img_width = 240  # Desired width of the image
-        img_height = 45  # Desired height of the image
+    # Initialize the response object for PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{ord_no}.pdf"'
 
-        if os.path.exists(logo_path):  # Use os.path.exists instead of .exists()
-            x = (A4[0] - img_width) / 2  # A4[0] is the width of the page
-            y = A4[1] - 60  # A4[1] is the height of the page
-            c.drawImage(logo_path, x, y, width=img_width, height=img_height)
+    doc = SimpleDocTemplate(response, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=64, bottomMargin=60)
+    styles = getSampleStyleSheet()
+    flowables = []
+
+    # Attach manil_det to doc object so it can be accessed in the header
+    doc.manil_det = manil_det  # Store manil_det in the doc object
+
+    # Header content for the first page
+    def first_page_header(canvas, doc):
+        # Access manil_det from the doc object
+        manil_det = doc.manil_det
         
-            
-        # Draw Main Box
-        c.rect(25, 220, 546, 550)
-        c.setFont("Helvetica-Bold", 14)
-        c.setFillColor(black)
-        c.drawString(250, 750, "TAX INVOICE")
+        canvas.saveState()  # Save the current state
 
-        #Draw a line below tax invoice
-        c.line(25, 740, 571, 740)
+        logo_path = Path("media/invoice/manil.jpg") 
+        img_width = 240 
+        img_height = 45
+        canvas.drawImage(logo_path, (A4[0]-img_width)/2, A4[1] - 60, width=img_width, height=img_height)
 
-        # Set up styles for wrapped text
-        styles = getSampleStyleSheet()
+        canvas.setFont("Helvetica-Bold", 14)
+        canvas.setFillColor(colors.black)
+        canvas.drawCentredString(300, 750, "TAX INVOICE")
+        
+        canvas.setLineWidth(1)
+        canvas.line(25, 740, 570, 740)
+        
         normal_style = styles["Normal"]
         normal_style.fontName = "Helvetica"
         normal_style.fontSize = 10
-
-        # Company Details
-        company_details = (
-            f"{manil_det.company_name}<br/>{manil_det.billing_address}<br/>"
+        
+        company_details = (f"{manil_det.company_name}<br/>{manil_det.billing_address}<br/>"
             f"{manil_det.billing_city}, {manil_det.billing_state}-{manil_det.billing_pin}<br/>"
             f"GSTIN - {manil_det.billing_gst_number}<br/>"
             f"MSME Registration No: {manil_det.msme_number}"
-        )       
+        )
+        
         company_paragraph = Paragraph(company_details, normal_style)
-        company_paragraph.wrap(250, 300)  # Wrap within 250 points width
-        company_paragraph.drawOn(c, 30, 660)
+        company_paragraph.wrapOn(canvas, 250, 300)
+        company_paragraph.drawOn(canvas, 30, 665)
 
         # Vertical Divider
-        c.line(275, 740, 275, 580)  # Vertical line between details
-        
+        canvas.line(290, 740, 290, 590) 
 
         # Invoice Details
         invoice_details = (
             f"Invoice Number: {invoice.invoice_num}<br/>"
             f"Invoice Date: {invoice.invoice_date.strftime('%d-%m-%Y')}"
-        )        
+        )   
         invoice_paragraph = Paragraph(invoice_details, normal_style)
-        invoice_paragraph.wrap(250, 200)  # Wrap within 250 points width
-        invoice_paragraph.drawOn(c, 280, 700)
+        invoice_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        invoice_paragraph.drawOn(canvas, 300, 705)
 
-        #Draw a line below company details and invoice details
-        c.line(25, 650, 571, 650)
+        canvas.setLineWidth(1)
+        canvas.line(25, 655, 570, 655)
 
         # Billing Details
         billing_details = (
@@ -1816,8 +1980,8 @@ def m_download_invoice(request, ord_no):
             f"GSTIN: {client_det.billing_gst_number}"
         )        
         billing_paragraph = Paragraph(billing_details, normal_style)
-        billing_paragraph.wrap(250, 200)  # Wrap within 250 points width
-        billing_paragraph.drawOn(c, 30, 600)
+        billing_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        billing_paragraph.drawOn(canvas, 30, 605)
 
         # Shipping Details
         shipping_details = (
@@ -1827,126 +1991,224 @@ def m_download_invoice(request, ord_no):
             f"GSTIN: {client_det.shipping_gst_number}"
         )        
         shipping_paragraph = Paragraph(shipping_details, normal_style)
-        shipping_paragraph.wrap(250, 200)  # Wrap within 250 points width
-        shipping_paragraph.drawOn(c, 280, 600)
+        shipping_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        shipping_paragraph.drawOn(canvas, 300, 605)
 
-        # Draw a line below billing and shiping details
-        c.line(25, 580, 571, 580)
+        canvas.setLineWidth(1)
+        canvas.line(25, 590, 570, 590)
 
         # Po_details
-        c.setFont("Helvetica", 10)
-        c.setFillColor(black)
-        c.drawString(30, 560, f'Ref: PO Authority: {order.po_authority} and PO Date: {order.po_authority_date}')
+        canvas.setFont("Helvetica", 10)
+        canvas.setFillColor(black)
+        canvas.drawString(30, 570, f'Ref: PO Authority: {order.po_authority} and PO Date: {order.po_authority_date}')
 
-        c.line(25, 540, 571, 540)
+        # canvas.setLineWidth(0.5)
+        # canvas.line(30, 560, 570, 560)
 
-       # Define table column widths and style
-        col_widths = [30, 100, 35, 55, 55, 45, 60, 60, 105]
+        # Draw the page border
+        canvas.setStrokeColor(colors.black)
+        canvas.setLineWidth(1)
+        canvas.rect(25, 50, A4[0] - 50, A4[1] - 120)
+
+        canvas.restoreState()  # Restore the state after drawing
+
+    def later_pages_header(canvas, doc):
+        canvas.saveState()  # Ensure state is saved
+        logo_path = Path("media/invoice/manil.jpg")
+        img_width = 240
+        img_height = 45
+        canvas.drawImage(logo_path, (A4[0] - img_width) / 2, A4[1] - 60, width=img_width, height=img_height)
+
+        # canvas.setLineWidth(0.5)
+        # canvas.line(30, 770, 570, 770)
+
+        # Draw the page border for later pages
+        canvas.setStrokeColor(colors.black)
+        canvas.setLineWidth(1)
+        canvas.rect(25, 50, A4[0] - 50, A4[1] - 120)
+        # Add page numbers for later pages if needed
+        canvas.restoreState()
+
+    # Add a flag to identify if the shipping state is Karnataka
+    is_karnataka = client_det.shipping_state.casefold() == 'karnataka'.casefold()
+
+    # Define column widths and headers based on the shipping state
+    if is_karnataka:
+        table_header = [
+            ['Sr No', 'Particular', 'Nos', 'Unit Price', 'Base', 'GST %', 'HSN Code', 'IGST', 'Total Amount(Rs.)']
+        ]
+        col_widths = [30, 85, 40, 60, 60, 50, 70, 50, 100]  # Adjusted column widths for Karnataka
         table_style = TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), black),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Header row alignment
-            ('ALIGN', (0, 1), (1, -1), 'LEFT'),  # Left align columns with text
-            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Right align columns with numbers
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), white),
-            ('INNERGRID', (0, 0), (-1, -1), 1, black),
-            ('LINEBELOW', (0, -1), (-1, -1), 1, black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header background
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Header text color
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Header alignment
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Body alignment for numbers
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+            ('FONTSIZE', (0, 0), (-1, 0), 10),  # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Body background
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Table grid
+            ('SPAN', (0, -1), (3, -1)),  # Merge the first four cells in the "Total" row
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Make merged cell text bold
+            ('ALIGN', (0, -1), (0, -1), 'CENTER'),  # Center-align the merged cell text
+            ('TEXTCOLOR', (0, -1), (0, -1), colors.black),  # Set text color for the merged cell
+        ])
+    else:
+        table_header = [
+            ['Sr No', 'Particular', 'Nos', 'Unit Price', 'Base', 'GST %', 'HSN Code', 'CGST', 'SGST', 'Total Amount(Rs.)']
+        ]
+        col_widths = [30, 75, 35, 55, 55, 45, 60, 45, 45, 100]  # Adjusted column widths for other states
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header background
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Header text color
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Header alignment
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Body alignment for numbers
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+            ('FONTSIZE', (0, 0), (-1, 0), 10),  # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Body background
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Table grid
+            ('SPAN', (0, -1), (3, -1)),  # Merge the first four cells in the "Total" row
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Make merged cell text bold
+            ('ALIGN', (0, -1), (0, -1), 'CENTER'),  # Center-align the merged cell text
+            ('TEXTCOLOR', (0, -1), (0, -1), colors.black),  # Set text color for the merged cell
         ])
 
-        # Define table header
-        table_data = [
-            ['Sr No', 'Particular', 'Nos', 'Unit Price', 'Base', 'GST %', 'HSN Code', 'IGST Amt', 'Total Amount(Rs.)']
-        ]
+    # Continue table logic for row data
+    data = table_header.copy()
+    grand_total_base = grand_total_cgst = grand_total_sgst = grand_total = grand_total_igst = 0.00
 
-        # Add dynamic rows
-        for i, item in enumerate(ord_det):
-            table_data.append([
-                str(i + 1),
-                Paragraph(item.material_name, styles['Normal']),
-                str(item.qty),
-                f"{item.base_price:.2f}",
-                Paragraph(f"{item.qty * item.base_price:.2f}", styles['Normal']),
-                f"{item.gst_rate:.1f}%",
-                Paragraph(item.hsn_code, styles['Normal']),
-                f"{item.gst_amt:.2f}",
-                Paragraph(f"{item.sub_total:.2f}", styles['Normal'])
+    for i, item in enumerate(ord_det):
+        qty = item.qty
+        unit_price = item.base_price
+        subtotal = qty * unit_price
+        gst_rate = item.gst_rate
+        hsn_code = item.hsn_code
+
+        if is_karnataka:
+            igst_amount = subtotal * (gst_rate / 100)
+            total_amount = subtotal + igst_amount
+            data.append([
+                str(i + 1), item.material_name, str(qty), f"{unit_price:.2f}",
+                f"{subtotal:.2f}", f"{gst_rate}%", hsn_code,
+                f"{igst_amount:.2f}", f"{total_amount:.2f}"
             ])
+            grand_total += total_amount
+            grand_total_igst += igst_amount
+            grand_total_base += subtotal
+        else:
+            cgst = sgst = gst_rate / 2
+            cgst_amount = subtotal * (cgst / 100)
+            sgst_amount = subtotal * (sgst / 100)
+            total_amount = subtotal + cgst_amount + sgst_amount
+            data.append([
+                str(i + 1), item.material_name, str(qty), f"{unit_price:.2f}",
+                f"{subtotal:.2f}", f"{gst_rate}%", hsn_code,
+                f"{cgst_amount:.2f}", f"{sgst_amount:.2f}", f"{total_amount:.2f}"
+            ])
+            grand_total += total_amount
+            grand_total_base += subtotal
+            grand_total_cgst += cgst_amount
+            grand_total_sgst += sgst_amount
 
-        table_data.append([
-            '', '', '', '', '', '','', 'Total', f"Rs.{order.grand_total:.2f}"
-        ])    
+    # Add total row
+    if is_karnataka:
+        data.append(['Total', '', '', '', f"{grand_total_base:.2f}", '', '', f"{grand_total_igst:.2f}", f"{grand_total:.2f}"])
+    else:
+        data.append(['Total', '', '', '', f"{grand_total_base:.2f}", '', '', f"{grand_total_cgst:.2f}", f"{grand_total_sgst:.2f}", f"{grand_total:.2f}"])
 
-        # Create the table
-        dynamic_table = Table(table_data, colWidths=col_widths)
-        dynamic_table.setStyle(table_style)
+    # Add spacer
+    first_page_spacer = Spacer(1, 220)  # Adjust spacer height as needed
+    flowables.append(first_page_spacer)
 
-        table_start_y = 360 
+    # Build the table
+    table = Table(data, colWidths=col_widths, repeatRows=1)
+    table.setStyle(table_style)
+    flowables.append(table)
+    
 
-        # Draw the table
-        dynamic_table.wrapOn(c, A4[0], A4[1])
-        dynamic_table.drawOn(c, 25, table_start_y)
+    # Adding additional information after the table
+    amountwords_details = Paragraph(
+        f"Total amount in words: <b>{order.ammount_words}</b>", styles['Normal']
+    )
+    amountwords_spacer = Spacer(1, 0.2 * inch)  # Spacer for some padding
+    flowables.append(amountwords_spacer)
+    flowables.append(amountwords_details)
 
-        # amountwords_details
-        c.setFont("Helvetica", 10)
-        c.setFillColor(black)
-        c.drawString(30, 340, f"Total amount in words : {order.ammount_words}")
+    # Line below amountwords_details
+    flowables.append(Spacer(1, -0.1 * inch))
+    flowables.append(
+        Table([[""]], colWidths=[545], style=[("LINEBELOW", (0, 0), (-1, -1), 1, colors.black)])
+    )
+    
+    # Signature Section
+    seal_image_path = Path("media/invoice/image.png")
+    signature_image_path = Path("media/invoice/sign.jpg")
 
-        # Draw a line below po_details
-        c.line(25, 330, 571, 330)
-
-        # account_ Details
-        account_details = ("All Cheques/Demand Drafts/Wire transfers should be made favouring <br/> MANIL ADVISORS <br/> Account Number:  XXXXXXXXXXXX (Will be Shared Later) <br/> IFSC Code XXXXXXXXXXXX (Will be Shared Later) <br/> HDFC Bank Ltd  <br/> Malleswaram Branch")
-        account_paragraph = Paragraph(account_details, normal_style)
-        account_paragraph.wrap(300, 400)  # Wrap within 250 points width
-        account_paragraph.drawOn(c, 30, 240)
-
-        # Vertical Divider
-        c.line(300, 330, 300, 220)  # Vertical line between details
-        
-
-
-        seal_image_path = Path("media/invoice/image.png")
-        signature_image_path = Path("media/invoice/sign.jpg")
-        if os.path.exists(seal_image_path):
-            img_width = 100  # Adjust the width of the image
-            img_height = 90  # Adjust the height of the image
-            x_position = 435  # X position where the image will be placed
-            y_position = 230
-
-            # Draw the image on the canvas
-            c.drawImage(str(seal_image_path), x_position, y_position, width=img_width, height=img_height)
-        
-        if os.path.exists(signature_image_path):
-            sign_img_width = 100
-            sign_img_height = 50
-            sign_x_position = 305
-            sign_y_position = 250
-            
-
-            c.drawImage(str(signature_image_path),sign_x_position,sign_y_position,width=sign_img_width,height=sign_img_height)
+    
+    # Right side (Seal and Signature Section)
+    seal_and_signature_table = Table([
+        # "For MANIL ADVISORS" text
+        [Paragraph("<b>For MANIL ADVISORS</b>", styles['Normal'])],
+        # Signature image and Seal
+        [Image(str(signature_image_path), width=100, height=50),[Image(str(seal_image_path), width=90, height=70)]],
+        # "Authorised Signatory" text directly below the signature image
+        [Paragraph("Authorised Signatory", styles['Normal'])],
+        # Seal image as a separate row
+        # [Image(str(seal_image_path), width=90, height=90)],
+    ], colWidths=[150], style=[
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center-align everything
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Top-align all elements
+        ('TOPPADDING', (0, 0), (-2, -2), 0),  # Remove top padding
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),  # Remove bottom padding
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),  # Remove left padding
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),  # Remove right padding
+    ])
 
 
-        #account_ Details
-        signature_details = ("For MANIL ADVISORS <br/> <br/> <br/> <br/> <br/> <br/> Authorised Signatory  <br/> ")
-        signature_paragraph = Paragraph(signature_details, normal_style)
-        signature_paragraph.wrap(300, 400)  # Wrap within 250 points width
-        signature_paragraph.drawOn(c, 305, 155 + img_height)
+    # Account and Signature Layout
+    account_and_signature_data = [
+        [
+            # Left side (Account Details)
+            Paragraph(
+                "All Cheques/Demand Drafts/Wire transfers should be made favouring <br/>"
+                "MANIL ADVISORS <br/>"
+                "Account Number:  XXXXXXXXXXXX <br/>"
+                "IFSC Code: XXXXXXXXXXXX <br/>"
+                "HDFC Bank Ltd <br/> Malleswaram Branch",
+                styles['Normal']
+            ),
+            # Right side (Seal and Signature Section)
+            seal_and_signature_table
+        ]
+    ]
 
-        
+    # Create the layout using a table with two columns
+    account_and_signature_table = Table(account_and_signature_data, colWidths=[250, 300], style=[
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),  # Align left for account details
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),  # Center-align seal and signature section
+        ('VALIGN', (0, 0), (0, -1), 'TOP'),  # Top-align account details
+        ('VALIGN', (1, 0), (1, -1), 'TOP'),  # Top-align signature section
+        ('LINEBEFORE', (1, 0), (2, -1), 1, colors.black),  # Add vertical line before the second column
+    ])
 
-        # Save the PDF to the buffer
-        c.save()
-        buffer.seek(0)
+    # Add a spacer before the table
+    # flowables.append(Spacer(1, 0.5 * inch))
+    flowables.append(account_and_signature_table)
 
-        # Return the PDF as an HTTP response
-        response = HttpResponse(buffer, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="invoice_{ord_no}.pdf"'
-        return response
+    flowables.append(Spacer(1, -0.25 * inch))
+    flowables.append(
+        Table([[""]], colWidths=[545], style=[("LINEBELOW", (0, 0), (-1, -1), 1, colors.black)])
+    )
+
+    try:
+        # Now doc will have access to manil_det
+        doc.build(flowables, onFirstPage=first_page_header, onLaterPages=later_pages_header)
     except Exception as e:
-        return HttpResponse(str(e), status=500)
+        print(f"Error generating PDF: {str(e)}")
+        return HttpResponse(f"Error generating the PDF: {str(e)}", status=500)
+
+    return response
 
 
 def order_remarks(request):
@@ -2044,6 +2306,12 @@ def delete_client_order(request, order_number):
     c_order_details = client_order_details.objects.filter(order_number=order_number)
     c_order_details.delete()
 
+    m_order = get_object_or_404(manil_order, order_number=c_order.order_number)
+    m_order.delete()
+
+    m_order_details = manil_order_details.objects.filter(order_number=c_order.order_number)
+    m_order_details.delete()
+
     messages.success(request, 'Client Order is Deleted Successfully')
     return redirect('client_order_')
 
@@ -2140,3 +2408,5 @@ def delete_robot_details(request, id):
 
     messages.success(request, 'Robot is Deleted Successfully')
     return redirect('robo_details')
+
+

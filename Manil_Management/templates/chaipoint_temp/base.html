@@ -21,6 +21,9 @@
             padding: 0;
             box-sizing: border-box;
         }
+        a{
+            cursor: pointer;
+        }
 
         :root {
             --grey: #F1F0F6;
@@ -162,15 +165,10 @@
             color: var(--dark-grey);
             transition: all 0.3s ease;
             white-space: nowrap;
-
-        }
-
-        #sidebar.hide:hover .divider {
-            text-align: left;
         }
 
         #sidebar.hide .divider {
-            text-align: center;
+            display: none;
         }
 
         #sidebar .side-dropdown {
@@ -387,25 +385,64 @@
             width: 100%;
             padding: 10px;
         }
+        .tog_btn2{
+            display: none;
+        }
 
         @media screen and (max-width:768px) {
-            #content {
-                position: relative;
-                width: calc(100% - 60px);
-                transition: all .3s ease;
+           /* Sidebar should be hidden initially and only shown on hover */
+           #sidebar {
+                position: absolute;
+                /* Overlay on top of content */
+                max-width: 260px;
+                /* Hidden by default */
+                transition: max-width 0.3s ease;
+                /* Smooth transition */
+                z-index: 200;
+                /* Ensure it's above content */
+                left: 0;
+                top: 0;
+                height: 100%;
+                /* Full height of the screen */
             }
 
+            /* When hovering, expand the sidebar */
+            #sidebar:hover {
+                max-width: 260px;
+                /* Full width when hovered */
+            }
+
+            /* Content should not move, remain full width */
+            #content {
+                position: relative;
+                width: 100%;
+                left: 0;
+                transition: all 0.3s ease;
+                /* Smooth transition for content (if needed) */
+            }
+
+            /* Remove unnecessary navigation icons for mobile */
             nav .nav-link,
             nav .divider {
                 display: none;
             }
+
             #sidebar.hide+#content {
-                width: calc(100% - 0px);
-                left: 0px;
+                width: 100%;
+                /* Ensure content takes full width when sidebar is hidden */
+                left: 0;
             }
+
+            /* Hide sidebar when not hovered */
             #sidebar.hide {
-                max-width: 0px;
+                max-width: 0;
+                /* Hide sidebar completely */
             }
+            .tog_btn2 {
+                display: inline-block;
+                cursor: pointer;
+            }
+
         }
         .fa-user:hover{
             cursor: pointer;
@@ -423,11 +460,13 @@
     </div>
     <!-- SIDEBAR -->
     <section id="sidebar" class="toggle_hide">
-        <a href="#" class="brand" style="padding-left: 80px;">Chai Point</a>
+        <a href="#" class="brand" style="padding-left: 80px;">Chaipoint <i class='bx bx-menu toggle-sidebar tog_btn2' style="color: black; margin-left: 80px;"></i> </a>
         <ul class="side-menu">
+            <li class="divider" data-text="Chaipoint Management">Chaipoint Management</li>
             <li><a href="{% url 'cp_dashboard'  %}"><i class='bx bxs-dashboard icon' class="active"></i>Dashboard</a></li>
-            <li><a href="{% url 'cp_emails' %}"><i class="fas fa-cogs icon"></i> Chaipoint Emails</a></li>
+            <!-- <li><a href="{% url 'cp_emails' %}"><i class="fas fa-cogs icon"></i> Chaipoint Emails</a></li> -->
             <li><a href="{% url 'cp_add_user'  %}"><i class='fas fa-user icon' class="active"></i>Chaipoint User</a></li>
+            <li class="divider" data-text="Orders">Orders</li>
             <li><a href="{% url 'cp_order_table' %}"><i class="fas fa-cogs icon"></i> Chaipoint Orders</a></li>
             <li><a href="{% url 'cp_dispatch_details' %}"><i class="fas fa-truck icon"></i>Chaipoint Dispatch</a></li>
 

@@ -47,7 +47,15 @@
               <td>{{i.order_number}}  <br> {{i.order_date|date:'Y-m-d'}}</td>
               <td>{{i.grand_total}}</td>     
               <td>{{i.created_by}}</td> 
-              <td>{{i.status}}</td>           
+              <td>
+                <span class="status 
+                    {% if i.status == 'Delivered' %} status-green 
+                    {% elif i.status == 'Pending' %} status-red 
+                    {% elif i.status == 'Remarked' %} status-yellow 
+                    {% else %} status-blue {% endif %}">
+                    {{ i.status }}
+                </span>
+              </td>           
               <td>
                 <div class="dropdown">
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown"
@@ -127,19 +135,19 @@
                   <label for="po_authority_date" class="form-label">PO/Authority Date</label>
                 </div>                                
                 <div class="col-lg-12 col-sm-12 form-group">
-                  <textarea class="form-control" id="shipping_address" name="shipping_address"  placeholder=" " required></textarea>
+                  <textarea class="form-control" id="shipping_address" name="shipping_address"  placeholder=" " readonly required></textarea>
                   <label for="shipping_address" class="text-label">Shipping Address</label>
                 </div>
                 <div class="col-lg-4 col-sm-12 form-group">
-                  <input type="text" class="form-control" id="shipping_city" name="shipping_city" placeholder=" " required>
+                  <input type="text" class="form-control" id="shipping_city" name="shipping_city" placeholder=" " readonly required>
                   <label for="shipping_city" class="form-label">City</label>
                 </div>
                 <div class="col-lg-4 col-sm-12 form-group">
-                  <input type="text" class="form-control" id="shipping_state" name="shipping_state" placeholder=" " required>
+                  <input type="text" class="form-control" id="shipping_state" name="shipping_state" placeholder=" " readonly required>
                   <label for="shipping_state" class="form-label">State</label>
                 </div>
                 <div class="col-lg-4 col-sm-12 form-group">
-                  <input type="text" class="form-control" id="shipping_pin" name="shipping_pin" placeholder=" " required>
+                  <input type="text" class="form-control" id="shipping_pin" name="shipping_pin" placeholder=" " readonly required>
                   <label for="shipping_pin" class="form-label">Pin Code</label>
                 </div>
 
@@ -247,8 +255,8 @@
                   <label for="grand_total" class="form-label">Grand Total</label>
                 </div>
                 <div class="form-buttons">
-                  <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
-                  <button class="btn btn-success">Save</button>
+                  <button class="btn btn-danger" type="button" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                  <button class="btn btn-success" type="submit">Place Order</button>
                 </div>
               </div>
               

@@ -108,13 +108,15 @@
                 class="form-control" 
                 id="material_name" 
                 name="material_name" 
-                {% if material_name %} value="{{material_name}}" {% endif %} 
-                maxlength="15" 
+                {% if material_name %} value="{{ material_name }}" {% endif %} 
+                inputmode="text" 
+                pattern="[^\d]*" 
+                oninput="this.value = this.value.replace(/\d/g, '')" 
                 placeholder=" " 
                 required 
               >
               <label for="material_name" class="form-label">Material Name</label>
-            </div>
+            </div>            
             
             <div class="col-md-6 form-group">
               <input 
@@ -122,27 +124,46 @@
                 class="form-control" 
                 id="hsn_code" 
                 name="hsn_code" 
-                {% if hsn_code %} value="{{hsn_code}}" {% endif %} 
+                {% if hsn_code %} value="{{ hsn_code }}" {% endif %} 
+                inputmode="numeric" 
+                pattern="\d*" 
+                oninput="this.value = this.value.replace(/\D/g, '')" 
                 placeholder=" " 
                 required 
               >
               <label for="hsn_code" class="form-label">HSN Code</label>
             </div>
             
-            <div class="col-md-6 form-group">
-              <input 
-                type="text" 
+            <div class="col-md-4 form-group">
+              <select 
                 class="form-control" 
                 id="unit_of_measurement" 
                 name="unit_of_measurement" 
-                {% if unit_of_measurement %} value="{{unit_of_measurement}}" {% endif %} 
+                required
+              >
+                <option value="" disabled selected>--Select--</option>
+                <option value="Grms">Grms</option>
+                <option value="Kg">Kg</option>
+                <option value="Ltr">Ltr</option>
+              </select>
+              <label for="unit_of_measurement" class="form-label">Unit of Measurement</label>
+            </div>
+
+
+            <div class="col-md-4 form-group">
+              <input 
+                type="number" 
+                class="form-control" 
+                id="conversion_rate" 
+                name="conversion_rate" 
+                {% if conversion_rate %} value="{{conversion_rate}}" {% endif %} 
                 placeholder=" " 
                 required 
               >
-              <label for="unit_of_measurement" class="form-label">Unit of Measurement</label>
+              <label for="conversion_rate" class="form-label">Conversion Rate</label>
             </div>
             
-            <div class="col-md-6 form-group">
+            <div class="col-md-4 form-group">
               <input 
                 type="number" 
                 class="form-control" 
@@ -241,6 +262,7 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    const materialNameInput = document.getElementById("material_name");
     const hsnCodeInput = document.getElementById("hsn_code");
     const igstRateInput = document.getElementById("igst_rate");
     const cgstRateInput = document.getElementById("cgst_rate");
@@ -248,6 +270,16 @@
     const basePriceInput = document.getElementById("Base_Price");
     const startDateInput = document.getElementById("start_date");
     const endDateInput = document.getElementById("end_date");
+
+    // Validate Material Name: Should not accept numbers
+    materialNameInput.addEventListener("input", function () {
+        const value = materialNameInput.value;
+        if (/\d/.test(value)) { // Check if input contains any digit
+            materialNameInput.setCustomValidity("Material Name cannot contain numbers.");
+        } else {
+            materialNameInput.setCustomValidity(""); // Clear error
+        }
+    });
 
     // Validate HSN Code: Must be exactly 4 or 8 digits
     hsnCodeInput.addEventListener("input", function () {
@@ -344,11 +376,20 @@
                 <input type="text" class="form-control" id="hsn_code-{{ i.id }}" name="edit_hsn_code"  value="{{i.hsn_code}}"  placeholder=" " required>
                 <label for="hsn_code-{{ i.id }}" class="form-label">HSN Code</label>
               </div>
-              <div class="col-md-6 form-group">
-                <input type="text" class="form-control" id="unit_of_measurement-{{ i.id }}" name="edit_uom" value="{{i.unit_of_measurement}}"  placeholder=" " required>
-                <label for="unit_of_measurement-{{ i.id }}" class="form-label">Unit of Measurement</label>
+              <div class="col-md-4 form-group">
+                <select type="text" class="form-control" id="unit_of_measurement-{{i.id}}" name="edit_uom" placeholder=" " required>
+                  <option value="{{i.unit_of_measurement}}"selected>{{i.unit_of_measurement}}</option>
+                  <option value="Grms">Grms</option>
+                  <option value="Kg">Kg</option>
+                  <option value="Ltr">Ltr</option>
+                </select>  
+                <label for="unit_of_measurement-{{i.id}}" class="form-label">Unit Of Measurement</label>
               </div>
-              <div class="col-md-6 form-group">
+              <div class="col-md-4 form-group">
+                <input type="number" class="form-control" id="conversion_rate-{{ i.id }}" name="edit_conversion_rate" value="{{i.conversion_rate}}"  placeholder=" " required>
+                <label for="conversion_rate-{{ i.id }}" class="form-label">Unit of Measurement</label>
+              </div>
+              <div class="col-md-4 form-group">
                 <input type="number" class="form-control" id="Base_Price-{{ i.id }}" name="edit_Base_Price" value="{{i.Base_Price}}"  placeholder=" " required>
                 <label for="Base_Price-{{ i.id }}" class="form-label">Base Price</label>
               </div>

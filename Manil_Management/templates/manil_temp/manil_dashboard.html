@@ -64,8 +64,17 @@
             </div>
         </div>
 
+        <div class="col-md-3">
+            <div class="card h-100 p-2">
+                <div class="card-body">
+                    <h5 class="card-title mt-3">Remarked Orders</h5>
+                    <span class="order-count text-center">{{ remarked_orders }}</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Tickets Cards -->
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card h-100 p-2">
                 <div class="card-body ">
                     <h5 class="card-title mt-3">Total Tickets</h5>
@@ -73,7 +82,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card h-100 p-2">
                 <div class="card-body ">
                     <h5 class="card-title mt-3">Solved Tickets</h5>
@@ -81,7 +90,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card h-100 p-2">
                 <div class="card-body ">
                     <h5 class="card-title mt-3">Pending Tickets</h5>
@@ -92,61 +101,116 @@
     </div>
     
     <div class="row g-4 mb-4">
+        <!-- Orders Section -->
         <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-shopping-cart fa-2x text-primary me-2"></i>
-                        <h5 class="card-title">Total Orders</h5>
-                    </div>
-                    <div class="text-center">
-                        <span class="order-count">{{c_orders.count}}</span> <!-- Updated count -->
+            <!-- Filters -->
+            <div class="btn-group d-flex mb-2" role="group" style="width: 50%; background-color: white;">
+                <a href="?filter=day" 
+                   class="btn btn-outline-primary btn-sm flex-fill {% if request.GET.filter == 'day' %}active text-white{% endif %}">
+                   Today
+                </a>
+                <a href="?filter=week" 
+                   class="btn btn-outline-primary btn-sm flex-fill {% if request.GET.filter == 'week' %}active text-white{% endif %}">
+                   This Week
+                </a>
+                <a href="?filter=month" 
+                   class="btn btn-outline-primary btn-sm flex-fill {% if request.GET.filter == 'month' %}active text-white{% endif %}">
+                   This Month
+                </a>
+                <a href="?filter=all" 
+                   class="btn btn-outline-primary btn-sm flex-fill {% if request.GET.filter == 'all' or not request.GET.filter %}active text-white{% endif %}">
+                   All
+                </a>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-shopping-cart fa-2x text-primary me-2"></i>
+                            <h5 class="card-title mb-0">Orders</h5>
+                        </div>
+                        <div>
+                            <span class="order-count">{{ filtered_order_count }}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body overflow-auto order-ticket-list"> <!-- Added scroll to the list -->
-                    <ul class="list-group list-group-flush">
-                        {% for i in c_orders %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>Order ID:</strong> {{i.order_number}} <br>
-                                    <small>{{i.client_id}} - 3 cups</small>
-                                </div>
-                                <span class="badge bg-primary rounded-pill">New</span>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                <div class="card-body">
+                    <!-- Orders List -->
+                    <div class="overflow-auto order-ticket-list">
+                        <ul class="list-group list-group-flush">
+                            {% for order in filtered_orders %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Order ID:</strong> {{ order.order_number }}<br>
+                                        <small>{{ order.client_id }} - {{ order.shipping_city }}</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ order.status }}</span>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item">No orders found.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Tickets Card -->
+    
+        <!-- Tickets Section -->
         <div class="col-md-6">
+            <!-- Filters -->
+            <div class="btn-group d-flex mb-2" role="group" style="width: 50%; background-color: white;">
+                <a href="?ticket_filter=day" 
+                   class="btn btn-outline-warning btn-sm flex-fill {% if request.GET.ticket_filter == 'day' %}active text-white{% endif %}">
+                   Today
+                </a>
+                <a href="?ticket_filter=week" 
+                   class="btn btn-outline-warning btn-sm flex-fill {% if request.GET.ticket_filter == 'week' %}active text-white{% endif %}">
+                  This Week
+                </a>
+                <a href="?ticket_filter=month" 
+                   class="btn btn-outline-warning btn-sm flex-fill {% if request.GET.ticket_filter == 'month' %}active text-white{% endif %}">
+                   This Month
+                </a>
+                <a href="?ticket_filter=all" 
+                   class="btn btn-outline-warning btn-sm flex-fill {% if request.GET.ticket_filter == 'all' or not request.GET.ticket_filter %}active text-white{% endif %}">
+                   All
+                </a>
+            </div>
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-ticket-alt fa-2x text-warning me-2"></i>
-                        <h5 class="card-title mb-0">Tickets</h5>
-                    </div>
-                    <div class="text-center">
-                        <span class="ticket-count">{{m_tickets.count}}</span> <!-- Updated count -->
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-ticket-alt fa-2x text-warning me-2"></i>
+                            <h5 class="card-title mb-0">Tickets</h5>
+                        </div>
+                        <div>
+                            <span class="ticket-count">{{ filtered_ticket_count }}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body overflow-auto order-ticket-list"> <!-- Added scroll to the list -->
-                    <ul class="list-group list-group-flush">
-                        {% for i in m_tickets %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Ticket ID:</strong> {{i.ticket_num}} <br>
-                                <small>{{i.client_id}} - {{i.complaint_title}}</small>
-                            </div>
-                            <span class="badge bg-warning text-dark rounded-pill">Pending</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                <div class="card-body">
+                    <!-- Tickets List -->
+                    <div class="overflow-auto order-ticket-list">
+                        <ul class="list-group list-group-flush">
+                            {% for ticket in filtered_tickets %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Ticket ID:</strong> {{ ticket.ticket_num }} <br>
+                                        <small>{{ ticket.client_id }} - {{ ticket.complaint_title }}</small>
+                                    </div>
+                                    <span class="badge bg-warning text-dark rounded-pill">{{ ticket.status }}</span>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item">No tickets found.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    
 
     <!--<div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">

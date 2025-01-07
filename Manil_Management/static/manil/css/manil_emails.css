@@ -58,6 +58,7 @@
 
 /* Buttons */
 .edit-btn,
+.add-btn,
 .save-btn {
     background-color: #6d4c41;
     color: white;

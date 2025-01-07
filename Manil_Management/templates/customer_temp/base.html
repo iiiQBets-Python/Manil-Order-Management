@@ -164,15 +164,10 @@
             color: var(--dark-grey);
             transition: all 0.3s ease;
             white-space: nowrap;
-
-        }
-
-        #sidebar.hide:hover .divider {
-            text-align: left;
         }
 
         #sidebar.hide .divider {
-            text-align: center;
+            display: none;
         }
 
         #sidebar .side-dropdown {
@@ -483,16 +478,19 @@
     </div>
     <!-- SIDEBAR -->
     <section id="sidebar" class="toggle_hide">
-        <a href="#" class="brand" style="padding-left: 80px;">Client <i class='bx bx-menu toggle-sidebar tog_btn2' style="color: black; margin-left: 80px;"></i> </a>
+        <a href="#" class="brand" style="padding-left: 80px;">{{ data.client_name }}<i class='bx bx-menu toggle-sidebar tog_btn2' style="color: black; margin-left: 80px;"></i> </a>
         
         <ul class="side-menu">
+            <li class="divider" data-text="Client Management">Client Management</li>
             <li><a href="{% url 'Client_dashboard'  %}"><i class='bx bxs-dashboard icon' class="active"></i> Dashboard</a></li>  
             <li><a href="{% url 'client_report' %}"><i class="fas fa-chart-bar icon"></i>Client Report</a></li> 
-            <li><a href="{% url 'client_emails' %}"><i class='fas fa-cogs icon'></i> Client Emails</a></li>
+            <!-- <li><a href="{% url 'client_emails' %}"><i class='fas fa-cogs icon'></i> Client Emails</a></li> -->
             <li><a href="{% url 'add_user' %}"><i class='bx bxs-chart icon'></i> Client User</a></li>
+            <li class="divider" data-text="Order and Invoice">Order and Invoice</li>
             <li><a href="{% url 'order_table' %}"><i class='fas fa-receipt icon'></i>Orders</a></li>                      
             <li><a href="{% url 'Client_dispatch' %}"><i class='fas fa-truck icon'></i>Dispatch Deatils</a></li>
             <li><a href="{% url 'invoice_table' %}"><i class='bx bxs-chart icon'></i>Invoice</a></li>
+            <li class="divider" data-text="Tickets">Tickets</li>
             <li><a href="{% url 'c_order_remarks' %}"><i class='fas fa-boxes icon'></i>Order Remarks</a></li>
             <li><a href="{% url 'client_ticket' %}"><i class='fas fa-tools icon'></i>Tickets</a></li>
             

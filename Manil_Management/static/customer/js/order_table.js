@@ -262,7 +262,7 @@ function subtotal_cal(value) {
 
 
   if (baseprice.value && gstrate.value) {
-    var gstAmountForOne = (Number(gstrate.value) / 100) * Number(baseprice.value);
+    var gstAmountForOne = (Number(gstrate.value) / 100) * Number(baseprice.value)* Number(quantity.value);
     gstAmountForOne = (gstAmountForOne.toString().includes('.') && gstAmountForOne.toString().split('.')[1].length > 3)
       ? gstAmountForOne.toFixed(3)
       : gstAmountForOne;

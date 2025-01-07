@@ -404,3 +404,24 @@ th:nth-child(8) .sorting_desc::after {
     color: #e59539;
     font-weight: bold;
 }
+
+.status {
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 9999px;
+}
+
+.status-green {
+    background-color: #c6f6d5;
+    color: #2f855a;
+}
+
+.status-red {
+    background-color: #ff9d9d;
+    color: #b02b2b;
+}
+.status-yellow {
+    color: rgb(186, 186, 36); /* Text color */
+    background-color: #ffffbc; /* Background color for visibility */
+}

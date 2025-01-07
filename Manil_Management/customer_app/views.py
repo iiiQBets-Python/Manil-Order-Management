@@ -4,12 +4,9 @@ from datetime import timedelta
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.mail import EmailMessage
+from django.conf import settings
 
 from django.http import HttpResponse
-from xhtml2pdf import pisa
-from django.template.loader import render_to_string
-from io import BytesIO
-
 
 
 def Client_dashboard(request):    
@@ -48,6 +45,14 @@ def client_emails(request):
    # Try to fetch the first 'Client_emails' object, or create a new one if none exist
     emails = Client_emails.objects.filter(client_id=data.client_id).first()
 
+    email_data_exists = any([
+        emails.username1, emails.email1,
+        emails.username2, emails.email2,
+        emails.username3, emails.email3,
+        emails.username4, emails.email4,
+        emails.username5, emails.email5
+    ]) if emails else False
+
     if emails is None:
         emails = Client_emails(client_id=data.client_id)
 
@@ -69,7 +74,7 @@ def client_emails(request):
 
         return redirect('client_emails')
     
-    return render(request, 'customer_temp/client_emails.html', {'data': data, 'emails': emails})
+    return render(request, 'customer_temp/client_emails.html', {'data': data, 'emails': emails, 'email_data_exists':email_data_exists})
 
 
 def add_user(request):
@@ -309,7 +314,6 @@ def order_table(request):
             <tr>
                 <td>{i}</td>
                 <td>{material_name}</td>
-                <td>{hsn_code}</td>
                 <td>{uom}</td>
                 <td>{qty}</td>
                 <td>{base_price}</td>
@@ -332,7 +336,7 @@ def order_table(request):
         <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>S.No</th>
                     <th>Material Name</th>
                     <th>UOM</th>
                     <th>Quantity</th>
@@ -368,6 +372,29 @@ def order_table(request):
         return redirect('order_table')
 
     return render (request, 'customer_temp/order_table.html', context)
+
+
+def client_order_view(request, ord_no):
+    user_id = request.session.get('user_id')
+    data = Client_user.objects.get(user_id=user_id)
+
+    all_orders = manil_order.objects.all()
+    order = client_order.objects.get(order_number=ord_no)
+    ord_det = client_order_details.objects.filter(order_number=ord_no)
+    client_det = Client_Master.objects.get(client_id=order.client_id)
+    mat_list = Material_Master.objects.all()
+ 
+
+    context = {
+        'data': data,
+        'order': order,
+        'ord_det': ord_det,
+        'client_det':client_det,
+        'mat_list': mat_list,
+    }
+
+    return render(request, 'customer_temp/order_view.html', context)
+
 
 
 from django.http import JsonResponse 
@@ -451,8 +478,6 @@ def edit_order_table(request):
 
     # If GET request, render an appropriate response (not expected in your case)
     return render(request, 'customer_temp/order_table.html')
-
-
 
 
 def client_report(request):
@@ -568,6 +593,7 @@ def received_view(request, ord_no):
     order = get_object_or_404(manil_order, process_num=ord_no, client_id=data.client_id)
     ord_det = manil_order_details.objects.filter(process_num=ord_no)
     c_order = client_order.objects.get(order_number=order.order_number)
+    c_ord_det = client_order_details.objects.filter(order_number=order.order_number)
     client_det = Client_Master.objects.get(client_id=order.client_id)
     mat_list = Material_Master.objects.all()
     dispatch = Despatch_Details.objects.get(process_num=ord_no)
@@ -577,6 +603,7 @@ def received_view(request, ord_no):
         'order': order,
         'client_det': client_det,
         'ord_det': ord_det,
+        'c_ord_det':c_ord_det,
         'mat_list': mat_list,
         'c_order': c_order,
         'dispatch': dispatch,
@@ -791,7 +818,7 @@ def client_invoice_view(request, ord_no):
     user_id = request.session.get('user_id')
     data = Client_user.objects.get(user_id = user_id)
 
-    manil_det = Manil_db.objects.all()
+    manil_det = Manil_db.objects.first()
 
     order = client_order.objects.get(order_number = ord_no)
 
@@ -810,47 +837,333 @@ def client_invoice_view(request, ord_no):
     
     return render (request, 'customer_temp/client_invoice_view.html', context)
 
-from django.template.loader import render_to_string
-from django.http import HttpResponse
-from xhtml2pdf import pisa
+
+from reportlab.lib.utils import ImageReader
+from reportlab.lib.colors import black, white, grey
 from io import BytesIO
-from django.conf import settings
+from django.http import HttpResponse
+from pathlib import Path
+from reportlab.lib.pagesizes import letter, A4
+import os 
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Flowable,PageBreak
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.platypus import Image
+from reportlab.platypus import Flowable
+from reportlab.lib.pagesizes import A4
+import logging
+from reportlab.pdfgen import canvas
 
 def download_invoice(request, ord_no):
+    # Fetch data
     user_id = request.session.get('user_id')
-    data = Client_user.objects.get(user_id=user_id)
+    try:
+        data = Client_user.objects.get(user_id=user_id)
+        manil_det = Manil_db.objects.first()
+        order = client_order.objects.get(order_number=ord_no)
+        client_det = Client_Master.objects.get(client_id=order.client_id)
+        ord_det = client_order_details.objects.filter(order_number=ord_no)
+        invoice = M_client_invoice.objects.get(order_number=ord_no)
+    except Exception as e:
+        return HttpResponse(str(e), status=404)
+
+    # Initialize the response object for PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{ord_no}.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=64, bottomMargin=60)
+    styles = getSampleStyleSheet()
+    flowables = []
+
+    # Attach manil_det to doc object so it can be accessed in the header
+    doc.manil_det = manil_det  # Store manil_det in the doc object
+
+    # Header content for the first page
+    def first_page_header(canvas, doc):
+        # Access manil_det from the doc object
+        manil_det = doc.manil_det
+        
+        canvas.saveState()  # Save the current state
+
+        logo_path = Path("media/invoice/manil.jpg") 
+        img_width = 240 
+        img_height = 45
+        canvas.drawImage(logo_path, (A4[0]-img_width)/2, A4[1] - 60, width=img_width, height=img_height)
+
+        canvas.setFont("Helvetica-Bold", 14)
+        canvas.setFillColor(colors.black)
+        canvas.drawCentredString(300, 750, "TAX INVOICE")
+        
+        canvas.setLineWidth(1)
+        canvas.line(25, 740, 570, 740)
+        
+        normal_style = styles["Normal"]
+        normal_style.fontName = "Helvetica"
+        normal_style.fontSize = 10
+        
+        company_details = (f"{manil_det.company_name}<br/>{manil_det.billing_address}<br/>"
+            f"{manil_det.billing_city}, {manil_det.billing_state}-{manil_det.billing_pin}<br/>"
+            f"GSTIN - {manil_det.billing_gst_number}<br/>"
+            f"MSME Registration No: {manil_det.msme_number}"
+        )
+        
+        company_paragraph = Paragraph(company_details, normal_style)
+        company_paragraph.wrapOn(canvas, 250, 300)
+        company_paragraph.drawOn(canvas, 30, 665)
+
+        # Vertical Divider
+        canvas.line(290, 740, 290, 590) 
+
+        # Invoice Details
+        invoice_details = (
+            f"Invoice Number: {invoice.invoice_num}<br/>"
+            f"Invoice Date: {invoice.invoice_date.strftime('%d-%m-%Y')}"
+        )   
+        invoice_paragraph = Paragraph(invoice_details, normal_style)
+        invoice_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        invoice_paragraph.drawOn(canvas, 300, 705)
+
+        canvas.setLineWidth(1)
+        canvas.line(25, 655, 570, 655)
+
+        # Billing Details
+        billing_details = (
+            f"<b>BILL TO</b>:<br/>"
+            f"{client_det.billing_address}<br/>{client_det.billing_city},"
+            f"{client_det.billing_state}-{client_det.billing_pin}<br/>"
+            f"GSTIN: {client_det.billing_gst_number}"
+        )        
+        billing_paragraph = Paragraph(billing_details, normal_style)
+        billing_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        billing_paragraph.drawOn(canvas, 30, 605)
+
+        # Shipping Details
+        shipping_details = (
+            f"<b>SHIP TO</b>:<br/>"
+            f"{client_det.shipping_address}<br/>{client_det.shipping_city},"
+            f"{client_det.shipping_state}-{client_det.shipping_pin}<br/>"
+            f"GSTIN: {client_det.shipping_gst_number}"
+        )        
+        shipping_paragraph = Paragraph(shipping_details, normal_style)
+        shipping_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        shipping_paragraph.drawOn(canvas, 300, 605)
+
+        canvas.setLineWidth(1)
+        canvas.line(25, 590, 570, 590)
+
+        # Po_details
+        canvas.setFont("Helvetica", 10)
+        canvas.setFillColor(black)
+        canvas.drawString(30, 570, f'Ref: PO Authority: {order.po_authority} and PO Date: {order.po_authority_date}')
+
+        # canvas.setLineWidth(0.5)
+        # canvas.line(30, 560, 570, 560)
+
+        # Draw the page border
+        canvas.setStrokeColor(colors.black)
+        canvas.setLineWidth(1)
+        canvas.rect(25, 50, A4[0] - 50, A4[1] - 120)
+
+        canvas.restoreState()  # Restore the state after drawing
+
+    def later_pages_header(canvas, doc):
+        canvas.saveState()  # Ensure state is saved
+        logo_path = Path("media/invoice/manil.jpg")
+        img_width = 240
+        img_height = 45
+        canvas.drawImage(logo_path, (A4[0] - img_width) / 2, A4[1] - 60, width=img_width, height=img_height)
+
+        # canvas.setLineWidth(0.5)
+        # canvas.line(30, 770, 570, 770)
+
+        # Draw the page border for later pages
+        canvas.setStrokeColor(colors.black)
+        canvas.setLineWidth(1)
+        canvas.rect(25, 50, A4[0] - 50, A4[1] - 120)
+        # Add page numbers for later pages if needed
+        canvas.restoreState()
+
+    # Add a flag to identify if the shipping state is Karnataka
+    is_karnataka = client_det.shipping_state.casefold() == 'karnataka'.casefold()
+
+    # Define column widths and headers based on the shipping state
+    if is_karnataka:
+        table_header = [
+            ['Sr No', 'Particular', 'Nos', 'Unit Price', 'Base', 'GST %', 'HSN Code', 'IGST', 'Total Amount(Rs.)']
+        ]
+        col_widths = [30, 85, 40, 60, 60, 50, 70, 50, 100]  # Adjusted column widths for Karnataka
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header background
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Header text color
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Header alignment
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Body alignment for numbers
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+            ('FONTSIZE', (0, 0), (-1, 0), 10),  # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Body background
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Table grid
+            ('SPAN', (0, -1), (3, -1)),  # Merge the first four cells in the "Total" row
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Make merged cell text bold
+            ('ALIGN', (0, -1), (0, -1), 'CENTER'),  # Center-align the merged cell text
+            ('TEXTCOLOR', (0, -1), (0, -1), colors.black),  # Set text color for the merged cell
+        ])
+    else:
+        table_header = [
+            ['Sr No', 'Particular', 'Nos', 'Unit Price', 'Base', 'GST %', 'HSN Code', 'CGST', 'SGST', 'Total Amount(Rs.)']
+        ]
+        col_widths = [30, 75, 35, 55, 55, 45, 60, 45, 45, 100]  # Adjusted column widths for other states
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header background
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Header text color
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Header alignment
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Body alignment for numbers
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+            ('FONTSIZE', (0, 0), (-1, 0), 10),  # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Body background
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Table grid
+            ('SPAN', (0, -1), (3, -1)),  # Merge the first four cells in the "Total" row
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Make merged cell text bold
+            ('ALIGN', (0, -1), (0, -1), 'CENTER'),  # Center-align the merged cell text
+            ('TEXTCOLOR', (0, -1), (0, -1), colors.black),  # Set text color for the merged cell
+        ])
+
+    # Continue table logic for row data
+    data = table_header.copy()
+    grand_total_base = grand_total_cgst = grand_total_sgst = grand_total = grand_total_igst = 0.00
+
+    for i, item in enumerate(ord_det):
+        qty = item.qty
+        unit_price = item.base_price
+        subtotal = qty * unit_price
+        gst_rate = item.gst_rate
+        hsn_code = item.hsn_code
+
+        if is_karnataka:
+            igst_amount = subtotal * (gst_rate / 100)
+            total_amount = subtotal + igst_amount
+            data.append([
+                str(i + 1), item.material_name, str(qty), f"{unit_price:.2f}",
+                f"{subtotal:.2f}", f"{gst_rate}%", hsn_code,
+                f"{igst_amount:.2f}", f"{total_amount:.2f}"
+            ])
+            grand_total += total_amount
+            grand_total_igst += igst_amount
+            grand_total_base += subtotal
+        else:
+            cgst = sgst = gst_rate / 2
+            cgst_amount = subtotal * (cgst / 100)
+            sgst_amount = subtotal * (sgst / 100)
+            total_amount = subtotal + cgst_amount + sgst_amount
+            data.append([
+                str(i + 1), item.material_name, str(qty), f"{unit_price:.2f}",
+                f"{subtotal:.2f}", f"{gst_rate}%", hsn_code,
+                f"{cgst_amount:.2f}", f"{sgst_amount:.2f}", f"{total_amount:.2f}"
+            ])
+            grand_total += total_amount
+            grand_total_base += subtotal
+            grand_total_cgst += cgst_amount
+            grand_total_sgst += sgst_amount
+
+    # Add total row
+    if is_karnataka:
+        data.append(['Total', '', '', '', f"{grand_total_base:.2f}", '', '', f"{grand_total_igst:.2f}", f"{grand_total:.2f}"])
+    else:
+        data.append(['Total', '', '', '', f"{grand_total_base:.2f}", '', '', f"{grand_total_cgst:.2f}", f"{grand_total_sgst:.2f}", f"{grand_total:.2f}"])
+
+    # Add spacer
+    first_page_spacer = Spacer(1, 220)  # Adjust spacer height as needed
+    flowables.append(first_page_spacer)
+
+    # Build the table
+    table = Table(data, colWidths=col_widths, repeatRows=1)
+    table.setStyle(table_style)
+    flowables.append(table)
+    
+
+    # Adding additional information after the table
+    amountwords_details = Paragraph(
+        f"Total amount in words: <b>{order.ammount_words}</b>", styles['Normal']
+    )
+    amountwords_spacer = Spacer(1, 0.2 * inch)  # Spacer for some padding
+    flowables.append(amountwords_spacer)
+    flowables.append(amountwords_details)
+
+    # Line below amountwords_details
+    flowables.append(Spacer(1, -0.1 * inch))
+    flowables.append(
+        Table([[""]], colWidths=[545], style=[("LINEBELOW", (0, 0), (-1, -1), 1, colors.black)])
+    )
+    
+    # Signature Section
+    seal_image_path = Path("media/invoice/image.png")
+    signature_image_path = Path("media/invoice/sign.jpg")
 
     
-    manil_det = Manil_db.objects.all()
-    order = client_order.objects.get(order_number=ord_no)
-    client_det = Client_Master.objects.get(client_id=order.client_id)
-    ord_det = client_order_details.objects.filter(order_number=ord_no)
-    mat_list = Material_Master.objects.all()
-    dispatch = Despatch_Details.objects.all()
-    invoice = M_client_invoice.objects.get(order_number=order.order_number)
+    # Right side (Seal and Signature Section)
+    seal_and_signature_table = Table([
+        # "For MANIL ADVISORS" text
+        [Paragraph("<b>For MANIL ADVISORS</b>", styles['Normal'])],
+        # Signature image and Seal
+        [Image(str(signature_image_path), width=100, height=50),[Image(str(seal_image_path), width=90, height=70)]],
+        # "Authorised Signatory" text directly below the signature image
+        [Paragraph("Authorised Signatory", styles['Normal'])],
+        # Seal image as a separate row
+        # [Image(str(seal_image_path), width=90, height=90)],
+    ], colWidths=[150], style=[
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center-align everything
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Top-align all elements
+        ('TOPPADDING', (0, 0), (-2, -2), 0),  # Remove top padding
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),  # Remove bottom padding
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),  # Remove left padding
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),  # Remove right padding
+    ])
 
-    context = {
-        'data': data,
-        'order': order,
-        'client_det': client_det,
-        'ord_det': ord_det,
-        'mat_list': mat_list,
-        'dispatch': dispatch,
-        'manil_det': manil_det,
-        'invoice': invoice,
-    }
 
-    rendered_html = render_to_string('customer_temp/invoice_pdf.html', context)
-    result = BytesIO()
+    # Account and Signature Layout
+    account_and_signature_data = [
+        [
+            # Left side (Account Details)
+            Paragraph(
+                "All Cheques/Demand Drafts/Wire transfers should be made favouring <br/>"
+                "MANIL ADVISORS <br/>"
+                "Account Number:  XXXXXXXXXXXX <br/>"
+                "IFSC Code: XXXXXXXXXXXX <br/>"
+                "HDFC Bank Ltd <br/> Malleswaram Branch",
+                styles['Normal']
+            ),
+            # Right side (Seal and Signature Section)
+            seal_and_signature_table
+        ]
+    ]
 
-    pdf = pisa.CreatePDF(BytesIO(rendered_html.encode("UTF-8")), dest=result)
+    # Create the layout using a table with two columns
+    account_and_signature_table = Table(account_and_signature_data, colWidths=[250, 300], style=[
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),  # Align left for account details
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),  # Center-align seal and signature section
+        ('VALIGN', (0, 0), (0, -1), 'TOP'),  # Top-align account details
+        ('VALIGN', (1, 0), (1, -1), 'TOP'),  # Top-align signature section
+        ('LINEBEFORE', (1, 0), (2, -1), 1, colors.black),  # Add vertical line before the second column
+    ])
 
-    if not pdf.err:
-        response = HttpResponse(result.getvalue(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="invoice_{ord_no}.pdf"'
-        return response
-    else:
-        return HttpResponse('We had some errors with the PDF generation', status=500)
+    # Add a spacer before the table
+    # flowables.append(Spacer(1, 0.5 * inch))
+    flowables.append(account_and_signature_table)
+
+    flowables.append(Spacer(1, -0.25 * inch))
+    flowables.append(
+        Table([[""]], colWidths=[545], style=[("LINEBELOW", (0, 0), (-1, -1), 1, colors.black)])
+    )
+
+    try:
+        # Now doc will have access to manil_det
+        doc.build(flowables, onFirstPage=first_page_header, onLaterPages=later_pages_header)
+    except Exception as e:
+        print(f"Error generating PDF: {str(e)}")
+        return HttpResponse(f"Error generating the PDF: {str(e)}", status=500)
+
+    return response
 
 
 

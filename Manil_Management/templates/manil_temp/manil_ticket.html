@@ -45,7 +45,15 @@
                     <td>{{ i.ticket_num }} <br> {{ i.ticket_date|date:"d/m/Y" }}</td>
                     <td>{{ i.created_by }} <br> {{ i.creation_date|date:"d/m/Y" }}</td>
                     <td>{{ i.Maintenance_Date|date:"d/m/Y" }}</td>
-                    <td>{{ i.status }}</td>
+                    <td>
+                        <span class="status 
+                            {% if i.status == 'Closed' %} status-green 
+                            {% elif i.status == 'Open' %} status-red 
+                            {% elif i.status == 'In Progress' %} status-yellow 
+                            {% endif %}">
+                            {{ i.status }}
+                        </span>
+                    </td>
                     <td>{% if i.resolved_by %} {{ i.resolved_by }} <br> {{ i.resolved_dt|date:"d/m/Y" }} {% else %} N/A {% endif %} </td>
                     <td>
                         <div class="dropdown">

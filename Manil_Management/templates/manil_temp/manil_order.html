@@ -43,7 +43,15 @@
           <td>{{i.process_num}} <br> {{i.creation_date|date:'Y-m-d'}}</td>
           <td>{{i.grand_total}}</td>
           <td>{{i.created_by}}</td>
-          <td>{{i.status}}</td>
+          <td>
+            <span class="status 
+                {% if i.status == 'Delivered' %} status-green 
+                {% elif i.status == 'Pending' %} status-red 
+                {% elif i.status == 'Remarked' %} status-yellow 
+                {% else %} status-blue {% endif %}">
+                {{ i.status }}
+            </span>
+         </td>
           <td>
             <div class="dropdown">
               <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown"

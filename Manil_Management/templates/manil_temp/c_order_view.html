@@ -20,7 +20,7 @@
     <!-- Section 1: Order Details -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
-            <h4 class="mb-0">Order Details</h4>
+            <h4 class="mb-0">Order Details </h4>
         </div>
         <div class="card-body">
             <div class="row">
@@ -180,120 +180,55 @@
                     {% for i in ord_det %}
                     <tr>
                         <td>{{i.material_name}}</td>
-                        <td>{{i.qty}} {{i.uom}}</td>
-                        <td>{{i.base_price}}</td>
+                        
+                        <td>
+                          {% for key, value in new_values.items %}
+                              {% if key == i.material_name %}
+                                  {{ value.qty }}
+                              {% endif %}
+                          {% endfor %}
+
+                          {% for k in mat_list %}
+                            {% if i.material_name == k.material_name %}
+                                {{k.unit_of_measurement}}
+                            {% endif %}
+                          {% endfor %}
+                        </td>
+                        <td>
+                          
+                          {% for k in mat_list %}
+                            {% if i.material_name == k.material_name %}
+                                {{k.Base_Price}}
+                            {% endif %}
+                          {% endfor %}
+                        </td>
                         <td>{{i.gst_type}}</td>
                         <td>{{i.gst_rate}}</td>
-                        <td>{{i.sub_total}}</td>
+                        <td>
+
+                          {% for key, value in new_values.items %}
+                              {% if key == i.material_name %}
+                                  {{ value.sub_total }}
+                              {% endif %}
+                          {% endfor %}
+                        </td>
                     </tr>
                     {% endfor %}
-                    <tr>
-                      <td colspan="5">Total</td>
-                      <td><strong>{{order.grand_total}}</strong></td>
-                    </tr>
+                    
                 </tbody>
               </table>
-
-              <input type="number" name="no_of_sec" id="no_of_sec" value="1" hidden>
-
-              <div id="order-details-section" style="border: 2px solid #ffcb90; border-radius: 10px; padding: 10px; ">
-                <!-- Section Title -->
-                <h4 class="order-details-heading " style="color: #ff9419; margin-left: 10px;"><strong>Order
-                    Details</strong></h4>
-  
-                <!-- Scrollable Section -->
-                <div class="order-details-container" style="max-height: 300px; overflow-y: auto;">
-                  <!-- Single Order Detail Row -->
-                  <div class="order-details-row bg-light rounded p-4 mb-4 shadow">
-                    <div class="row">
-                      <!-- Material Name -->
-                      <div class="col-lg-6 col-sm-12 mb-3">
-                        <div class="form-floating">                        
-                          <select class="form-control" id="material_name_1" name="material_name_1" onchange="handle_material(1)" required>
-                            <option value="" disabled selected>Select material</option>
-                            {% for i in mat_list %}
-                            <option value="{{ i.material_name }}"  uom="{{ i.unit_of_measurement }}" base_prince="{{i.Base_Price}}" cgst="{{i.cgst_rate}}" sgst="{{i.sgst_rate}}" igst="{{i.igst_rate}}">{{ i.material_name }}</option>
-                            {% endfor %}
-                          </select>                                            
-                          <label for="material_name_1">Material Name</label>
-                        </div>
-                      </div>
-                      <!-- Unit of Measure -->
-                      <div class="col-lg-3 col-sm-12 mb-3">
-                        <div class="form-floating">
-                          <input type="text" class="form-control" id="uom_1" name="uom_1" placeholder="" readonly required>
-                          <label for="uom_1">Unit of Measure</label>
-                        </div>
-                      </div>
-                      <!-- Quantity -->
-                      <div class="col-lg-3 col-sm-12 mb-3">
-                        <div class="form-floating">
-                          <input type="number" step="1" class="form-control" id="qty_1" name="qty_1" oninput="subtotal_cal(1)" min="1" placeholder="" required>
-                          <label for="qty_1">Quantity</label>
-                        </div>
-                      </div>
-                    </div>
-  
-                    <div class="row">
-                      <!-- Base Price -->
-                      <div class="col-lg-2 col-sm-12 mb-3">
-                        <div class="form-floating">
-                          <input type="number" step="0.01" class="form-control" id="base_price_1" name="base_price_1" readonly placeholder="" required>
-                          <label for="base_price_1">Base Price</label>
-                        </div>
-                      </div>
-                      <!-- GST Type -->
-                      <div class="col-lg-2 col-sm-12 mb-3">
-                        <div class="form-floating">                        
-                          <input type="text" class="form-control" id="gst_type_1" name="gst_type_1" value="IGST" placeholder="" readonly required>
-                          <label for="gst_type_1">GST Type</label>
-                        </div>
-                      </div>
-                      <!-- GST Rate -->
-                      <div class="col-lg-2 col-sm-12 mb-3">
-                        <div class="form-floating">
-                          <input type="number" step="0.01" class="form-control" id="gst_rate_1" name="gst_rate_1" readonly placeholder="" required>
-                          <label for="gst_rate_1">GST Rate (%)</label>
-                        </div>
-                      </div>
-  
-                      <div class="col-lg-2 col-sm-12 mb-3">
-                        <div class="form-floating">
-                          <input type="number" step="0.01" class="form-control" id="gst_amt_1" name="gst_amt_1" readonly placeholder="" required>
-                          <label for="gst_amt_1">GST Amount (rs)</label>
-                        </div>
-                      </div>
-  
-                      <!-- Sub Total -->
-                      <div class="col-lg-3 col-sm-12 mb-3">
-                        <div class="form-floating">
-                          <input type="number" step="0.01" class="form-control" id="sub_total_1" name="sub_total_1" readonly placeholder="" required>
-                          <label for="sub_total_1">Sub Total</label>
-                        </div>
-                      </div>
-  
-                      <!-- Add/Remove Buttons -->
-                      <div class="col-lg-1 col-sm-12 d-flex align-items-end justify-content-end gap-2 mb-4">
-                        <button type="button" class="btn btn-sm btn-success add-more">
-                          <i class="fas fa-plus"></i>
-                        </button>
-                      </div>                    
-                    </div>
-                  </div>
-                </div>
-              </div>
               
               <div class="col-md-6 form-group mt-4">
-                <input type="text" class="form-control" id="amt_in_words" name="amt_in_words" placeholder=" " readonly required>              
+                <input type="text" class="form-control" id="amt_in_words" name="amt_in_words" value="{{grand_total_word}}" placeholder=" " readonly required>              
                 <label for="amt_in_words" class="form-label">Amount in Words</label>
               </div>
               <div class="col-md-6 form-group mt-4">
-                <input type="number" step="0.01" class="form-control" id="grand_total" name="grand_total" placeholder=" " readonly required>
+                <input type="number" step="0.01" class="form-control" id="grand_total" name="grand_total" value="{{grand_total}}" placeholder=" " readonly required>
                 <label for="grand_total" class="form-label">Grand Total</label>
               </div>
               <div class="form-buttons">
-                <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
-                <button class="btn btn-success" type="submit">Save</button>
+                <button class="btn btn-danger" type="button" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                <button class="btn btn-success" type="submit">Process</button>
               </div>
             </div>
             
