@@ -1,0 +1,78 @@
+{% extends "customer_temp/base.html" %}
+{% load static %}
+{% block title %} Disptch_details_table {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'customer/css/customer_dispatch.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container-fluid table-container display responsive wrap fade-in">
+    <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
+        <div id="dataTables_filter_container" class="me-2">
+            <!-- This will be populated by jQuery -->
+        </div>
+        <!-- <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#dispatchModal">
+            Add Dispatch Details
+        </button> -->
+    </div>
+    <div class="table-responsive">
+        <table class="table" id="form-data-table">
+            <thead>
+                <tr>
+                    <th scope="col">SL No</th>
+                    <th scope="col">Dispatch Lr No</th>
+                    <th scope="col">Order Details</th>
+                    <th scope="col">Expected Date</th>
+                    <th scope="col">Received By</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in dispatch %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ i.dispatch_lr_num }}</td>
+                    <td>{{ i.order_number }} <br> {{ i.process_date|date:'Y-m-d'}} </td>
+                    <td>{{ i.exp_del_dt|date:'Y-m-d' }}</td>
+                    <td> {% if i.received_by %} {{ i.received_by }} <br> {{ i.received_date|date:'Y-m-d'}} {% else %}  N/A  {% endif%} </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-read" href="{% url 're_received_view' i.order_number %}"><i class="fas fa-eye"></i> View</a></li>
+                                
+                                <li>
+                                    <a class="dropdown-item btn-delete" 
+                                       href="#" 
+                                       data-href="{% url 'delete_c_dispatch' i.id %}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'customer/js/customer_dispatch.js' %}"></script>
+{% endblock scripts %}
+{% endblock content %}

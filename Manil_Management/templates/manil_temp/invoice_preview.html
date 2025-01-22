@@ -1,13 +1,14 @@
+
+{% extends "manil_temp/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Template</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% block title %} ChaiPoint User {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'messages.css' %}">
     <style>
-        body {
+          body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -138,160 +139,168 @@
         }
 
     </style>
-</head>
-<body>
-    
-    <div class="main">
-        <div class="logo-container">
-            <img src="/media/invoice/manil.jpg" alt="Manil Advisors Logo" class="logo">
-        </div>
-        <div class="container">
-            <div class="invoice-header">
-                <h2>TAX INVOICE</h2>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Manil Advisors</strong></p>
-                    <p>{{ manil_det.billing_address }}<br>
-                    {{ manil_det.billing_city }}, {{ manil_det.billing_state }} - {{ manil_det.billing_pin }}<br>
-                    GSTIN - {{ manil_det.billing_gst_number }}<br>
-                    MSME Registration No: {{ manil_det.msme_number }}</p>
-                </div>
-                <div class="col-md-6">
-                    <p>Invoice Number: </p>
-                    <p>Invoice Date:</p>
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>BILL TO:</strong></p>
-                    <p>{{ client_det.billing_address }}r<br>
-                        {{ client_det.billing_city }}, {{ client_det.shipping_state }} - {{ client_det.billing_pin }}<br>
-                    GSTIN: {{ client_det.billing_gst_number }}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>SHIP TO:</strong></p>
-                    <p>{{ order.shipping_address }}<br>
-                    {{ order.shipping_city }}, {{ order.billing_state }} - {{ order.shipping_pin }}<br>
-                    GSTIN: {{ client_det.shipping_gst_number }}</p>
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col-md-12">
-                    <p>Ref:PO Authority {{ order.po_authority }} and PO date {{ order.po_authority_date }}</p>
-                </div>
-            </div>
-    
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>SI No</th>
-                        <th>Particular</th>
-                        <th>Nos</th>
-                        <th>Unit Price</th>
-                        <th>GST %</th>
-                        <th>HSN Code</th>
-                        <th>IGST Amt</th>
-                        <th>Total Amount (Rs.)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for i in ord_det %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ i.material_name }}</td>
-                        <td>{{ i.qty }} {{ i.uom }}</td>
-                        <td>₹{{ i.base_price }}</td>
-                        <td>{{ i.gst_rate }}%</td>
-                        <td>{{ i.hsn_code }}</td>
-                        <td>{{ i.gst_amt }}</td>
-                        <td>₹{{ i.sub_total }}</td>
-                    </tr>
-                    {% endfor %}
-                    <tr>
-                        <td colspan="3" class="text-end"><strong>Total</strong></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><strong>Rs.{{ order.grand_total }}</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-    
-            <div class="row">
-                <div class="col-md-12">
-                    <p>Total amount in words: <strong>{{ order.ammount_words }}</strong></p>
-                </div>
-            </div>
-    
-        
-            <div class="footer">
-                <div class="row">
-                    <!-- Left Text Column -->
-                    <div class="col-md-6">
-                        <p>All Cheques/Demand Drafts/Wire transfers should be made favouring <br>
-                        MANIL ADVISORS<br>
-                        Account Number: XXXXXXXXXXXX (Will be Shared Later)<br>
-                        IFSC Code: XXXXXXXXXXXX (Will be Shared Later)<br>
-                        HDFC Bank Ltd, Malleswaram Branch</p>
-                    </div>
-            
-                    <!-- Right Signature Column -->
-                    <div class="col-md-6 signature-section d-flex">
-                        <div>
-                            <p>For MANIL ADVISORS</p>
-                            <img src="/media/invoice/sign.jpg" alt="Authorized Signatory" class="signature">
-                            <p>Authorised Signatory</p>
-                        </div>
-                        <div>
-                            <img src="/media/invoice/image.png" alt="Additional Signature" class="signature">
-                        </div>
-                    </div>
-                </div>
-            </div>
-    
-            <!-- Print and Back Buttons -->
-            <div class="form-buttons text-center mt-3">
-                <button class="btn btn-secondary btn-sm me-2" onclick="window.history.back()">Back</button>
-                
-                {% if show_generate_button %}
-                    <form method="post" action="{% url 'invoice_preview' order.order_number %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary btn-sm">Generate Invoice</button>
-                    </form>
-                {% endif %}
-    
-            </div>
-            
-        </div>
+{% endblock styles %}
+
+
+{% block content %}
+<div class="main">
+    <div class="logo-container">
+        <img src="/media/invoice/manil.jpg" alt="Manil Advisors Logo" class="logo">
     </div>
+    <div class="container">
+        <div class="invoice-header">
+            <h2>TAX INVOICE</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Manil Advisors</strong></p>
+                <p>{{ manil_det.billing_address }}<br>
+                {{ manil_det.billing_city }}, {{ manil_det.billing_state }} - {{ manil_det.billing_pin }}<br>
+                GSTIN - {{ manil_det.billing_gst_number }}<br>
+                MSME Registration No: {{ manil_det.msme_number }}</p>
+            </div>
+            <div class="col-md-6">
+                <p>Invoice Number: </p>
+                <p>Invoice Date:</p>
+            </div>
+        </div>
 
-    {% if messages %}
-    {% for message in messages %}
-        {% if 'success' in message.tags %}
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    var successAlertElement = document.getElementById('floating-alert-success');
-                    var successMessage = document.getElementById('floating-alert-success-message');
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>BILL TO:</strong></p>
+                <p>{{ client_det.billing_address }}r<br>
+                    {{ client_det.billing_city }}, {{ client_det.shipping_state }} - {{ client_det.billing_pin }}<br>
+                GSTIN: {{ client_det.billing_gst_number }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>SHIP TO:</strong></p>
+                <p>{{ order.shipping_address }}<br>
+                {{ order.shipping_city }}, {{ order.billing_state }} - {{ order.shipping_pin }}<br>
+                GSTIN: {{ client_det.shipping_gst_number }}</p>
+            </div>
+        </div>
 
-                    // Set the success message and display the floating alert
-                    successMessage.textContent = "{{ message|safe }}";
-                    successAlertElement.style.display = 'block';
-                    successAlertElement.classList.add('show');
+        <div class="row">
+            <div class="col-md-12">
+                <p>Ref:PO Authority {{ order.po_authority }} and PO date {{ order.po_authority_date }}</p>
+            </div>
+        </div>
 
-                    // Hide the success alert automatically after 2 seconds
-                    setTimeout(function () {
-                        successAlertElement.classList.remove('show');
-                        successAlertElement.style.display = 'none';
-                    }, 3000); // 2 seconds delay for success alert
-                });
-            </script>
-        {% endif %}
-    {% endfor %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>SI No</th>
+                    <th>Particular</th>
+                    <th>Nos</th>
+                    <th>Unit Price</th>
+                    <th>Base Price</th>
+                    <th>HSN Code</th>
+                    <th>GST %</th>
+                    <th>IGST Amt</th>
+                    <th>Total Amount (Rs.)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in ord_det %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ i.material_name }}</td>
+                    <td>{{ i.qty }} {{ i.uom }}</td>
+                    <td>₹{{ i.base_price }}</td>
+                    <td>₹{{ i.total_base }}</td>
+                    <td>{{ i.hsn_code }}</td>
+                    <td>{{ i.gst_rate }}%</td>
+                    <td>₹{{ i.gst_amt }}</td>
+                    <td>₹{{ i.sub_total }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="4" class="text-end"><strong>Total</strong></td>
+                    <td>₹{{ total_subtotal }}</td>
+                    <td></td>
+                    <td></td>
+                    <td>₹{{ total_gst }}</td>
+                    <td><strong>₹{{ order.grand_total }}</strong></td>
+                </tr>
+            </tbody>
+            
+        </table>
+
+        <div class="row">
+            <div class="col-md-12">
+                <p>Total amount in words: <strong>{{ order.ammount_words }}</strong></p>
+            </div>
+        </div>
+
+    
+        <div class="footer">
+            <div class="row">
+                <!-- Left Text Column -->
+                <div class="col-md-6">
+                    <p>All Cheques/Demand Drafts/Wire transfers should be made favouring <br>
+                    MANIL ADVISORS<br>
+                    Account Number: XXXXXXXXXXXX (Will be Shared Later)<br>
+                    IFSC Code: XXXXXXXXXXXX (Will be Shared Later)<br>
+                    HDFC Bank Ltd, Malleswaram Branch</p>
+                </div>
+        
+                <!-- Right Signature Column -->
+                <div class="col-md-6 signature-section d-flex">
+                    <div>
+                        <p>For MANIL ADVISORS</p>
+                        <img src="/media/invoice/sign.jpg" alt="Authorized Signatory" class="signature">
+                        <p>Authorised Signatory</p>
+                    </div>
+                    <div>
+                        <img src="/media/invoice/image.png" alt="Additional Signature" class="signature">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Print and Back Buttons -->
+        <div class="form-buttons text-center mt-3">
+            {% if show_generate_button %}
+                <form method="post" action="{% url 'invoice_preview' order.order_number %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-sm">Generate Invoice</button>
+                </form>
+            {% endif %}
+
+        </div>
+        
+    </div>
+</div>
+
+
+{% if messages %}
+{% for message in messages %}
+    {% if 'success' in message.tags %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var successAlertElement = document.getElementById('floating-alert-success');
+                var successMessage = document.getElementById('floating-alert-success-message');
+
+                // Set the success message and display the floating alert
+                successMessage.textContent = "{{ message|safe }}";
+                successAlertElement.style.display = 'block';
+                successAlertElement.classList.add('show');
+
+                // Hide the success alert automatically after 2 seconds
+                setTimeout(function () {
+                    successAlertElement.classList.remove('show');
+                    successAlertElement.style.display = 'none';
+                }, 3000); // 2 seconds delay for success alert
+            });
+        </script>
+    {% endif %}
+{% endfor %}
 {% endif %}
-</body>
-</html>
+{% endblock content %}
+
+
+
+
+
+  

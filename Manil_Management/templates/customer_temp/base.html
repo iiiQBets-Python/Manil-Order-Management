@@ -465,6 +465,80 @@
         .fa-user:hover{
             cursor: pointer;
         }
+
+        #sidebar .badge {
+            background-color: var(--red);
+            color: var(--light);
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        #sidebar .badge:empty {
+            display: flex;
+        }
+
+        .notification, .inv-notification {
+            position: relative;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #000;
+            font-size: 24px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav .badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            border-radius: 50%;
+            padding: 2px 6px;
+        }
+
+        .notification-list, .inv-notification-list {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            width: 500px;
+            display: none; /* Hidden by default */
+            z-index: 1000;
+            padding: 10px 0;
+        }
+
+        .notification-list li, .inv-notification-list li {
+            list-style: none;
+            border-bottom: 1px solid #ddd;
+            padding: 8px 15px;
+        }
+
+        .notification-list li:last-child, .inv-notification-list li:last-child {
+            border-bottom: none;
+        }
+
+        .notification-list a, .inv-notification-list a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            font-size: 14px;
+        }
+
+        .notification-list a:hover, .inv-notification-list a:hover {
+            background-color: #f5f5f5;
+            color: #000;
+        }
+
     </style>
     {% block styles %}
     {% endblock %}
@@ -489,6 +563,7 @@
             <li class="divider" data-text="Order and Invoice">Order and Invoice</li>
             <li><a href="{% url 'order_table' %}"><i class='fas fa-receipt icon'></i>Orders</a></li>                      
             <li><a href="{% url 'Client_dispatch' %}"><i class='fas fa-truck icon'></i>Dispatch Deatils</a></li>
+            <li><a href="{% url 'Client_Reorder_dispatch' %}"><i class='fas fa-truck icon'></i>Re-order Details</a></li>
             <li><a href="{% url 'invoice_table' %}"><i class='bx bxs-chart icon'></i>Invoice</a></li>
             <li class="divider" data-text="Tickets">Tickets</li>
             <li><a href="{% url 'c_order_remarks' %}"><i class='fas fa-boxes icon'></i>Order Remarks</a></li>
@@ -520,6 +595,46 @@
                 <i class='bx bxs-message-square-dots icon'></i>
                 <span class="badge">8</span>
             </a> -->
+            
+            <div class="notification">
+                <a href="#" class="nav-link">
+                    <i class='bx bxs-bell icon'></i>
+                    <span class="badge">{% if c_unread_count %} {{ c_unread_count }}  {% else %} 0 {% endif %} </span>
+                </a>
+                <ul class="notification-list">
+                    
+                    {% for i in c_notifications %}
+                        <li>
+                            <a href="{% url 'received_view' i.order_number %}"><strong>{{ i.title }}</strong> <br> {{ i.message }}</a>
+                        </li>
+                    {% empty %}
+                        <li>
+                            <a href="#">No new notifications</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            
+            <div class="inv-notification">
+                <a href="#" class="nav-link">
+                    <i class='bx bxs-message-square-dots icon'></i>
+                    <span class="badge">{% if c_inv_unread_count %}{{ c_inv_unread_count }}{% else %}0{% endif %}</span>
+                </a>
+                <ul class="inv-notification-list">
+                    {% for i in c_inv_notifications %}
+                        <li>
+                            <a href="{% url 'download_invoice' i.order_number %}">
+                                <strong>{{ i.title }}</strong><br>{{ i.message }}
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li><a href="#">No new notifications</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+
             <span class="divider"></span>
             <div class="profile_name">
                 {{data.first_name}} {{data.last_name}}
@@ -664,6 +779,93 @@
             dropdownProfile.classList.toggle('show');
         })
 
+        document.addEventListener('DOMContentLoaded', function () {
+            const notificationLink = document.querySelector('.notification .nav-link');
+            const notificationList = document.querySelector('.notification-list');
+            const invNotificationLink = document.querySelector('.inv-notification .nav-link');
+            const invNotificationList = document.querySelector('.inv-notification-list');
+
+            // Toggle visibility of notification list
+            notificationLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                toggleVisibility(notificationList);
+                hideElement(invNotificationList); // Ensure inventory notification list is closed
+            });
+
+            // Toggle visibility of inventory notification list
+            invNotificationLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                toggleVisibility(invNotificationList);
+                hideElement(notificationList); // Ensure regular notification list is closed
+            });
+
+            // Hide lists when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.notification')) {
+                    hideElement(notificationList);
+                }
+                if (!e.target.closest('.inv-notification')) {
+                    hideElement(invNotificationList);
+                }
+            });
+
+            // Utility function to toggle visibility
+            function toggleVisibility(element) {
+                element.style.display = element.style.display === 'block' ? 'none' : 'block';
+            }
+
+            // Utility function to hide an element
+            function hideElement(element) {
+                element.style.display = 'none';
+            }
+        });
+
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const fetchUrl = "{% url 'c_fetch_notifications' %}";
+
+        function refreshNotifications() {
+            fetch(fetchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Update badge counts
+                        document.querySelector('.notification .badge').textContent = data.c_unread_count || '0';
+                        document.querySelector('.inv-notification .badge').textContent = data.c_inv_unread_count || '0';
+
+                        // Update notification lists
+                        const lists = [
+                            { selector: '.notification-list', items: data.c_notifications },
+                            { selector: '.inv-notification-list', items: data.c_inv_notifications }
+                        ];
+
+                        lists.forEach(({ selector, items }) => {
+                            const listElement = document.querySelector(selector);
+                            if (listElement) {
+                                listElement.innerHTML = items.length > 0
+                                    ? items.map(notification => `
+                                        <li>
+                                            <a href="">
+                                                <strong>${notification.title}</strong><br>${notification.message}
+                                            </a>
+                                        </li>
+                                    `).join('')
+                                    : `<li><a href="#">No new notifications</a></li>`;
+                            }
+                        });
+                    } else {
+                        console.error('Error in data response:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing notifications:', error);
+                });
+        }
+
+        setInterval(refreshNotifications, 5000);
+    });
 
     </script>
 

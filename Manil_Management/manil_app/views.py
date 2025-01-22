@@ -15,28 +15,36 @@ from django.conf import settings
 from num2words import num2words
 from django.core.mail import EmailMessage
 from django.conf import settings
+from manil_app.context_processors import global_context
+
+from Manil_Management.imports import *
 
 
-def base(request):
-    user_id = request.session.get('user_id')
-    data = Manil_User.objects.get(user_id=user_id)
+from django.http import JsonResponse
 
-    order_placed_count = client_order.objects.filter(status="Order Placed").count()
 
-    # Fetch unread notifications
-    notifications = Notification.objects.filter(is_read=False).order_by('-created_at')
+def m_fetch_notifications(request):
+    # Initialize counts and notification lists
+    m_order_count = client_order.objects.filter(status="Order Placed").count()
     
-    # Count the unread notifications
-    unread_count = notifications.count()
-
-    return render(request, 'manil_temp/base.html', {
-        'data': data,
-        'order_placed_count': order_placed_count,
-        'unread_count': unread_count,
-        'notifications': notifications,  
+    m_notifications = Manil_Notification.objects.filter(is_read=False)
+    inv_notifications = Inv_Notification.objects.filter(is_read=False)
+    
+    return JsonResponse({
+        'status': 'success',
+        'm_order_count': m_order_count,
+        'm_notifications': list(m_notifications.values('id', 'title', 'message')),
+        'm_unread_count': m_notifications.count(),
+        'inv_notifications': list(inv_notifications.values('id', 'title', 'message')),
+        'inv_unread_count': inv_notifications.count(),
     })
 
 
+def manil_base(request):
+    user_id = request.session.get('user_id')
+    data = Manil_User.objects.get(user_id=user_id)
+
+    return render(request, 'manil_temp/base.html', {'data': data})
 
 
 def login_page(request):
@@ -935,6 +943,15 @@ def manil_order_(request):
 
     return render (request, 'manil_temp/manil_order.html', {'data':data, 'm_orders':m_orders})
 
+
+
+def Re_manil_order_(request):
+    user_id = request.session.get('user_id')
+    data = Manil_User.objects.get(user_id = user_id)
+
+    m_orders = Re_manil_order.objects.all()
+    return render (request, 'manil_temp/re_manil_order.html', {'data':data, 'm_orders':m_orders})
+
 def client_order_(request):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
@@ -1027,16 +1044,17 @@ def client_order_(request):
         )
         client_order_new.save()
 
-        notification_message = f"Your order has been placed successfully on {timezone.now().strftime('%d-%m-%Y %H:%M')}."
-        notification_title = f"Order Update"
+        notification_title = "Order Confirmation"
+        notification_message = f"We are pleased to inform you, the order with (Order No: {new_value}) was successfully placed on {timezone.now().strftime('%d-%m-%Y at %H:%M')}. By {data.first_name}."
+
 
         # Create a new notification for the logged-in user
-        notification = Notification(
-            created_by = data.user_id,
+        m_notification = Manil_Notification(
+            order_number = new_value,
             message=notification_message,
             title = notification_title
         )
-        notification.save()
+        m_notification.save()
 
         manil_email_obj = Manil_emails.objects.first()
 
@@ -1230,6 +1248,7 @@ def c_order_view(request, ord_no):
     ord_det = client_order_details.objects.filter(order_number=ord_no)
     client_det = Client_Master.objects.get(client_id=order.client_id)
     mat_list = Material_Master.objects.all()
+    m_notification = Manil_Notification.objects.get(order_number=ord_no)
     
     new_values = {}
     grand_total = 0
@@ -1274,6 +1293,8 @@ def c_order_view(request, ord_no):
             new_value = pre + new_suffix
         else:           
             new_value = 'PRS001' 
+
+
        
         manil_order_new = manil_order(
             process_num=new_value,
@@ -1292,7 +1313,7 @@ def c_order_view(request, ord_no):
             shipping_city=old_order.shipping_city,
             shipping_state=old_order.shipping_state,
             shipping_pin=old_order.shipping_pin,
-            status='Order Placed'
+            status='Order Placed'            
         )
         manil_order_new.save()
 
@@ -1301,6 +1322,21 @@ def c_order_view(request, ord_no):
         old_order.authorisation_date = timezone.now() + timedelta(hours=5, minutes=30)
         old_order.authorised_by = data.first_name
         old_order.save()
+
+        m_notification.is_read = True
+        m_notification.save()
+
+        notification_title = "Order Confirmation"
+        notification_message = f"We are pleased to inform you, the order with (Order No: {old_order.order_number}) was successfully placed on {timezone.now().strftime('%d-%m-%Y at %H:%M')}.By {data.first_name}."
+
+
+        # Create a new notification for the logged-in user
+        cp_notification = Chaipoint_Notification(
+            order_number = old_order.order_number,
+            message=notification_message,
+            title = notification_title
+        )
+        cp_notification.save()
 
         for i in ord_det:
             material = Material_Master.objects.get(material_name=i.material_name)
@@ -1414,10 +1450,34 @@ def c_order_view(request, ord_no):
         'mat_list': mat_list,
         'new_values': new_values,
         'grand_total': grand_total,
+        'm_notification':m_notification,
         'grand_total_word': f"{grand_total_word} Rupees Only"
     }
 
     return render(request, 'manil_temp/c_order_view.html', context)
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
+def update_order_status(request, order_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)  # Parse the JSON body
+            new_status = data.get("status")
+
+            # Update the status of the specific order
+            order = get_object_or_404(client_order, order_number=order_id)
+            order.status = new_status
+            order.save()
+
+            return JsonResponse({"success": True, "redirect_url": "/client_order_/"})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+    return JsonResponse({"success": False, "message": "Invalid request"})
+
 
 
 
@@ -1711,8 +1771,6 @@ def generate_invoice_number():
     
     if invoices.exists():
         last_invoice = invoices.last().invoice_num  
-
-       
         last_fy_part = last_invoice[10:14]  
         last_serial = int(last_invoice[-4:]) 
 
@@ -1723,12 +1781,333 @@ def generate_invoice_number():
             new_serial = last_serial + 1
     else:
         new_serial = 1
-
    
     serial_part = f"{new_serial:04}"  
 
-    
     return f"MANIL/MCC/{fy_part}{serial_part}"
+
+
+from reportlab.lib.utils import ImageReader
+from reportlab.lib.colors import black, white, grey
+from io import BytesIO
+from django.http import HttpResponse
+from pathlib import Path
+from reportlab.lib.pagesizes import letter, A4
+import os 
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Flowable,PageBreak
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.platypus import Image
+from reportlab.platypus import Flowable
+from reportlab.lib.pagesizes import A4
+import logging
+from reportlab.pdfgen import canvas
+
+def invoice_attachment(ord_no):
+    try:
+        manil_det = Manil_db.objects.first()
+        order = client_order.objects.get(order_number=ord_no)
+        client_det = Client_Master.objects.get(client_id=order.client_id)
+        ord_det = client_order_details.objects.filter(order_number=ord_no)
+        invoice = M_client_invoice.objects.get(order_number=ord_no)
+    except Exception as e:
+        return HttpResponse(str(e), status=404)
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=64, bottomMargin=60)
+    styles = getSampleStyleSheet()
+    flowables = []
+
+    # Attach manil_det to doc object so it can be accessed in the header
+    doc.manil_det = manil_det  # Store manil_det in the doc object
+
+    # Header content for the first page
+    def first_page_header(canvas, doc):
+        # Access manil_det from the doc object
+        manil_det = doc.manil_det
+        
+        canvas.saveState()  # Save the current state
+
+        logo_path = Path("media/invoice/manil.jpg") 
+        img_width = 240 
+        img_height = 45
+        canvas.drawImage(logo_path, (A4[0]-img_width)/2, A4[1] - 60, width=img_width, height=img_height)
+
+        canvas.setFont("Helvetica-Bold", 14)
+        canvas.setFillColor(colors.black)
+        canvas.drawCentredString(300, 750, "TAX INVOICE")
+        
+        canvas.setLineWidth(1)
+        canvas.line(25, 740, 570, 740)
+        
+        normal_style = styles["Normal"]
+        normal_style.fontName = "Helvetica"
+        normal_style.fontSize = 10
+        
+        company_details = (f"{manil_det.company_name}<br/>{manil_det.billing_address}<br/>"
+            f"{manil_det.billing_city}, {manil_det.billing_state}-{manil_det.billing_pin}<br/>"
+            f"GSTIN - {manil_det.billing_gst_number}<br/>"
+            f"MSME Registration No: {manil_det.msme_number}"
+        )
+        
+        company_paragraph = Paragraph(company_details, normal_style)
+        company_paragraph.wrapOn(canvas, 250, 300)
+        company_paragraph.drawOn(canvas, 30, 665)
+
+        # Vertical Divider
+        canvas.line(290, 740, 290, 590) 
+
+        # Invoice Details
+        invoice_details = (
+            f"Invoice Number: {invoice.invoice_num}<br/>"
+            f"Invoice Date: {invoice.invoice_date.strftime('%d-%m-%Y')}"
+        )   
+        invoice_paragraph = Paragraph(invoice_details, normal_style)
+        invoice_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        invoice_paragraph.drawOn(canvas, 300, 705)
+
+        canvas.setLineWidth(1)
+        canvas.line(25, 655, 570, 655)
+
+        # Billing Details
+        billing_details = (
+            f"<b>BILL TO</b>:<br/>"
+            f"{client_det.billing_address}<br/>{client_det.billing_city},"
+            f"{client_det.billing_state}-{client_det.billing_pin}<br/>"
+            f"GSTIN: {client_det.billing_gst_number}"
+        )        
+        billing_paragraph = Paragraph(billing_details, normal_style)
+        billing_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        billing_paragraph.drawOn(canvas, 30, 605)
+
+        # Shipping Details
+        shipping_details = (
+            f"<b>SHIP TO</b>:<br/>"
+            f"{client_det.shipping_address}<br/>{client_det.shipping_city},"
+            f"{client_det.shipping_state}-{client_det.shipping_pin}<br/>"
+            f"GSTIN: {client_det.shipping_gst_number}"
+        )        
+        shipping_paragraph = Paragraph(shipping_details, normal_style)
+        shipping_paragraph.wrapOn(canvas, 250, 200)  # Wrap within 250 points width
+        shipping_paragraph.drawOn(canvas, 300, 605)
+
+        canvas.setLineWidth(1)
+        canvas.line(25, 590, 570, 590)
+
+        # Po_details
+        canvas.setFont("Helvetica", 10)
+        canvas.setFillColor(black)
+        canvas.drawString(30, 570, f'Ref: PO Authority: {order.po_authority} and PO Date: {order.po_authority_date}')
+
+        # canvas.setLineWidth(0.5)
+        # canvas.line(30, 560, 570, 560)
+
+        # Draw the page border
+        canvas.setStrokeColor(colors.black)
+        canvas.setLineWidth(1)
+        canvas.rect(25, 50, A4[0] - 50, A4[1] - 120)
+
+        canvas.restoreState()  # Restore the state after drawing
+
+    def later_pages_header(canvas, doc):
+        canvas.saveState()  # Ensure state is saved
+        logo_path = Path("media/invoice/manil.jpg")
+        img_width = 240
+        img_height = 45
+        canvas.drawImage(logo_path, (A4[0] - img_width) / 2, A4[1] - 60, width=img_width, height=img_height)
+
+        # canvas.setLineWidth(0.5)
+        # canvas.line(30, 770, 570, 770)
+
+        # Draw the page border for later pages
+        canvas.setStrokeColor(colors.black)
+        canvas.setLineWidth(1)
+        canvas.rect(25, 50, A4[0] - 50, A4[1] - 120)
+        # Add page numbers for later pages if needed
+        canvas.restoreState()
+
+    # Add a flag to identify if the shipping state is Karnataka
+    is_karnataka = client_det.shipping_state.casefold() == 'karnataka'.casefold()
+
+    # Define column widths and headers based on the shipping state
+    if is_karnataka:
+        table_header = [
+            ['Sr No', 'Particular', 'Nos', 'Unit Price', 'Base', 'GST %', 'HSN Code', 'IGST', 'Total Amount(Rs.)']
+        ]
+        col_widths = [30, 85, 40, 60, 60, 50, 70, 50, 100]  # Adjusted column widths for Karnataka
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header background
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Header text color
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Header alignment
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Body alignment for numbers
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+            ('FONTSIZE', (0, 0), (-1, 0), 10),  # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Body background
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Table grid
+            ('SPAN', (0, -1), (3, -1)),  # Merge the first four cells in the "Total" row
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Make merged cell text bold
+            ('ALIGN', (0, -1), (0, -1), 'CENTER'),  # Center-align the merged cell text
+            ('TEXTCOLOR', (0, -1), (0, -1), colors.black),  # Set text color for the merged cell
+        ])
+    else:
+        table_header = [
+            ['Sr No', 'Particular', 'Nos', 'Unit Price', 'Base', 'GST %', 'HSN Code', 'CGST', 'SGST', 'Total Amount(Rs.)']
+        ]
+        col_widths = [30, 75, 35, 55, 55, 45, 60, 45, 45, 100]  # Adjusted column widths for other states
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header background
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Header text color
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Header alignment
+            ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),  # Body alignment for numbers
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+            ('FONTSIZE', (0, 0), (-1, 0), 10),  # Header font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header padding
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Body background
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Table grid
+            ('SPAN', (0, -1), (3, -1)),  # Merge the first four cells in the "Total" row
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),  # Make merged cell text bold
+            ('ALIGN', (0, -1), (0, -1), 'CENTER'),  # Center-align the merged cell text
+            ('TEXTCOLOR', (0, -1), (0, -1), colors.black),  # Set text color for the merged cell
+        ])
+
+    # Continue table logic for row data
+    data = table_header.copy()
+    grand_total_base = grand_total_cgst = grand_total_sgst = grand_total = grand_total_igst = 0.00
+
+    for i, item in enumerate(ord_det):
+        qty = item.qty
+        unit_price = item.base_price
+        subtotal = qty * unit_price
+        gst_rate = item.gst_rate
+        hsn_code = item.hsn_code
+
+        if is_karnataka:
+            igst_amount = subtotal * (gst_rate / 100)
+            total_amount = subtotal + igst_amount
+            data.append([
+                str(i + 1), item.material_name, str(qty), f"{unit_price:.2f}",
+                f"{subtotal:.2f}", f"{gst_rate}%", hsn_code,
+                f"{igst_amount:.2f}", f"{total_amount:.2f}"
+            ])
+            grand_total += total_amount
+            grand_total_igst += igst_amount
+            grand_total_base += subtotal
+        else:
+            cgst = sgst = gst_rate / 2
+            cgst_amount = subtotal * (cgst / 100)
+            sgst_amount = subtotal * (sgst / 100)
+            total_amount = subtotal + cgst_amount + sgst_amount
+            data.append([
+                str(i + 1), item.material_name, str(qty), f"{unit_price:.2f}",
+                f"{subtotal:.2f}", f"{gst_rate}%", hsn_code,
+                f"{cgst_amount:.2f}", f"{sgst_amount:.2f}", f"{total_amount:.2f}"
+            ])
+            grand_total += total_amount
+            grand_total_base += subtotal
+            grand_total_cgst += cgst_amount
+            grand_total_sgst += sgst_amount
+
+    # Add total row
+    if is_karnataka:
+        data.append(['Total', '', '', '', f"{grand_total_base:.2f}", '', '', f"{grand_total_igst:.2f}", f"{grand_total:.2f}"])
+    else:
+        data.append(['Total', '', '', '', f"{grand_total_base:.2f}", '', '', f"{grand_total_cgst:.2f}", f"{grand_total_sgst:.2f}", f"{grand_total:.2f}"])
+
+    # Add spacer
+    first_page_spacer = Spacer(1, 220)  # Adjust spacer height as needed
+    flowables.append(first_page_spacer)
+
+    # Build the table
+    table = Table(data, colWidths=col_widths, repeatRows=1)
+    table.setStyle(table_style)
+    flowables.append(table)
+    
+
+    # Adding additional information after the table
+    amountwords_details = Paragraph(
+        f"Total amount in words: <b>{order.ammount_words}</b>", styles['Normal']
+    )
+    amountwords_spacer = Spacer(1, 0.2 * inch)  # Spacer for some padding
+    flowables.append(amountwords_spacer)
+    flowables.append(amountwords_details)
+
+    # Line below amountwords_details
+    flowables.append(Spacer(1, -0.1 * inch))
+    flowables.append(
+        Table([[""]], colWidths=[545], style=[("LINEBELOW", (0, 0), (-1, -1), 1, colors.black)])
+    )
+    
+    # Signature Section
+    seal_image_path = Path("media/invoice/image.png")
+    signature_image_path = Path("media/invoice/sign.jpg")
+
+    
+    # Right side (Seal and Signature Section)
+    seal_and_signature_table = Table([
+        # "For MANIL ADVISORS" text
+        [Paragraph("<b>For MANIL ADVISORS</b>", styles['Normal'])],
+        # Signature image and Seal
+        [Image(str(signature_image_path), width=100, height=50),[Image(str(seal_image_path), width=90, height=70)]],
+        # "Authorised Signatory" text directly below the signature image
+        [Paragraph("Authorised Signatory", styles['Normal'])],
+        # Seal image as a separate row
+        # [Image(str(seal_image_path), width=90, height=90)],
+    ], colWidths=[150], style=[
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center-align everything
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Top-align all elements
+        ('TOPPADDING', (0, 0), (-2, -2), 0),  # Remove top padding
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),  # Remove bottom padding
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),  # Remove left padding
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),  # Remove right padding
+    ])
+
+
+    # Account and Signature Layout
+    account_and_signature_data = [
+        [
+            # Left side (Account Details)
+            Paragraph(
+                "All Cheques/Demand Drafts/Wire transfers should be made favouring <br/>"
+                "MANIL ADVISORS <br/>"
+                "Account Number:  XXXXXXXXXXXX <br/>"
+                "IFSC Code: XXXXXXXXXXXX <br/>"
+                "HDFC Bank Ltd <br/> Malleswaram Branch",
+                styles['Normal']
+            ),
+            # Right side (Seal and Signature Section)
+            seal_and_signature_table
+        ]
+    ]
+
+    # Create the layout using a table with two columns
+    account_and_signature_table = Table(account_and_signature_data, colWidths=[250, 300], style=[
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),  # Align left for account details
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),  # Center-align seal and signature section
+        ('VALIGN', (0, 0), (0, -1), 'TOP'),  # Top-align account details
+        ('VALIGN', (1, 0), (1, -1), 'TOP'),  # Top-align signature section
+        ('LINEBEFORE', (1, 0), (2, -1), 1, colors.black),  # Add vertical line before the second column
+    ])
+
+    # Add a spacer before the table
+    # flowables.append(Spacer(1, 0.5 * inch))
+    flowables.append(account_and_signature_table)
+
+    flowables.append(Spacer(1, -0.25 * inch))
+    flowables.append(
+        Table([[""]], colWidths=[545], style=[("LINEBELOW", (0, 0), (-1, -1), 1, colors.black)])
+    )
+
+
+    # Now doc will have access to manil_det
+    doc.build(flowables, onFirstPage=first_page_header, onLaterPages=later_pages_header)
+    
+    buffer.seek(0)
+    pdf_data = buffer.getvalue()
+    buffer.close()
+    return pdf_data
+
 
 
 
@@ -1743,7 +2122,19 @@ def invoice_preview(request, ord_no):
     mat_list = Material_Master.objects.all()
     dispatch = Despatch_Details.objects.all()
 
+    m_inv_notification = Inv_Notification.objects.get(order_number=ord_no)
+
     existing_invoice = M_client_invoice.objects.filter(order_number=order.order_number).exists()
+
+    total_subtotal = 0
+    total_gst = 0
+
+    for i in ord_det:
+        i.total_base = i.qty * i.base_price
+        gst_amount = i.gst_amt  
+
+        total_subtotal += i.total_base
+        total_gst += gst_amount
 
     if request.method == 'POST' and not existing_invoice:
         # Generate a new invoice number
@@ -1763,75 +2154,68 @@ def invoice_preview(request, ord_no):
         )
         new_invoice.save()
 
-        # Generate PDF
-        context = {
-            'data': data,
-            'order': order,
-            'client_det': client_det,
-            'ord_det': ord_det,
-            'mat_list': mat_list,
-            'dispatch': dispatch,
-            'manil_det': manil_det,
-            'invoice': new_invoice,
-        }
-        rendered_html = render_to_string('manil_temp/invoice_pdf.html', context)
-        result = BytesIO()
-        pdf = pisa.CreatePDF(BytesIO(rendered_html.encode("UTF-8")), dest=result)
+        notification_title = "Invoice Information"
+        notification_message = f"We are pleased to inform you, the invoice with (Order No: {order.order_number}) was successfully generated on {timezone.now().strftime('%d-%m-%Y at %H:%M')}, you can download from invoice section."
 
-        if not pdf.err:
-            manil_email_obj = Manil_emails.objects.first()
 
-            # Extract the email fields from the first entry (if it exists)
-            if manil_email_obj:
-                manil_emails = [
-                    manil_email_obj.email1,
-                    manil_email_obj.email2,
-                    manil_email_obj.email3,
-                    manil_email_obj.email4,
-                    manil_email_obj.email5
-                ]
-            else:
-                manil_emails = []
+        # Create a new notification for the logged-in user
+        c_notification = Client_Inv_Notification(
+            order_number = order.order_number,
+            message=notification_message,
+            title = notification_title
+        )
+        c_notification.save()
 
-            client_emails = []
-            client_email_objs = Client_emails.objects.filter(client_id=order.client_id)  
-            for client_email_obj in client_email_objs:
-                for i in range(1, 6):  
-                    email_field = f'email{i}'
-                    email = getattr(client_email_obj, email_field, None)
-                    if email:
-                        client_emails.append(email)
+        m_inv_notification.is_read = True
+        m_inv_notification.save()
 
-            # Combine emails
-            recipient_list = manil_emails + client_emails
+        pdf_data = invoice_attachment(ord_no)
 
-            subject = f'Invoice Generated for Order {ord_no}'
-            email_body = f"""
-            <p>Dear Team,</p>
-            <p>An invoice has been generated for the following order:</p>
-            <ul>
-                <li><strong>Order Number:</strong> {order.order_number}</li>
-                <li><strong>Invoice Number:</strong> {new_invoice.invoice_num}</li>
-                <li><strong>Client Name:</strong> {client_det.client_name}</li>
-                <li><strong>Total Price:</strong> {order.grand_total}</li>
-            </ul>
-            <p>Kindly find the invoice attached.</p>
-            """
+        # Email the invoice
+        manil_email_obj = Manil_emails.objects.first()
+        manil_emails = [
+            manil_email_obj.email1,
+            manil_email_obj.email2,
+            manil_email_obj.email3,
+            manil_email_obj.email4,
+            manil_email_obj.email5,
+        ] if manil_email_obj else []
 
-            email = EmailMessage(
-                subject=subject,
-                body=email_body,
-                from_email=settings.EMAIL_HOST_USER,
-                to=recipient_list,
-            )
-            email.content_subtype = 'html'
-            email.attach(f'invoice_{ord_no}.pdf', result.getvalue(), 'application/pdf')
-            email.send(fail_silently=False)
+        client_emails = []
+        client_email_objs = Client_emails.objects.filter(client_id=order.client_id)
+        for client_email_obj in client_email_objs:
+            for i in range(1, 6):  # Check email1, email2, etc.
+                email_field = f'email{i}'
+                email = getattr(client_email_obj, email_field, None)
+                if email:
+                    client_emails.append(email)
 
-            messages.success(request, 'Invoice generated successfully.')
-            return redirect('m_invoice_table')
-        else:
-            messages.error(request, 'Error in generating invoice PDF.')
+        recipient_list = manil_emails + client_emails
+        subject = f"Invoice Generated for Order {ord_no}"
+        email_body = f"""
+        <p>Dear Team,</p>
+        <p>An invoice has been generated for the following order:</p>
+        <ul>
+            <li><strong>Order Number:</strong> {order.order_number}</li>
+            <li><strong>Invoice Number:</strong> {new_invoice.invoice_num}</li>
+            <li><strong>Client Name:</strong> {client_det.client_name}</li>
+            <li><strong>Total Price:</strong> {order.grand_total}</li>
+        </ul>
+        <p>Kindly find the invoice attached.</p>
+        """
+
+        email = EmailMessage(
+            subject=subject,
+            body=email_body,
+            from_email=settings.EMAIL_HOST_USER,
+            to=recipient_list,
+        )
+        email.content_subtype = 'html'
+        email.attach(f'invoice_{ord_no}.pdf', pdf_data, 'application/pdf')
+        email.send(fail_silently=False)
+
+        messages.success(request, 'Invoice generated and emailed successfully.')
+        return redirect('m_invoice_table')
 
     context = {
         'data': data,
@@ -1841,11 +2225,12 @@ def invoice_preview(request, ord_no):
         'mat_list': mat_list,
         'dispatch': dispatch,
         'manil_det': manil_det,
+        'total_gst': total_gst,
+        'total_subtotal': total_subtotal,
         'show_generate_button': not existing_invoice  # Show button only if no invoice
     }
 
     return render(request, 'manil_temp/invoice_preview.html', context)
-
 
 
 def m_invoice_table (request):
@@ -1854,8 +2239,9 @@ def m_invoice_table (request):
 
     invoice = M_client_invoice.objects.all()
 
-
     return render (request, 'manil_temp/invoice_table.html', {'data':data, 'invoice':invoice})
+
+
 
 def m_invoice_view(request, ord_no):    
     user_id = request.session.get('user_id')
@@ -2215,24 +2601,258 @@ def order_remarks(request):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
 
-    tickets = Order_Tickets.objects.filter(
-        remarks__isnull=False,
-        remarks_title__isnull=False,
-        remarked_by__isnull=False,
-        remarked_date__isnull=False
-    )
+    tickets = Order_Tickets.objects.filter(remarks__isnull=False, remarks_title__isnull=False, remarked_by__isnull=False, remarked_date__isnull=False)
 
     return render(request, 'manil_temp/order_remarks.html', {'data': data, 'tickets': tickets})
+
 
 def order_remarks_view(request, ord_no):
     user_id = request.session.get('user_id')
     data = get_object_or_404(Manil_User, user_id=user_id)
 
-    tickets = get_object_or_404( Order_Tickets , process_num=ord_no)
+    tickets = get_object_or_404( Order_Tickets , order_number=ord_no)
 
-    images = Remarkes_images.objects.filter(process_num=ord_no)
+    images = Remarkes_images.objects.filter(order_number=ord_no)
+    r_ord_det = Order_Tickets_details.objects.filter(order_number=ord_no)
 
-    return render(request, 'manil_temp/order_remarks_view.html', {'data': data,'tickets': tickets,'images': images })
+
+    order = client_order.objects.get(order_number=ord_no)
+    ord_det = client_order_details.objects.filter(order_number=ord_no)
+    client_det = Client_Master.objects.get(client_id=order.client_id)
+    mat_list = Material_Master.objects.all()
+    m_notification = Manil_Notification.objects.get(order_number=ord_no)
+
+    try:
+        re_ord = Re_manil_order.objects.get(ticket_num = tickets.ticket_num)
+    except:
+        re_ord = None
+    
+    new_values = {}
+    grand_total = 0
+           
+
+    for i in ord_det:
+        for j in mat_list:
+            for k in r_ord_det:
+                if k.material_name == i.material_name:
+                    if i.material_name == j.material_name:
+                        new_qty = (k.order_qty - k.received_qty) * j.conversion_rate
+                        sub_total = new_qty * j.Base_Price
+                        sub_total = round(sub_total + (sub_total * (i.gst_rate / 100)))
+                        
+                        if i.material_name not in new_values:
+                            new_values[i.material_name] = {}
+
+                        new_values[i.material_name]['qty'] = new_qty
+                        new_values[i.material_name]['sub_total'] = sub_total
+
+    for key, value in new_values.items():
+        grand_total += value['sub_total']
+
+    grand_total_word = num2words(grand_total).title()
+
+
+
+    if request.method == "POST":
+
+        order_number = request.POST.get('order_number')        
+        amt_in_words = request.POST.get('amt_in_words')
+        grand_total = request.POST.get('grand_total')  
+
+
+        m_order = manil_order.objects.get(order_number = order_number)
+        
+        try:
+            re_ord_rec = Re_manil_order.objects.get(order_number = order_number)
+        except:
+            re_ord_rec = None
+
+        if re_ord_rec:
+            prefix, suffix = re_ord_rec.process_num.split('_R')  
+            numeric = int(suffix) + 1  
+            new_re_pro_no = f"{prefix}_R{numeric}"
+
+            prefix_1, suffix_1 = re_ord_rec.order_number.split('_R')  
+            numeric_1 = int(suffix_1) + 1  
+            new_re_ord_no = f"{prefix_1}_R{numeric_1}"
+
+        else:
+            new_re_pro_no = f"{m_order.process_num}_R1"
+
+            new_re_ord_no = f"{m_order.order_number}_R1"
+                     
+       
+        manil_order_new = Re_manil_order(
+            ticket_num=tickets.ticket_num,
+            process_num=new_re_pro_no,
+            client_id=order.client_id,   
+            client_name=order.client_name,           
+            order_number=order_number,
+            re_order_number=new_re_ord_no,
+            order_date=order.order_date,
+            po_authority=order.po_authority,
+            po_authority_date=order.po_authority_date,
+            creation_date=timezone.now() + timedelta(hours=5, minutes=30),
+            created_by=data.first_name,
+            grand_total=round(float(grand_total)),
+            ammount_words=amt_in_words, 
+
+            shipping_address=order.shipping_address,
+            shipping_city=order.shipping_city,
+            shipping_state=order.shipping_state,
+            shipping_pin=order.shipping_pin,
+            status='Order Placed'                
+        )
+        manil_order_new.save()
+
+        for i in ord_det:
+            for j in mat_list:
+                for k in r_ord_det:
+                    if k.material_name == i.material_name:
+                        if i.material_name == j.material_name:
+                            new_qty = (k.order_qty - k.received_qty) * j.conversion_rate
+                            sub_total = new_qty * j.Base_Price
+                            sub_total = round(sub_total + (sub_total * (i.gst_rate / 100)))
+
+                            Re_manil_order_details.objects.create(
+                                process_num=new_re_pro_no,
+                                material_name=i.material_name,
+                                hsn_code=i.hsn_code,
+                                uom=j.unit_of_measurement,
+                                qty=new_qty,
+                                base_price=j.Base_Price,
+                                gst_type=i.gst_type,
+                                gst_rate=i.gst_rate,
+                                gst_amt=i.gst_amt,
+                                sub_total=sub_total
+                            )
+
+        m_notification.is_read = True
+        m_notification.save()
+
+        notification_title = "Order Confirmation"
+        notification_message = f"We are pleased to inform you, the order with (Order No: {new_re_ord_no}) was successfully placed on {timezone.now().strftime('%d-%m-%Y at %H:%M')}.By {data.first_name}."
+
+
+        # Create a new notification for the logged-in user
+        cp_notification = Chaipoint_Notification(
+            order_number = new_re_ord_no,
+            message=notification_message,
+            title = notification_title
+        )
+        cp_notification.save()
+
+        # Prepare email details
+        order_details_rows = ""
+        for idx, i in enumerate(ord_det, start=1):
+            try:
+                material = Material_Master.objects.get(material_name=i.material_name)
+                conversion_qty = i.qty * material.conversion_rate
+                gst_amount = round(conversion_qty * material.Base_Price * (i.gst_rate / 100))
+                sub_total = round(conversion_qty * material.Base_Price + gst_amount)
+            except Material_Master.DoesNotExist:
+                conversion_qty = i.qty
+                gst_amount = 0
+                sub_total = 0
+
+        order_details_rows += f"""
+            <tr>
+                <td>{idx}</td>
+                <td>{i.material_name}</td>
+                <td>{conversion_qty}</td>
+                <td>{material.unit_of_measurement if material else 'N/A'}</td>
+                <td>{material.Base_Price if material else 'N/A'}</td>
+                <td>{i.gst_rate}%</td>
+                <td>{gst_amount}</td>
+                <td>{sub_total}</td>
+            </tr>
+            """
+
+        email_body = f"""
+        <p>Dear Manil Team,</p>
+        <p>The order has been successfully processed. Here are the details:</p>
+
+        <h3>Order Summary</h3>
+        <p><strong>Order Number:</strong> {new_re_ord_no}</p>
+
+        <h3>Order Details</h3>
+        <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Material Name</th>
+                    <th>Quantity</th>
+                    <th>UOM</th>
+                    <th>Base Price</th>
+                    <th>GST Rate</th>
+                    <th>GST Amount</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {order_details_rows}
+            </tbody>
+        </table>
+
+        <p><strong>Total Amount:</strong> {grand_total}</p>
+        <p><strong>Amount in Words:</strong> {amt_in_words}</p>
+        <p>Thank you!</p>
+        """
+
+
+        # Fetch email recipients
+        manil_email_obj = Manil_emails.objects.first()
+        chaipoint_email_obj = Chaipoint_emails.objects.first()
+
+        manil_emails = [
+            manil_email_obj.email1,
+            manil_email_obj.email2,
+            manil_email_obj.email3,
+            manil_email_obj.email4,
+            manil_email_obj.email5
+        ] if manil_email_obj else []
+
+        chaipoint_emails = [
+            chaipoint_email_obj.email1,
+            chaipoint_email_obj.email2,
+            chaipoint_email_obj.email3,
+            chaipoint_email_obj.email4,
+            chaipoint_email_obj.email5
+        ] if chaipoint_email_obj else []
+
+        recipient_list = manil_emails + chaipoint_emails
+
+        # Send email
+        email = EmailMessage(
+            subject='Order Processed Notification',
+            body=email_body,
+            from_email=settings.EMAIL_HOST_USER,
+            to=recipient_list,
+        )
+        email.content_subtype = 'html'
+        email.send(fail_silently=False)                    
+
+        messages.success(request, "Your order has been placed.")
+        return redirect('Re_manil_order_')
+
+
+    context = {
+        'data': data,
+        'order': order,
+        'tickets': tickets,
+        'r_ord_det':r_ord_det,
+        'ord_det': ord_det,
+        'images': images,
+        'client_det':client_det,
+        'mat_list': mat_list,
+        'new_values': new_values,
+        'grand_total': grand_total,
+        'm_notification':m_notification,
+        'grand_total_word': f"{grand_total_word} Rupees Only",
+        're_ord':re_ord,
+    }
+
+    return render(request, 'manil_temp/order_remarks_view.html', context )
 
 
 

@@ -313,12 +313,12 @@ document.getElementById('client_id').addEventListener('change', function () {
     if (state.toLowerCase() === 'karnataka') {
       in_side = true
       gst_typeInp.forEach(function(input) {
-        input.value = 'CGST + SGST';
+        input.value = 'IGST';
       });
     } else{
       in_side = false
       gst_typeInp.forEach(function(input) {
-        input.value = 'IGST';
+        input.value = 'CGST + SGST';
       });
     }
   } else {

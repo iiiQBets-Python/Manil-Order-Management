@@ -2,8 +2,9 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [   
+    path('m_notifications/fetch/', m_fetch_notifications, name='m_fetch_notifications'),
     path('forgot_password', forgot_password, name='forgot_password'),
-    path('base', base, name='base'),
+    path('manil_base', manil_base, name='manil_base'),
     path('manil_master', manil_master, name='manil_master'),
     path('manil_emails', manil_emails, name='manil_emails'),
     path('Client_master', Client_master, name='Client_master'),  
@@ -13,7 +14,8 @@ urlpatterns = [
 
     path('cust_user_master', cust_user_master, name='cust_user_master'),
     
-    
+    path('update_order_status/<str:order_id>/',update_order_status, name='update_order_status'),
+
     
     path('material_master', material_master, name='material_master'),
     path('material_cost', material_cost, name='material_cost'),
@@ -60,8 +62,10 @@ urlpatterns = [
     path('delete_order_remark/<str:id>', delete_order_remark, name='delete_order_remark'),
     path('delete_robot_ticket/<str:id>', delete_robot_ticket, name='delete_robot_ticket'),
     path('delete_robot/<str:id>', delete_robot, name='delete_robot'),
-    path('delete_robot_details<str:id>', delete_robot_details, name='delete_robot_details')
+    path('delete_robot_details<str:id>', delete_robot_details, name='delete_robot_details'),
     
 
+
+    path('Re_manil_order_', Re_manil_order_, name='Re_manil_order_'),
 ]
 

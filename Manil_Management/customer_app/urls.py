@@ -2,7 +2,7 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [   
-      
+    path('c_notifications/fetch/', c_fetch_notifications, name='c_fetch_notifications'),  
     path('Client_dashboard', Client_dashboard, name='Client_dashboard'),
     path('client_report', client_report, name='client_report'),
     path('client_emails', client_emails, name='client_emails'),
@@ -22,6 +22,8 @@ urlpatterns = [
     path('c_order_remarks', c_order_remarks, name='c_order_remarks'),
     path('c_order_remarks_view/<str:ord_no>', c_order_remarks_view, name='c_order_remarks_view' ),
 
+    
+
     path('add_user', add_user, name='add_user'),
     path('edit_user/<str:id>', edit_user, name='edit_user'),
     path('c_profile/<str:user_id>/', c_user_profile, name='c_user_profile'),
@@ -36,4 +38,6 @@ urlpatterns = [
     path('delete_c_order_remark/<str:id>', delete_c_order_remark, name='delete_c_order_remark'),
     path('delete_c_robot_ticket/<str:id>', delete_c_robot_ticket, name='delete_c_robot_ticket'),
     
+    path('Client_Reorder_dispatch', Client_Reorder_dispatch, name='Client_Reorder_dispatch'),
+    path('re_received_view/<str:ord_no>',re_received_view,name='re_received_view'),
 ]

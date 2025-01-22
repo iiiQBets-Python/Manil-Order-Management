@@ -357,6 +357,7 @@ class client_order_details(models.Model):
     gst_rate = models.IntegerField()
     gst_amt = models.BigIntegerField(null=True)
     sub_total = models.BigIntegerField()
+    total_base = models.BigIntegerField(null=True)
 
     def __str__(self):
         return self.order_number
@@ -381,7 +382,7 @@ class manil_order(models.Model):
     shipping_city = models.CharField(max_length=50, null=True)
     shipping_state = models.CharField(max_length=50, null=True)
     shipping_pin = models.BigIntegerField(null=True)
-    status = models.CharField(max_length=50, null=True)
+    status = models.CharField(max_length=50, null=True)    
 
     def __str__(self):
         return self.process_num
@@ -399,6 +400,7 @@ class manil_order_details(models.Model):
     gst_rate = models.IntegerField()
     gst_amt = models.BigIntegerField(null=True)
     sub_total = models.BigIntegerField()
+    total_base = models.BigIntegerField(null=True)
      
 
 class Robo_Ticket(models.Model):
@@ -434,17 +436,29 @@ class Order_Tickets(models.Model):
     remarked_date = models.DateTimeField(null=True) 
     resolved_dt = models.DateTimeField(null=True)
     resolved_by = models.CharField(max_length=100)  
+    remarks_type = models.CharField(max_length=100)
 
     def __str__(self):
         return self.ticket_num     
+    
+
+class Order_Tickets_details(models.Model):
+    order_number = models.CharField(max_length=100, null=False)
+    material_name = models.CharField(max_length=255)
+    order_qty = models.BigIntegerField()
+    received_qty = models.BigIntegerField() 
+    uom = models.CharField(max_length=50, null=True, default=None) 
+
+    def __str__(self):
+        return self.order_number  
         
 
 class Remarkes_images(models.Model):
-    process_num = models.CharField(max_length=100)
+    order_number = models.CharField(max_length=100)
     image = models.ImageField(upload_to='Client/report/')
 
     def __str__(self):
-        return self.process_num
+        return self.order_number
 
 class Robot_Master(models.Model):
     robot_id = models.CharField(max_length=50, unique=True)
@@ -534,12 +548,160 @@ class Client_emails(models.Model):
         return self.client_id
 
 
-class Notification(models.Model):
+class Manil_Notification(models.Model):
+    order_number = models.CharField(max_length=100, null=False)
     title = models.CharField(max_length=100)
     message = models.TextField(blank=True, null=True)  
     is_read = models.BooleanField(default=False)  
-    created_by = models.CharField(max_length=100)  # The user for whom the notification is intended
-    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.title
+        return self.order_number
+    
+class Client_Notification(models.Model):
+    order_number = models.CharField(max_length=100, null=False)
+    title = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)  
+    is_read = models.BooleanField(default=False)  
+
+    def __str__(self):
+        return self.order_number    
+    
+
+class Chaipoint_Notification(models.Model):
+    order_number = models.CharField(max_length=100, null=False)
+    title = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)  
+    is_read = models.BooleanField(default=False)  
+
+    def __str__(self):
+        return self.order_number 
+    
+class Inv_Notification(models.Model):
+    order_number = models.CharField(max_length=100, null=False)
+    title = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)  
+    is_read = models.BooleanField(default=False)  
+
+    def __str__(self):
+        return self.order_number     
+    
+class Client_Inv_Notification(models.Model):
+    order_number = models.CharField(max_length=100, null=False)
+    title = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)  
+    is_read = models.BooleanField(default=False)  
+    
+    def __str__(self):
+        return self.order_number       
+    
+
+
+
+
+
+# re order tables
+
+
+class Re_manil_order(models.Model):
+    ticket_num = models.CharField(max_length=100,null=True)
+    process_num = models.CharField(max_length=100)
+    client_id = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
+    order_number = models.CharField(max_length=100)
+    re_order_number = models.CharField(max_length=100, null=True)
+    order_date = models.DateTimeField()    
+    po_authority = models.CharField(max_length=255, null=True)
+    po_authority_date = models.DateField(null=True) 
+    creation_date = models.DateTimeField()
+    created_by = models.CharField(max_length=100)    
+    authorisation_date = models.DateTimeField(blank=True, null=True)
+    authorised_by = models.CharField(max_length=100, blank=True, null=True)
+
+    grand_total = models.BigIntegerField()
+    ammount_words = models.CharField(max_length=200)
+    
+    shipping_address = models.TextField()
+    shipping_city = models.CharField(max_length=50, null=True)
+    shipping_state = models.CharField(max_length=50, null=True)
+    shipping_pin = models.BigIntegerField(null=True)
+    status = models.CharField(max_length=50, null=True)    
+
+    def __str__(self):
+        return self.process_num
+
+class Re_manil_order_details(models.Model):
+    process_num = models.CharField(max_length=100)    
+    material_name = models.CharField(max_length=255)
+    hsn_code = models.CharField(max_length=10)
+    uom = models.CharField(max_length=50) 
+    qty = models.BigIntegerField()
+    base_price = models.BigIntegerField()
+
+    gst_type = models.CharField(max_length=50) 
+    gst_rate = models.IntegerField()
+    gst_amt = models.BigIntegerField(null=True)
+    sub_total = models.BigIntegerField()
+    total_base = models.BigIntegerField(null=True)
+
+class Re_client_order(models.Model):
+    client_id = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
+    order_number = models.CharField(max_length=100)
+    order_date = models.DateTimeField()    
+    po_authority = models.CharField(max_length=255, null=True)
+    po_authority_date = models.DateField(null=True)        
+    creation_date = models.DateTimeField()
+    created_by = models.CharField(max_length=100)    
+    authorisation_date = models.DateTimeField(blank=True, null=True)
+    authorised_by = models.CharField(max_length=100, blank=True, null=True)
+
+    grand_total = models.BigIntegerField()
+    ammount_words = models.CharField(max_length=200)
+
+    shipping_address = models.TextField()
+    shipping_city = models.CharField(max_length=50, null=True)
+    shipping_state = models.CharField(max_length=50, null=True)
+    shipping_pin = models.BigIntegerField(null=True)
+    status = models.CharField(max_length=50, null=True)
+
+    def __str__(self):
+        return self.order_number
+
+class Re_client_order_details(models.Model):
+    order_number = models.CharField(max_length=100)
+    material_name = models.CharField(max_length=255)
+    hsn_code = models.CharField(max_length=10)
+    uom = models.CharField(max_length=50) 
+    qty = models.BigIntegerField()
+    base_price = models.BigIntegerField() 
+
+    gst_type = models.CharField(max_length=50) 
+    gst_rate = models.IntegerField()
+    gst_amt = models.BigIntegerField(null=True)
+    sub_total = models.BigIntegerField()
+    total_base = models.BigIntegerField(null=True)
+
+    def __str__(self):
+        return self.order_number
+    
+class Re_Despatch_Details(models.Model):
+    process_num = models.CharField(max_length=100)
+    process_date = models.DateTimeField()
+    client_id = models.CharField(max_length=100)
+    client_name = models.CharField(max_length=255)
+    order_number = models.CharField(max_length=100)
+    order_date = models.DateTimeField()
+    dispatch_date = models.DateTimeField()
+    dispatch_lr_num = models.CharField(max_length=100)
+    exp_del_dt = models.DateTimeField()
+    client_rec_dt = models.DateTimeField(null=True)
+    creation_date = models.DateTimeField(null=False)
+    created_by = models.CharField(max_length=100, null=False) 
+    received_by = models.CharField(max_length=100, null=True)
+    received_date = models.DateTimeField(null=True)
+   
+
+    def __str__(self):
+        return self.process_num
+    
+

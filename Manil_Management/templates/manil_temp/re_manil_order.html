@@ -1,0 +1,119 @@
+{% extends "manil_temp/base.html" %}
+{% load static %}
+{% block title %} Costing Data Table {% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="{% static 'manil/css/manil_order.css' %}">
+<link rel="stylesheet" href="{% static 'messages.css' %}">
+
+{% endblock styles %}
+
+
+{% block content %}
+<div class=" container-fluid table-container display responsive wrap fade-in">
+  <!-- Floating Alert for Success Messages -->
+  <div id="floating-alert-success" class="floating-alert-success">
+    <span id="floating-alert-success-message"></span>
+  </div>
+
+  <div class="d-flex align-items-center position-relative"> <!-- Added position-relative -->
+    <div id="dataTables_filter_container" class="me-2">    
+    </div>  
+  </div>
+  <div class="table-responsive">
+    <table class="table" id="form-data-table">
+      <thead>
+        <tr>
+          <th scope="col">SL No</th>
+          <th scope="col">Client ID</th>
+          <th scope="col">Order Details</th>
+          <th scope="col">Grant Total</th>
+          <th scope="col">Order By</th>
+          <th scope="col">Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in m_orders %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{i.client_name}}({{i.client_id}})</td>
+          <td>{{i.process_num}} <br> {{i.creation_date|date:'Y-m-d'}}</td>
+          <td>{{i.grand_total}}</td>
+          <td>{{i.created_by}}</td>
+          <td>
+            <span class="status 
+                {% if i.status == 'Delivered' %} status-green 
+                {% elif i.status == 'Pending' %} status-red 
+                {% elif i.status == 'Remarked' %} status-yellow 
+                {% else %} status-blue {% endif %}">
+                {{ i.status }}
+            </span>
+         </td>
+          <td>
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                <!-- <li><a class="dropdown-item btn-read" href="#"><i class="fas fa-eye"></i> View</a></li>
+                <li><a class="dropdown-item btn-invoice" href="#"><i class="fas fa-file-download"></i> Invoice</a></li> -->
+                <!-- <li><a class="dropdown-item btn-edit" href="#"><i class="fas fa-edit"></i> Edit</a></li> -->
+                <li>
+                  <a class="dropdown-item btn-delete" href="#" data-href="{% url 'delete_manil_order' i.process_num %}">
+                      <i class="fas fa-trash-alt"></i> Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' in message.tags %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var successAlertElement = document.getElementById('floating-alert-success');
+                    var successMessage = document.getElementById('floating-alert-success-message');
+
+                    // Set the success message and display the floating alert
+                    successMessage.textContent = "{{ message|safe }}";
+                    successAlertElement.style.display = 'block';
+                    successAlertElement.classList.add('show');
+
+                    // Hide the success alert automatically after 2 seconds
+                    setTimeout(function () {
+                        successAlertElement.classList.remove('show');
+                        successAlertElement.style.display = 'none';
+                    }, 3000); // 2 seconds delay for success alert
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static  'manil/js/manil_order.js' %}"></script>
+{% endblock scripts %}
+
+
+{% endblock content %}

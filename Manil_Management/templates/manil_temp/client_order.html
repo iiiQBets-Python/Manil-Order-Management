@@ -53,8 +53,9 @@
                     {% elif i.status == 'Pending' %} status-red 
                     {% elif i.status == 'Remarked' %} status-yellow 
                     {% else %} status-blue {% endif %}">
-                    {{ i.status }}
+                      {{ i.status }}
                 </span>
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
               </td>           
               <td>
                 <div class="dropdown">
@@ -71,6 +72,19 @@
                     <!-- {% if  i.status == 'Order Placed'  %}
                     <li><a class="dropdown-item btn-edit" href="#" data-bs-toggle="modal" data-bs-target="#edit_orderModal-{{i.id}}"><i class="fas fa-edit"></i>Edit</a></li>
                     {% endif %} -->
+
+                    <li>
+                      <a class="dropdown-item btn-edit-status" 
+                         href="#" 
+                         data-order-id="{{ i.order_number }}" 
+                         data-current-status="{{ i.status }}"
+                         data-update-url="{% url 'update_order_status' i.order_number %}">
+                          <i class="fas fa-edit"></i> Edit Status
+                      </a>
+                    </li>
+                  
+                  
+
                     <li>
                       <a class="dropdown-item btn-delete" 
                          href="#" 
@@ -87,6 +101,78 @@
         </table>
       </div>
     </div>
+
+
+    <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btn-edit-status").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const orderId = this.getAttribute("data-order-id");
+            const currentStatus = this.getAttribute("data-current-status");
+            const updateUrl = this.getAttribute("data-update-url");
+
+            Swal.fire({
+                title: "Update Order Status",
+                input: "select",
+                inputOptions: {
+                    "Order Placed": "Order Placed",
+                    "Delivered": "Delivered",
+                    "Remarked": "Remarked",
+                    "In Progress": "In Progress"
+                },
+                inputValue: currentStatus,
+                showCancelButton: true,
+                confirmButtonText: "Update",
+                cancelButtonText: "Cancel",
+                inputPlaceholder: "Select a status"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const newStatus = result.value;
+
+                    fetch(updateUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        if (data.success) {
+                            Swal.fire("Success", "Order status updated!", "success")
+                                .then(() => {
+                                    // Update the UI dynamically
+                                    const row = button.closest("tr");
+                                    const statusSpan = row.querySelector(".status");
+                                    statusSpan.textContent = newStatus;
+                                    statusSpan.className = `status ${
+                                        newStatus === "Delivered" ? "status-green" :
+                                        newStatus === "In Progress" ? "status-blue" :
+                                        newStatus === "Remarked" ? "status-yellow" : "status-blue"
+                                    }`;
+                                });
+                        } else {
+                            Swal.fire("Error", data.message || "Failed to update status.", "error");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error updating status:", error);
+                        Swal.fire("Error", "An error occurred while updating the status.", "error");
+                    });
+                }
+            });
+        });
+    });
+});
+   
+    </script>
 
   
     <!-- The Modal -->
@@ -496,7 +582,63 @@
 {% endif %}
 
 
+  <!-- <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btn-edit-status").forEach(function (button) {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
 
+            const orderId = this.getAttribute("data-order-id");
+            const currentStatus = this.getAttribute("data-current-status");
+
+            Swal.fire({
+                title: "Update Order Status",
+                input: "select",
+                inputOptions: {
+                    Pending: "Pending",
+                    Delivered: "Delivered",
+                    Remarked: "Remarked",
+                    Processing: "Processing"
+                },
+                inputValue: currentStatus,
+                showCancelButton: true,
+                confirmButtonText: "Update",
+                cancelButtonText: "Cancel",
+                inputPlaceholder: "Select a status"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const newStatus = result.value;
+
+                    // Send AJAX request to update the status
+                    fetch(`/update_order_status/${orderId}/`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.success) {
+                            Swal.fire("Success", "Order status updated!", "success").then(() => {
+                                // Redirect to client order page
+                                window.location.href = "/client_order/";
+                            });
+                        } else {
+                            Swal.fire("Error", data.message, "error");
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire("Error", "An error occurred while updating the status.", "error");
+                    });
+                }
+            });
+        });
+    });
+});
+
+  </script> -->
 
   <script src="{% static  'delete.js' %}"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

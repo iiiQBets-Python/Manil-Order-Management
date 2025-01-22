@@ -5,8 +5,24 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.conf import settings
+from num2words import num2words
+from django.http import HttpResponse, JsonResponse
 
-from django.http import HttpResponse
+
+
+def c_fetch_notifications(request):
+    
+    c_notifications = Client_Notification.objects.filter(is_read=False)
+    c_inv_notifications = Client_Inv_Notification.objects.filter(is_read=False)
+    
+    return JsonResponse({
+        'status': 'success',
+        'c_notifications': list(c_notifications.values('id', 'title', 'message')),
+        'c_unread_count': c_notifications.count(),
+        'c_inv_notifications': list(c_inv_notifications.values('id', 'title', 'message')),
+        'c_inv_unread_count': c_inv_notifications.count(),
+    })
+
 
 
 def Client_dashboard(request):    
@@ -272,6 +288,18 @@ def order_table(request):
         )
         client_order_new.save()
 
+        notification_title = "Order Confirmation"
+        notification_message = f"We are pleased to inform you, the order with (Order No: {new_value}) was successfully placed on {timezone.now().strftime('%d-%m-%Y at %H:%M')}. By {data.first_name}."
+
+
+        # Create a new notification for the logged-in user
+        m_notification = Manil_Notification(
+            order_number = new_value,
+            message=notification_message,
+            title = notification_title
+        )
+        m_notification.save()
+
         manil_email_obj = Manil_emails.objects.first()
 
         # Extract the email fields from the first entry (if it exists)
@@ -489,10 +517,18 @@ def client_report(request):
 def Client_dispatch(request):
     user_id = request.session.get('user_id')
     data = Client_user.objects.get(user_id = user_id)   
+    
+    dispatch = Despatch_Details.objects.filter(client_id=data.client_id)
 
-    dispatch = Despatch_Details.objects.filter(client_id = data.client_id)
+    return render (request, 'customer_temp/Client_dispatch.html', {'data':data, 'dispatch':dispatch })
 
-    return render (request, 'customer_temp/Client_dispatch.html', {'data':data, 'dispatch':dispatch})
+def Client_Reorder_dispatch(request):
+    user_id = request.session.get('user_id')
+    data = Client_user.objects.get(user_id = user_id)   
+    
+    dispatch = Re_Despatch_Details.objects.filter(client_id=data.client_id)
+
+    return render (request, 'customer_temp/Client_Reorder_dispatch.html', {'data':data, 'dispatch':dispatch })
 
 def client_ticket(request):
     user_id = request.session.get('user_id')
@@ -590,13 +626,15 @@ def received_view(request, ord_no):
     user_id = request.session.get('user_id')
     data = Client_user.objects.get(user_id=user_id)
 
-    order = get_object_or_404(manil_order, process_num=ord_no, client_id=data.client_id)
+    order = get_object_or_404(manil_order, order_number=ord_no, client_id=data.client_id)
     ord_det = manil_order_details.objects.filter(process_num=ord_no)
     c_order = client_order.objects.get(order_number=order.order_number)
     c_ord_det = client_order_details.objects.filter(order_number=order.order_number)
     client_det = Client_Master.objects.get(client_id=order.client_id)
     mat_list = Material_Master.objects.all()
-    dispatch = Despatch_Details.objects.get(process_num=ord_no)
+    dispatch = Despatch_Details.objects.get(order_number=ord_no)
+
+    c_notification = Client_Notification.objects.get(order_number=ord_no)
 
     context = {
         'data': data,
@@ -607,7 +645,7 @@ def received_view(request, ord_no):
         'mat_list': mat_list,
         'c_order': c_order,
         'dispatch': dispatch,
-        'success_msg': None  
+        'success_msg': None,
     }
 
     if request.method == "POST":
@@ -624,9 +662,24 @@ def received_view(request, ord_no):
         c_order.status = 'Delivered'
         c_order.save()
 
+        c_notification.is_read = True
+        c_notification.save()
+
+        notification_title = "Raise Invoice"
+        notification_message = f"We are pleased to inform you, the order with (Order No: {order.order_number}) was successfully Received on {timezone.now().strftime('%d-%m-%Y at %H:%M')}. By {data.first_name}, So please raise Invoice "
+
+
+        # Create a new notification for the logged-in user
+        m_notification = Inv_Notification(
+            order_number = order.order_number,
+            message=notification_message,
+            title = notification_title
+        )
+        m_notification.save()
+
         # Prepare email notification
         order_details_rows = ""
-        for index, detail in enumerate(ord_det, start=1):
+        for index, detail in enumerate(c_ord_det, start=1):
             order_details_rows += f"""
             <tr>
                 <td>{index}</td>
@@ -728,17 +781,199 @@ def received_view(request, ord_no):
     return render(request, 'customer_temp/recieved_view.html', context)
 
 
+
+def re_received_view(request, ord_no):
+    user_id = request.session.get('user_id')
+    data = Client_user.objects.get(user_id=user_id)
+
+    order = get_object_or_404(Re_manil_order, order_number=ord_no, client_id=data.client_id)
+    ord_det = Re_manil_order_details.objects.filter(process_num=order.process_num)
+    c_order = client_order.objects.get(order_number=order.order_number)
+    c_ord_det = client_order_details.objects.filter(order_number=order.order_number)
+    client_det = Client_Master.objects.get(client_id=order.client_id)
+    mat_list = Material_Master.objects.all()
+    dispatch = Re_Despatch_Details.objects.get(order_number=ord_no)
+
+    cost_tbl = Costing_Table.objects.filter(client_id=data.client_id)
+
+    c_notification = Client_Notification.objects.get(order_number=ord_no)
+
+    new_values = {}
+    grand_total = 0
+
+    for i in ord_det:
+        for j in mat_list:
+            for k in cost_tbl:
+                if i.material_name == j.material_name == k.material_name:
+                    new_qty = int(i.qty / j.conversion_rate)
+                    sub_total = new_qty * k.cost_per_unit
+                    sub_total = round(sub_total + (sub_total * (i.gst_rate / 100)))
+
+                    if i.material_name not in new_values:
+                        new_values[i.material_name] = {}
+
+                    new_values[i.material_name]['qty'] = new_qty
+                    new_values[i.material_name]['sub_total'] = sub_total
+
+    for key, value in new_values.items():
+        grand_total += value['sub_total']
+
+    grand_total_word = num2words(grand_total).title()
+
+    context = {
+        'data': data,
+        'order': order,
+        'client_det': client_det,
+        'ord_det': ord_det,
+        'c_ord_det': c_ord_det,
+        'mat_list': mat_list,
+        'c_order': c_order,
+        'dispatch': dispatch,
+        'success_msg': None,
+        'grand_total_word': grand_total_word,
+        'cost_tbl': cost_tbl,
+        'new_values': new_values,
+        'grand_total': grand_total
+    }
+
+    if request.method == "POST":
+        dispatch.received_by = data.first_name
+        dispatch.received_date = timezone.now() + timedelta(hours=5, minutes=30)
+        dispatch.save()
+
+        order.status = 'Delivered'
+        order.save()
+
+        c_order.status = 'Delivered'
+        c_order.save()
+
+        c_notification.is_read = True
+        c_notification.save()
+
+        notification_title = "Order Received Successfully"
+        notification_message = (
+            f"The order with Order Number {order.order_number} was successfully received on "
+            f"{timezone.now().strftime('%d-%m-%Y at %H:%M')} by {data.first_name}. "
+            f"Please proceed to raise the invoice."
+        )
+
+        m_notification = Inv_Notification(
+            order_number=order.order_number,
+            message=notification_message,
+            title=notification_title
+        )
+        m_notification.save()
+
+        order_details_rows = ""
+        for index, detail in enumerate(c_ord_det, start=1):
+            order_details_rows += f"""
+            <tr>
+                <td>{index}</td>
+                <td>{detail.material_name}</td>
+                <td>{detail.uom}</td>
+                <td>{detail.qty}</td>
+                <td>{detail.base_price}</td>
+                <td>{detail.gst_rate}%</td>
+                <td>{detail.gst_amt}</td>
+                <td>{detail.sub_total}</td>
+            </tr>
+            """
+
+        email_body = f"""
+        <p>Dear Team,</p>
+        <p>The following order has been successfully received:</p>
+
+        <h3>Order Summary</h3>
+        <p><strong>Order Number:</strong> {order.process_num}</p>
+        <p><strong>Client Name:</strong> {client_det.client_name}</p>
+        <p><strong>Received By:</strong> {data.first_name}</p>
+        <p><strong>Received Date:</strong> {dispatch.received_date.strftime('%Y-%m-%d %H:%M:%S')}</p>
+
+        <h3>Order Details</h3>
+        <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Material Name</th>
+                    <th>UOM</th>
+                    <th>Quantity</th>
+                    <th>Base Price</th>
+                    <th>GST Rate</th>
+                    <th>GST Amount</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {order_details_rows}
+            </tbody>
+        </table>
+
+        <p><strong>Total Amount:</strong> {grand_total}</p>
+        <p><strong>Amount in Words:</strong> {grand_total_word}</p>
+        <p>Thank you!</p>
+        """
+
+        manil_email_obj = Manil_emails.objects.first()
+        manil_emails = [
+            manil_email_obj.email1,
+            manil_email_obj.email2,
+            manil_email_obj.email3,
+            manil_email_obj.email4,
+            manil_email_obj.email5
+        ] if manil_email_obj else []
+
+        chaipoint_email_obj = Chaipoint_emails.objects.first()
+        chaipoint_emails = [
+            chaipoint_email_obj.email1,
+            chaipoint_email_obj.email2,
+            chaipoint_email_obj.email3,
+            chaipoint_email_obj.email4,
+            chaipoint_email_obj.email5
+        ] if chaipoint_email_obj else []
+
+        client_emails = []
+        client_email_objs = Client_emails.objects.filter(client_id=data.client_id)
+        for client_email_obj in client_email_objs:
+            for i in range(1, 6):
+                email_field = f'email{i}'
+                email = getattr(client_email_obj, email_field, None)
+                if email:
+                    client_emails.append(email)
+
+        recipient_list = manil_emails + chaipoint_emails + client_emails
+
+        email = EmailMessage(
+            subject='Order Received Notification',
+            body=email_body,
+            from_email=settings.EMAIL_HOST_USER,
+            to=recipient_list,
+        )
+        email.content_subtype = 'html'
+        email.send(fail_silently=False)
+
+        messages.success(request, 'Order Received Successfully.')
+        return redirect('order_table')
+
+    return render(request, 'customer_temp/re_recieved_view.html', context)
+
+
+
 def remarks_view(request, ord_no):
     # Fetch user and order details
     user_id = request.session.get('user_id')
-    data = get_object_or_404(Client_user, user_id=user_id)  
+    data = get_object_or_404(Client_user, user_id=user_id)
 
-    order = get_object_or_404(manil_order, process_num=ord_no)  
-    
+    order = get_object_or_404(manil_order, order_number=ord_no)
+
     c_order = client_order.objects.get(order_number=order.order_number)
 
+    c_notification = Client_Notification.objects.get(order_number=ord_no)
+
+    # Fetch order details (assuming there's a related model or data source)
+    c_ord_det = client_order_details.objects.filter(order_number=ord_no)  # Replace `client_order_details` with your model name for order details.
+
     # Generate a new ticket number
-    tickets = Order_Tickets.objects.filter(client_id = data.client_id)
+    tickets = Order_Tickets.objects.filter(client_id=data.client_id)
     all_tck = Order_Tickets.objects.all()
 
     if all_tck:
@@ -748,11 +983,14 @@ def remarks_view(request, ord_no):
         new_ticket_num = f"{pre}{suf + 1:03}"
     else:
         new_ticket_num = 'RMK001'
+    
+    print('new_ticket_num', new_ticket_num)
 
     if request.method == "POST":
+        # Save remarks in Order_Tickets
         order_remark = Order_Tickets(
-            process_num=ord_no,
-            order_number= order.order_number,
+            process_num=order.process_num,
+            order_number=ord_no,
             client_id=data.client_id,
             client_name=data.client_name,
             ticket_num=new_ticket_num,
@@ -761,25 +999,64 @@ def remarks_view(request, ord_no):
             remarks=request.POST.get("remarks"),
             remarked_by=data.first_name,
             remarked_date=timezone.now() + timedelta(hours=5, minutes=30),
+            remarks_type=request.POST.get("remarks_type"),
         )
         order_remark.save()
+
+        # Save order details for each material
+        for i in c_ord_det:             
+            received_qty_key = f"received_quantity_{i.id}"
+            received_qty = request.POST.get(received_qty_key, 0) 
+            
+            Order_Tickets_details.objects.create(
+                order_number=ord_no,
+                material_name=i.material_name,
+                order_qty=i.qty,
+                received_qty=received_qty,
+                uom = i.uom
+            )
 
         # Save attached images
         images = request.FILES.getlist("image")
         for image in images:
-            Remarkes_images.objects.create(process_num=ord_no, image=image)
-        
+            Remarkes_images.objects.create(order_number=ord_no, image=image)
+
+        # Update statuses
         order.status = 'Remarked'
         order.save()
 
         c_order.status = 'Remarked'
         c_order.save()
 
-        # Success message and render the view
+        c_notification.is_read = True
+        c_notification.save()
+
+        notification_title = "Order Remark"
+        notification_message = (
+            f"The order with Order Number {order.order_number} was received on Damaged State "
+            f"{timezone.now().strftime('%d-%m-%Y at %H:%M')} by {data.first_name}. "
+            f"Please look into it and make a order replacement."
+        )
+
+        m_notification = Inv_Notification(
+            order_number=order.order_number,
+            message=notification_message,
+            title=notification_title
+        )
+        m_notification.save()
+
+        # Success message and redirect
         messages.success(request, 'Remark and images saved successfully.')
         return redirect("c_order_remarks")
-       
-    return render( request,'customer_temp/recieved_view.html',{'data': data,'order': order, 'tickets':tickets, 'c_order':c_order} )
+
+    return render(request, 'customer_temp/recieved_view.html', {
+        'data': data,
+        'order': order,
+        'tickets': tickets,
+        'c_order': c_order,
+        'c_ord_det': c_ord_det,
+    })
+
 
 def c_order_remarks(request):
     user_id = request.session.get('user_id')
@@ -799,9 +1076,9 @@ def c_order_remarks_view(request, ord_no):
     user_id = request.session.get('user_id')
     data = Client_user.objects.get(user_id=user_id)
 
-    tickets = get_object_or_404( Order_Tickets , process_num=ord_no, client_id=data.client_id)
+    tickets = get_object_or_404( Order_Tickets , order_number=ord_no, client_id=data.client_id)
 
-    images = Remarkes_images.objects.filter(process_num=ord_no)
+    images = Remarkes_images.objects.filter(order_number=ord_no)
 
     return render(request, 'customer_temp/remarked_order_view.html', {'data': data,'tickets': tickets,'images': images })
 
@@ -867,6 +1144,12 @@ def download_invoice(request, ord_no):
         invoice = M_client_invoice.objects.get(order_number=ord_no)
     except Exception as e:
         return HttpResponse(str(e), status=404)
+    
+    c_inv_notification = Client_Inv_Notification .objects.get(order_number=ord_no)
+    
+    if request.method == "POST":
+        c_inv_notification.is_read = True
+        c_inv_notification.save()
 
     # Initialize the response object for PDF
     response = HttpResponse(content_type='application/pdf')

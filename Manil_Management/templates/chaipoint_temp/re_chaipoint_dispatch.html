@@ -1,0 +1,153 @@
+{% extends "chaipoint_temp/base.html" %}
+{% load static %}
+{% block title %} Disptch_details_table {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'chaipoint/css/chaipoint_dispatch.css' %}">
+    <link rel="stylesheet" href="{% static 'messages.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container-fluid table-container display responsive wrap fade-in">
+    <!-- Floating Alert for Success Messages -->
+    <div id="floating-alert-success" class="floating-alert-success">
+        <span id="floating-alert-success-message"></span>
+    </div>
+
+    <div class="d-flex align-items-center position-relative"> 
+        
+        <div id="dataTables_filter_container" class="me-2">
+            <!-- This will be populated by jQuery -->
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table" id="form-data-table">
+            <thead>
+                <tr>
+                    <th scope="col">SL No</th>
+                    <th scope="col">Order Process Details</th>
+                    <th scope="col">Dispatch Lr No</th>
+                    <th scope="col">Expected Date</th>
+                    <th scope="col">Received By</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in dispatch %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ i.process_num }} <br> {{ i.process_date|date:'Y-m-d'}} </td>
+                    <td> {{ i.dispatch_lr_num }}</td>
+                    <td>{{ i.exp_del_dt|date:'Y-m-d' }}</td>
+                    <td> {% if i.received_by %} {{ i.received_by }} <br> {{ i.received_date|date:'Y-m-d'}} {% else %}  N/A  {% endif%} </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="actionMenu1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="actionMenu1">
+                                <li><a class="dropdown-item btn-edit" href="#" data-bs-toggle="modal" data-bs-target="#edit_dispatchmodal-{{i.id}}"><i class="fas fa-edit"></i> Edit</a></li>
+                                <li>
+                                    <a class="dropdown-item btn-delete" 
+                                       href="#" 
+                                       data-href="{% url 'delete_cp_dispatch' i.id %}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% for i in dispatch %}
+<div class="modal fade" id="edit_dispatchmodal-{{i.id}}" tabindex="-1" aria-labelledby="edit_dispatchmodalLabel-{{i.id}}" aria-hidden="true">
+    <div class="modal-dialog modal-lg" >
+      <div class="modal-content container-custom">
+    
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title" id="edit_dispatchmodalLabel-{{i.id}}">Dispatch</h4>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+    
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <form id="edit_DispatchForm-{{i.id}}" method="post" action="{% url 'edit_dispatch' i.id %}">
+             {% csrf_token %}
+              <div class="row">
+                  <div class="col-md-6 form-group">
+                      <input type="text" class="form-control" id="process_number-{{i.id}}" name="process_number" value="{{i.process_num}}" maxlength="15" placeholder=" " readonly required>
+                      <label for="process_number-{{i.id}}" class="form-label">Order Process Number</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                      <input type="date" class="form-control" id="process_date-{{i.id}}" name="process_date" value="{{i.creation_date|date:'Y-m-d'}}" placeholder=" " readonly required>
+                      <label for="process_date-{{i.id}}" class="form-label">Order Process Date</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                      <input type="text" class="form-control" id="client_id-{{i.id}}" name="client_id" value="{{i.client_id}}"  placeholder=" " readonly required>
+                      <label for="client_id-{{i.id}}" class="form-label">Client ID</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                      <input type="text" class="form-control" id="client_name-{{i.id}}" name="client_name" value="{{i.client_name}}" placeholder=" " readonly required>
+                      <label for="client_name-{{i.id}}" class="form-label">Client Name</label>
+                  </div>
+                  <div class="col-md-6 form-group">
+                      <input type="date" class="form-control" id="expected_delivery_date-{{i.id}}" name="edit_expected_delivery_date" value="{{i.exp_del_dt|date:'Y-m-d'}}"  placeholder=" " required>
+                      <label for="expected_delivery_date-{{i.id}}" class="form-label">Expected Delivery Date</label>
+                  </div>
+              </div>
+              <div class="form-buttons">
+                  <button class="btn btn-danger" type="button" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                  <button class="btn btn-success" type="submit">Save</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'success' in message.tags %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var successAlertElement = document.getElementById('floating-alert-success');
+                    var successMessage = document.getElementById('floating-alert-success-message');
+
+                    // Set the success message and display the floating alert
+                    successMessage.textContent = "{{ message|safe }}";
+                    successAlertElement.style.display = 'block';
+                    successAlertElement.classList.add('show');
+
+                    // Hide the success alert automatically after 2 seconds
+                    setTimeout(function () {
+                        successAlertElement.classList.remove('show');
+                        successAlertElement.style.display = 'none';
+                    }, 3000); // 2 seconds delay for success alert
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<script src="{% static  'delete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static  'chaipoint/js/chaipoint_dispatch.js' %}"></script>
+{% endblock scripts %}
+{% endblock content %}

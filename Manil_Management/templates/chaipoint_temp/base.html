@@ -447,6 +447,79 @@
         .fa-user:hover{
             cursor: pointer;
         }
+
+        #sidebar .badge {
+            background-color: var(--red);
+            color: var(--light);
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        #sidebar .badge:empty {
+            display: flex;
+        }
+
+        .notification, .inv-notification {
+            position: relative;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #000;
+            font-size: 24px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav .badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            border-radius: 50%;
+            padding: 2px 6px;
+        }
+
+        .notification-list, .inv-notification-list {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            width: 500px;
+            display: none; /* Hidden by default */
+            z-index: 1000;
+            padding: 10px 0;
+        }
+
+        .notification-list li, .inv-notification-list li {
+            list-style: none;
+            border-bottom: 1px solid #ddd;
+            padding: 8px 15px;
+        }
+
+        .notification-list li:last-child, .inv-notification-list li:last-child {
+            border-bottom: none;
+        }
+
+        .notification-list a, .inv-notification-list a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            font-size: 14px;
+        }
+
+        .notification-list a:hover, .inv-notification-list a:hover {
+            background-color: #f5f5f5;
+            color: #000;
+        }
     </style>
     {% block styles %}
     {% endblock %}
@@ -467,8 +540,20 @@
             <!-- <li><a href="{% url 'cp_emails' %}"><i class="fas fa-cogs icon"></i> Chaipoint Emails</a></li> -->
             <li><a href="{% url 'cp_add_user'  %}"><i class='fas fa-user icon' class="active"></i>Chaipoint User</a></li>
             <li class="divider" data-text="Orders">Orders</li>
-            <li><a href="{% url 'cp_order_table' %}"><i class="fas fa-cogs icon"></i> Chaipoint Orders</a></li>
-            <li><a href="{% url 'cp_dispatch_details' %}"><i class="fas fa-truck icon"></i>Chaipoint Dispatch</a></li>
+            <li>
+                <a href="{% url 'cp_order_table' %}"><i class="fas fa-receipt icon"></i>Chaipoint Orders
+                    <span class="badge" style="margin-left: 8px;">
+                        {% if cp_order_count %}{{ cp_order_count }}{% else %}0{% endif %}
+                   </span>
+                </a>
+            </li>
+            <li><a href="{% url 'cp_dispatch_details' %}"><i class="fas fa-truck icon"></i>Order Dispatch</a></li>
+
+            <li class="divider" data-text="Re-Orders">Re-Orders</li>
+            <li>
+                <a href="{% url 're_cp_order_table' %}"><i class="fas fa-receipt icon"></i>Chaipoint Re-Orders</a>
+            </li>
+            <li><a href="{% url 're_cp_dispatch_details' %}"><i class="fas fa-truck icon"></i>Re-Order Dispatch</a></li>
 
         </ul>
     </section>
@@ -488,11 +573,27 @@
                 </div>
             </form>
 
+            <div class="notification">
+                <a href="#" class="nav-link">
+                    <i class='bx bxs-bell icon'></i>
+                    <span class="badge">{% if cp_unread_count %} {{ cp_unread_count }}  {% else %} 0 {% endif %} </span>
+                </a>
+                <ul class="notification-list">
+                    
+                    {% for i in cp_notifications %}
+                        <li>
+                            <a href="{% url 'order_view' i.order_number %}"><strong>{{ i.title }}</strong> <br>
+                                        {{ i.message }}</a>
+                        </li>
+                    {% empty %}
+                        <li>
+                            <a href="#">No new notifications</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
             <!-- <a href="#" class="nav-link">
-                <i class='bx bxs-bell icon'></i>
-                <span class="badge">5</span>
-            </a>
-            <a href="#" class="nav-link">
                 <i class='bx bxs-message-square-dots icon'></i>
                 <span class="badge">8</span>
             </a> -->
@@ -639,6 +740,67 @@
             dropdownProfile.classList.toggle('show');
         })
 
+        document.querySelector('.nav-link').addEventListener('click', function (e) {
+            const notificationList = document.querySelector('.notification-list');
+            const isVisible = notificationList.style.display === 'block';
+            notificationList.style.display = isVisible ? 'none' : 'block';
+        });
+
+        // Optional: Close notifications when clicking outside
+        document.addEventListener('click', function (e) {
+            const notification = document.querySelector('.notification');
+            const notificationList = document.querySelector('.notification-list');
+            if (!notification.contains(e.target)) {
+                notificationList.style.display = 'none';
+            }
+        });
+
+
+
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const fetchUrl = "{% url 'cp_fetch_notifications' %}";
+
+        function refreshNotifications() {
+            fetch(fetchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Update badge counts
+                        document.querySelector('.notification .badge').textContent = data.cp_unread_count || '0';
+
+                        // Update notification lists
+                        const lists = [
+                            { selector: '.notification-list', items: data.cp_notifications }
+                        ];
+
+                        lists.forEach(({ selector, items }) => {
+                            const listElement = document.querySelector(selector);
+                            if (listElement) {
+                                listElement.innerHTML = items.length > 0
+                                    ? items.map(notification => `
+                                        <li>
+                                            <a href="">
+                                                <strong>${notification.title}</strong><br>${notification.message}
+                                            </a>
+                                        </li>
+                                    `).join('')
+                                    : `<li><a href="#">No new notifications</a></li>`;
+                            }
+                        });
+                    } else {
+                        console.error('Error in data response:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing notifications:', error);
+                });
+        }
+
+        setInterval(refreshNotifications, 5000);
+    });
 
     </script>
 

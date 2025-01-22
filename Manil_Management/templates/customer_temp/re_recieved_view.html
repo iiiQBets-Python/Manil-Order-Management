@@ -1,0 +1,288 @@
+
+{% extends "customer_temp/base.html" %}
+{% load static %}
+{% block title %} ChaiPoint User {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'customer/css/received_view.css' %}">
+    <link rel="stylesheet" href="{% static 'messages.css' %}">
+{% endblock styles %}
+
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <h2 class="text-center mb-3">Order Summary</h2>
+
+    <!-- Section 1: Order Details -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Order Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Left column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Order Number: </strong></span> {{order.order_number}}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Order Date: </strong></span> {{order.creation_date|date:'Y-m-d'}}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Client Number: </strong></span> {{client_det.client_id}}
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Client Name: </strong></span> {{client_det.client_name}}
+                    </div>
+                </div>
+                <!-- Right column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <span class="text-muted"><strong>Order By: </strong></span> {{order.created_by}}
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Shipping Details -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Shipping Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <span class="text-muted"><strong>Shipping Address: </strong></span> {{order.shipping_address}}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <span class="text-muted"><strong>City: </strong></span> {{order.shipping_city}}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <span class="text-muted"><strong>State: </strong></span> {{order.shipping_state}}
+                </div>
+                <div class="col-md-12 mb-3">
+                    <span class="text-muted"><strong>Pin Code: </strong></span> {{order.shipping_pin}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Line Items Table -->
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table text-center">
+                <tr>
+                    <th>Material Name</th>
+                    <th>Quantity</th>
+                    <th>Base Price</th>
+                    <th>GST Type</th>
+                    <th>GST Rate (%)</th>
+                    <th>Sub Total</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                {% for i in ord_det %}
+                <tr>
+                    <td>{{i.material_name}}</td>
+                    <td>
+                        {% for key, value in new_values.items %}
+                            {% if key == i.material_name %}
+                                {{ value.qty }}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for k in cost_tbl %}
+                            {% if i.material_name == k.material_name %}
+                                {{k.unit_of_measurement}}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for k in cost_tbl %}
+                            {% if i.material_name == k.material_name %}
+                                {{k.cost_per_unit}}
+                            {% endif %}
+                        {% endfor %}    
+                    </td>
+                    <td>{{i.gst_type}}</td>
+                    <td>{{i.gst_rate}}</td>
+                    <td>
+                        {% for key, value in new_values.items %}
+                            {% if key == i.material_name %}
+                                {{ value.sub_total }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+    <!-- Grand Total and Amount in Words -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="card p-3 shadow-sm">
+                <p><strong>Amount in Words:  {{grand_total_word}}</strong>.</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3 shadow-sm">
+                <p><strong>Grand Total: Rs. {{grand_total}}</strong> </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back and Print Buttons -->
+    <div class="form-buttons mt-3 text-center d-flex justify-content-center align-items-center gap-2">
+        <!-- Back Button -->
+        <button class="btn btn-secondary btn-sm me-1" onclick="window.history.back()">Back</button>
+    
+        {% if not order.status == "Delivered" and not order.status == "Remarked"  %}
+            <div class="dropdown received-options">
+                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="receivedDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Received
+                </button>
+                
+                <ul class="dropdown-menu" aria-labelledby="receivedDropdown">
+                    <!-- Received Perfectly Option -->
+                    <li>
+                        <form method="post" action="{% url 're_received_view' order.order_number %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">Received Perfectly</button>
+                        </form>
+                    </li>
+                    
+                    <!-- Received (Damaged Items) Option -->
+                    <!-- <li><a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#remarkModal" onclick="handleModalTrigger(event)">Received (Damaged Items)</a></li> -->
+                
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    
+</div>
+
+<div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content container-custom">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title" id="remarkModalLabel">Remarks Form</h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form id="RemarkForm" method="post" enctype="multipart/form-data" action="{% url 'remarks_view' order.order_number %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" id="order_number" name="order_number" placeholder=" " value="{{order.order_number}}" readonly required>
+                            <label for="order_number" class="form-label">Order Number</label>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <input type="text" class="form-control" id="client_name" name="client_name" placeholder=" " value="{{client_det.client_name}}" readonly required>
+                            <label for="client_name" class="form-label">Client Name</label>
+                        </div>
+
+                        <div class="col-md-6 form-group">
+                            <select name="remarks_type" class="form-control" id="remarks_type" required>
+                                <option value="">--select--</option>
+                                <option value="Damaged Items">Damaged Items</option>
+                                <option value="Difference in Qty">Difference in Quantity</option>
+                            </select>
+                            <label for="role" class="form-label">Remarks Type</label>
+                        </div>
+
+                        <table class="table table-hover table-striped align-middle mt-2">
+                            <thead class="table text-center">
+                                <tr>
+                                    <th>Material Name</th>
+                                    <th>Ordered Quantity</th>
+                                    <th>Received Quantity</th>
+                                                       
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                                {% for i in c_ord_det %}
+                                <tr>
+                                    <td>{{ i.material_name }}</td>
+                                    <td>{{ i.qty }} {{ i.uom }}</td>
+                                    <td>
+                                        <!-- Hidden input for the material ID -->
+                                        <input type="hidden" name="material_id_{{ forloop.counter }}" value="{{ i.id }}">                                        
+                                        
+                                        <!-- Input for received quantity -->
+                                        <input type="number" name="received_quantity_{{ i.id }}"  class="form-control text-center"  placeholder="Enter quantity" required>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                          </table>
+                        <div class="col-md-12 form-group mt-2">
+                            <input type="text" class="form-control" id="remarks_title" name="remarks_title" placeholder=" "  required>
+                            <label for="remarks_title" class="form-label">Remarks Title</label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                           <textarea type="text" class="form-control" name="remarks" id="remarks" placeholder=" "  required></textarea>
+                            <label for="remarks" class="form-label">Remarks Description</label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="file" class="form-control" id="image" name="image" placeholder=" " multiple   required>
+                            <label for="image" class="form-label">Images</label>
+                            <span style="color: red;">Uploading DC Images is Mandatory</span>
+                        </div>
+                       
+                    </div>
+                    <div class="form-buttons">
+                        <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="hidden">Close</button>
+                        <button class="btn btn-success">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if success_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  success_msg|safe }}");                
+        window.location.href = "{% url 'Client_dispatch' %}";
+    };
+</script>
+{% endif %}
+
+{% if error_msg %}
+<script>     
+    window.onload = function () {
+        alert("{{  error_msg|safe }}");                                    
+        setTimeout(function() {
+            var modal = new bootstrap.Modal(document.getElementById('dispatchmodal'), {});
+            modal.show();
+        }); 
+    };
+</script>
+{% endif %}
+
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'customer/css/received_view.js' %}"></script>
+{% endblock scripts %}
+
+
+{% endblock content %}
+
+
+
+
+
+  
