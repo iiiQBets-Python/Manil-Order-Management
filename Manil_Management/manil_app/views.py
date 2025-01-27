@@ -29,6 +29,7 @@ def m_fetch_notifications(request):
     
     m_notifications = Manil_Notification.objects.filter(is_read=False)
     inv_notifications = Inv_Notification.objects.filter(is_read=False)
+    ticket_notifications = Ticket_Notification.objects.filter(is_read=False)
     
     return JsonResponse({
         'status': 'success',
@@ -37,6 +38,8 @@ def m_fetch_notifications(request):
         'm_unread_count': m_notifications.count(),
         'inv_notifications': list(inv_notifications.values('id', 'title', 'message')),
         'inv_unread_count': inv_notifications.count(),
+        'ticket_notifications': list(ticket_notifications.values('id', 'title', 'message')),
+        'ticket_unread_count': ticket_notifications.count(),
     })
 
 
@@ -1593,6 +1596,8 @@ def ticket_view(request,ticket_num):
     tickets=Robo_Ticket.objects.get(ticket_num=ticket_num)
     client_dt=Client_Master.objects.get(client_id=tickets.client_id)
 
+    ticket_notification = Ticket_Notification.objects.get(ticket_num=ticket_num)
+
     if request.method == 'POST':
         tickets.res_description = request.POST.get('res_description')
         tickets.resolved_by = data.first_name
@@ -1600,6 +1605,81 @@ def ticket_view(request,ticket_num):
         tickets.status = 'In Progress'
 
         tickets.save()
+
+        notification_title = "Ticket Confirmed and Processed"
+        notification_message = (
+            f"The ticket (Ticket No: {ticket_num}) raised by Client ID: {tickets.client_id} "
+            f"for Robot (Robot ID: {tickets.robot_id}, Robot Name: {tickets.robot_name}) has been successfully confirmed and processed "
+            f"on {timezone.now().strftime('%d-%m-%Y at %H:%M')}. The ticket was handled by {data.first_name}."
+        )
+
+        # Create a new notification for the logged-in user
+        notification = Client_Ticket_Notification(
+            ticket_num=ticket_num,
+            message=notification_message,
+            title=notification_title
+        )
+        notification.save()
+
+        ticket_notification.is_read=True
+        ticket_notification.save()
+
+
+        email_body = f"""
+        <p>Dear Manil Team,</p>
+        <p>A new ticket has been raised. Below are the details:</p>
+
+        <h3>Ticket Details</h3>
+        <ul>
+            <li><strong>Ticket Number:</strong> {tickets.ticket_num}</li>
+            <li><strong>Ticket Number:</strong> {tickets.ticket_date}</li>
+            <li><strong>Client Name:</strong> {tickets.client_name}</li>
+            <li><strong>Robot Name:</strong> {tickets.robot_name}</li>
+            <li><strong>Complaint Title:</strong> {tickets.complaint_title}</li>
+            <li><strong>Complaint Description:</strong> {tickets.res_description}</li>
+            <li><strong>Status:</strong>{tickets.status} </li>
+        </ul>
+
+        <p>Thank you for your attention.</p>
+        """
+
+        manil_email_obj = Manil_emails.objects.first()
+
+        # Extract the email fields from the first entry (if it exists)
+        if manil_email_obj:
+            manil_emails = [
+                manil_email_obj.email1,
+                manil_email_obj.email2,
+                manil_email_obj.email3,
+                manil_email_obj.email4,
+                manil_email_obj.email5
+            ]
+        else:
+            manil_emails = []
+
+        
+        # Fetch emails for the selected client_id from Client_emails
+        client_emails = []
+        client_email_objs = Client_emails.objects.filter(client_id=tickets.client_id)  # Fetch all matching client_id entries
+        for client_email_obj in client_email_objs:
+            for i in range(1, 6):  # Loop through email1 to email5 fields
+                email_field = f'email{i}'
+                email = getattr(client_email_obj, email_field, None)
+                if email:
+                    client_emails.append(email)
+
+        # Combine recipients
+        recipient_list = manil_emails + client_emails
+
+        # Send email
+        email = EmailMessage(
+            subject='Ticket Raising on Robots',
+            body=email_body,
+            from_email=settings.EMAIL_HOST_USER,
+            to=recipient_list,
+        )
+        email.content_subtype = 'html'
+        email.send(fail_silently=False) 
 
         messages.success(request, "Ticket Has been solved")
         return redirect ('manil_ticket')

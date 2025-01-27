@@ -594,12 +594,24 @@ class Client_Inv_Notification(models.Model):
     def __str__(self):
         return self.order_number       
     
+class Ticket_Notification(models.Model):
+    ticket_num = models.CharField(max_length=100, null=False)
+    title = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)  
+    is_read = models.BooleanField(default=False)  
 
-
-
-
-
-# re order tables
+    def __str__(self):
+        return self.ticket_num     
+    
+class Client_Ticket_Notification(models.Model):
+    ticket_num = models.CharField(max_length=100, null=False)
+    title = models.CharField(max_length=100)
+    message = models.TextField(blank=True, null=True)  
+    is_read = models.BooleanField(default=False)  
+    
+    def __str__(self):
+        return self.ticket_num      
+    
 
 
 class Re_manil_order(models.Model):

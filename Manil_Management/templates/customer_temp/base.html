@@ -479,7 +479,7 @@
             display: flex;
         }
 
-        .notification, .inv-notification {
+        .notification, .inv-notification, .ticket-notification {
             position: relative;
             display: inline-block;
             margin-right: 10px;
@@ -504,7 +504,7 @@
             padding: 2px 6px;
         }
 
-        .notification-list, .inv-notification-list {
+        .notification-list, .inv-notification-list, .ticket-notification-list {
             position: absolute;
             right: 0;
             top: 40px;
@@ -517,24 +517,24 @@
             padding: 10px 0;
         }
 
-        .notification-list li, .inv-notification-list li {
+        .notification-list li, .inv-notification-list li, .ticket-notification-list li {
             list-style: none;
             border-bottom: 1px solid #ddd;
             padding: 8px 15px;
         }
 
-        .notification-list li:last-child, .inv-notification-list li:last-child {
+        .notification-list li:last-child, .inv-notification-list li:last-child, .ticket-notification-list li:last-child {
             border-bottom: none;
         }
 
-        .notification-list a, .inv-notification-list a {
+        .notification-list a, .inv-notification-list a, .ticket-notification-list a {
             text-decoration: none;
             color: #333;
             display: block;
             font-size: 14px;
         }
 
-        .notification-list a:hover, .inv-notification-list a:hover {
+        .notification-list a:hover, .inv-notification-list a:hover, .ticket-notification-list a:hover{
             background-color: #f5f5f5;
             color: #000;
         }
@@ -595,6 +595,24 @@
                 <i class='bx bxs-message-square-dots icon'></i>
                 <span class="badge">8</span>
             </a> -->
+
+            <div class="ticket-notification">
+                <a href="#" class="nav-link">
+                    <i class='fas fa-envelope icon'></i>
+                    <span class="badge">{% if c_ticket_unread_count %}{{ c_ticket_unread_count }}{% else %}0{% endif %}</span>
+                </a>
+                <ul class="ticket-notification-list">
+                    {% for i in c_ticket_notifications %}
+                        <li>
+                            <a href="{% url 'close_ticket' i.ticket_num %}">
+                                <strong>{{ i.title }}</strong><br>{{ i.message }}
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li><a href="#">No new notifications</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
             
             <div class="notification">
                 <a href="#" class="nav-link">
@@ -780,27 +798,40 @@
         })
 
         document.addEventListener('DOMContentLoaded', function () {
+            const ticketNotificationLink = document.querySelector('.ticket-notification .nav-link');
+            const ticketNotificationList = document.querySelector('.ticket-notification-list');
             const notificationLink = document.querySelector('.notification .nav-link');
             const notificationList = document.querySelector('.notification-list');
             const invNotificationLink = document.querySelector('.inv-notification .nav-link');
             const invNotificationList = document.querySelector('.inv-notification-list');
 
-            // Toggle visibility of notification list
+            // Add event listeners for toggling visibility
+            ticketNotificationLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                toggleVisibility(ticketNotificationList);
+                hideElement(notificationList);
+                hideElement(invNotificationList);
+            });
+
             notificationLink.addEventListener('click', function (e) {
                 e.preventDefault();
                 toggleVisibility(notificationList);
-                hideElement(invNotificationList); // Ensure inventory notification list is closed
+                hideElement(ticketNotificationList);
+                hideElement(invNotificationList);
             });
 
-            // Toggle visibility of inventory notification list
             invNotificationLink.addEventListener('click', function (e) {
                 e.preventDefault();
                 toggleVisibility(invNotificationList);
-                hideElement(notificationList); // Ensure regular notification list is closed
+                hideElement(ticketNotificationList);
+                hideElement(notificationList);
             });
 
             // Hide lists when clicking outside
             document.addEventListener('click', function (e) {
+                if (!e.target.closest('.ticket-notification')) {
+                    hideElement(ticketNotificationList);
+                }
                 if (!e.target.closest('.notification')) {
                     hideElement(notificationList);
                 }
@@ -834,11 +865,13 @@
                         // Update badge counts
                         document.querySelector('.notification .badge').textContent = data.c_unread_count || '0';
                         document.querySelector('.inv-notification .badge').textContent = data.c_inv_unread_count || '0';
+                        document.querySelector('.ticket-notification .badge').textContent = data.c_ticket_unread_count || '0';
 
                         // Update notification lists
                         const lists = [
                             { selector: '.notification-list', items: data.c_notifications },
-                            { selector: '.inv-notification-list', items: data.c_inv_notifications }
+                            { selector: '.inv-notification-list', items: data.c_inv_notifications },
+                            { selector: '.ticket-notification-list', items: data.c_ticket_notifications }
                         ];
 
                         lists.forEach(({ selector, items }) => {

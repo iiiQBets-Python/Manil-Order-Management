@@ -14,6 +14,7 @@ def c_fetch_notifications(request):
     
     c_notifications = Client_Notification.objects.filter(is_read=False)
     c_inv_notifications = Client_Inv_Notification.objects.filter(is_read=False)
+    c_ticket_notifications = Client_Ticket_Notification.objects.filter(is_read=False)
     
     return JsonResponse({
         'status': 'success',
@@ -21,6 +22,8 @@ def c_fetch_notifications(request):
         'c_unread_count': c_notifications.count(),
         'c_inv_notifications': list(c_inv_notifications.values('id', 'title', 'message')),
         'c_inv_unread_count': c_inv_notifications.count(),
+        'c_ticket_notifications': list(c_ticket_notifications.values('id', 'title', 'message')),
+        'c_ticket_unread_count': c_ticket_notifications.count(),
     })
 
 
@@ -571,6 +574,77 @@ def client_ticket(request):
         )
         new_ticket.save()
 
+        notification_title = "New Ticket Raised"
+        notification_message = (
+            f"A new ticket (Ticket No: {new_value}) has been raised by Client ID: {data.client_id} "
+            f"for Robot (Robot ID: {robot_id}, Robot Name: {robot_name}) on "
+            f"{timezone.now().strftime('%d-%m-%Y at %H:%M')}. The ticket was created by {data.first_name}."
+        )
+
+        # Create a new notification for the logged-in user
+        notification = Ticket_Notification(
+            ticket_num=new_value,
+            message=notification_message,
+            title=notification_title
+        )
+        notification.save()
+        
+        email_body = f"""
+        <p>Dear Manil Team,</p>
+        <p>A new ticket has been raised. Below are the details:</p>
+
+        <h3>Ticket Details</h3>
+        <ul>
+            <li><strong>Ticket Number:</strong> {new_value}</li>
+            <li><strong>Client Name:</strong> {data.client_name}</li>
+            <li><strong>Robot Name:</strong> {robot_name}</li>
+            <li><strong>Complaint Title:</strong> {complaint_title}</li>
+            <li><strong>Complaint Description:</strong> {complaint_description}</li>
+            <li><strong>Maintenance Date:</strong> {maintenance_date}</li>
+            <li><strong>Status:</strong> Open</li>
+        </ul>
+
+        <p>Thank you for your attention.</p>
+        """
+
+        manil_email_obj = Manil_emails.objects.first()
+
+        # Extract the email fields from the first entry (if it exists)
+        if manil_email_obj:
+            manil_emails = [
+                manil_email_obj.email1,
+                manil_email_obj.email2,
+                manil_email_obj.email3,
+                manil_email_obj.email4,
+                manil_email_obj.email5
+            ]
+        else:
+            manil_emails = []
+
+        
+        # Fetch emails for the selected client_id from Client_emails
+        client_emails = []
+        client_email_objs = Client_emails.objects.filter(client_id=data.client_id)  # Fetch all matching client_id entries
+        for client_email_obj in client_email_objs:
+            for i in range(1, 6):  # Loop through email1 to email5 fields
+                email_field = f'email{i}'
+                email = getattr(client_email_obj, email_field, None)
+                if email:
+                    client_emails.append(email)
+
+        # Combine recipients
+        recipient_list = manil_emails + client_emails
+
+        # Send email
+        email = EmailMessage(
+            subject='Ticket Raising on Robots',
+            body=email_body,
+            from_email=settings.EMAIL_HOST_USER,
+            to=recipient_list,
+        )
+        email.content_subtype = 'html'
+        email.send(fail_silently=False)    
+
         messages.success(request, 'Ticket Raised successfully.')
         return redirect('client_ticket')
 
@@ -612,9 +686,67 @@ def close_ticket(request,ticket_num):
     tickets=Robo_Ticket.objects.get(ticket_num=ticket_num, client_id=data.client_id)
     client_dt=Client_Master.objects.get(client_id=tickets.client_id)
 
+    c_notification=Client_Ticket_Notification.objects.get(ticket_num=ticket_num)
+
     if request.method == 'POST':
         tickets.status = 'Closed'
         tickets.save()
+
+        c_notification.is_read=True
+        c_notification.save()
+
+        email_body = f"""
+        <p>Dear Manil Team,</p>
+        <p>A new ticket has been raised. Below are the details:</p>
+
+        <h3>Ticket Details</h3>
+        <ul>
+            <li><strong>Ticket Number:</strong> {tickets.ticket_num}</li>
+            <li><strong>Ticket Number:</strong> {tickets.ticket_date}</li>
+            <li><strong>Client Name:</strong> {data.client_name}</li>
+            <li><strong>Status:</strong>{tickets.status} </li>
+        </ul>
+
+        <p>Thank you for your attention.</p>
+        """
+
+        manil_email_obj = Manil_emails.objects.first()
+
+        # Extract the email fields from the first entry (if it exists)
+        if manil_email_obj:
+            manil_emails = [
+                manil_email_obj.email1,
+                manil_email_obj.email2,
+                manil_email_obj.email3,
+                manil_email_obj.email4,
+                manil_email_obj.email5
+            ]
+        else:
+            manil_emails = []
+
+        
+        # Fetch emails for the selected client_id from Client_emails
+        client_emails = []
+        client_email_objs = Client_emails.objects.filter(client_id=data.client_id)  # Fetch all matching client_id entries
+        for client_email_obj in client_email_objs:
+            for i in range(1, 6):  # Loop through email1 to email5 fields
+                email_field = f'email{i}'
+                email = getattr(client_email_obj, email_field, None)
+                if email:
+                    client_emails.append(email)
+
+        # Combine recipients
+        recipient_list = manil_emails + client_emails
+
+        # Send email
+        email = EmailMessage(
+            subject='Ticket Raising on Robots',
+            body=email_body,
+            from_email=settings.EMAIL_HOST_USER,
+            to=recipient_list,
+        )
+        email.content_subtype = 'html'
+        email.send(fail_silently=False) 
 
         messages.success(request, "Ticket is Closed")
         return redirect ('client_ticket')

@@ -29,6 +29,12 @@ def global_context(request):
         c_inv_notifications = Client_Inv_Notification.objects.filter(is_read = False)
         c_inv_unread_count = c_inv_notifications.count()
 
+        ticket_notifications = Ticket_Notification.objects.filter(is_read = False)
+        ticket_unread_count = ticket_notifications.count()
+
+        c_ticket_notifications = Client_Ticket_Notification.objects.filter(is_read = False)
+        c_ticket_unread_count = c_ticket_notifications.count()
+
     return {
         'm_order_count': m_order_count,
         'm_unread_count': m_unread_count,
@@ -42,4 +48,9 @@ def global_context(request):
         'inv_unread_count':inv_unread_count,
         'c_inv_notifications':c_inv_notifications,
         'c_inv_unread_count':c_inv_unread_count,
+        'ticket_notifications':ticket_notifications,
+        'ticket_unread_count':ticket_unread_count,
+        'c_ticket_notifications':c_ticket_notifications,
+        'c_ticket_unread_count':c_ticket_unread_count,
+
     }
