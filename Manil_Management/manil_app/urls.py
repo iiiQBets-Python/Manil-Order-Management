@@ -3,6 +3,11 @@ from .views import *
 
 urlpatterns = [   
     path('m_notifications/fetch/', m_fetch_notifications, name='m_fetch_notifications'),
+    path('notification/read/<str:order_number>/', mark_notification_as_read, name='mark_notification_as_read'),
+    path('inv-notification/read/<str:order_number>/', mark_inv_notification_as_read, name='mark_inv_notification_as_read'),
+    path('ticket-notification/read/<str:ticket_num>/', mark_ticket_notification_as_read, name='mark_ticket_notification_as_read'),
+
+
     path('forgot_password', forgot_password, name='forgot_password'),
     path('manil_base', manil_base, name='manil_base'),
     path('manil_master', manil_master, name='manil_master'),

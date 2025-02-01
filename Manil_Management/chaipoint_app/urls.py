@@ -3,6 +3,8 @@ from .views import *
 
 urlpatterns = [   
     path('cp_notifications/fetch/', cp_fetch_notifications, name='cp_fetch_notifications'),
+    path('chaipoint-notification/read/<str:order_number>/', mark_chaipoint_notification_as_read, name='mark_chaipoint_notification_as_read'),
+    
     path('cp_dashboard', cp_dashboard, name='cp_dashboard'),
     path('cp_add_user',cp_add_user,name='cp_add_user'),
     path('cp_emails', cp_emails, name='cp_emails'),

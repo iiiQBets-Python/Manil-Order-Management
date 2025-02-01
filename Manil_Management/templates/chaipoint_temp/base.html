@@ -582,8 +582,9 @@
                     
                     {% for i in cp_notifications %}
                         <li>
-                            <a href="{% url 'order_view' i.order_number %}"><strong>{{ i.title }}</strong> <br>
-                                        {{ i.message }}</a>
+                            <a href="{% url 'mark_chaipoint_notification_as_read' i.order_number %}">
+                                <strong>{{ i.title }}</strong> <br>{{ i.message }}
+                            </a>
                         </li>
                     {% empty %}
                         <li>

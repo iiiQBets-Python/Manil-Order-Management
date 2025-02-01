@@ -603,7 +603,7 @@
                 <ul class="ticket-notification-list">
                     {% for i in ticket_notifications %}
                         <li>
-                            <a href="{% url 'ticket_view' i.ticket_num %}">
+                            <a href="{% url 'mark_ticket_notification_as_read' i.ticket_num %}">
                                 <strong>{{ i.title }}</strong><br>{{ i.message }}
                             </a>
                         </li>
@@ -621,7 +621,7 @@
                 <ul class="notification-list">
                     {% for i in m_notifications %}
                         <li>
-                            <a href="{% url 'c_order_view' i.order_number %}">
+                            <a href="{% url 'mark_notification_as_read' i.order_number %}">
                                 <strong>{{ i.title }}</strong><br>{{ i.message }}
                             </a>
                         </li>
@@ -639,7 +639,7 @@
                 <ul class="inv-notification-list">
                     {% for i in inv_notifications %}
                         <li>
-                            <a href="{% url 'invoice_preview' i.order_number %}">
+                            <a href="{% url 'mark_inv_notification_as_read' i.order_number %}">
                                 <strong>{{ i.title }}</strong><br>{{ i.message }}
                             </a>
                         </li>

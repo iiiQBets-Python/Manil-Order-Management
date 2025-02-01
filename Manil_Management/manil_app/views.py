@@ -16,11 +16,29 @@ from num2words import num2words
 from django.core.mail import EmailMessage
 from django.conf import settings
 from manil_app.context_processors import global_context
-
 from Manil_Management.imports import *
-
-
 from django.http import JsonResponse
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+
+from reportlab.lib.utils import ImageReader
+from reportlab.lib.colors import black, white, grey
+from io import BytesIO
+from django.http import HttpResponse
+from pathlib import Path
+from reportlab.lib.pagesizes import letter, A4
+import os 
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Flowable,PageBreak
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.platypus import Image
+from reportlab.platypus import Flowable
+from reportlab.lib.pagesizes import A4
+import logging
+from reportlab.pdfgen import canvas
 
 
 def m_fetch_notifications(request):
@@ -42,6 +60,33 @@ def m_fetch_notifications(request):
         'ticket_unread_count': ticket_notifications.count(),
     })
 
+
+def mark_notification_as_read(request, order_number):
+    notification = get_object_or_404(Manil_Notification, order_number=order_number)
+    
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save()
+    
+    return redirect(reverse('c_order_view', args=[order_number]))
+
+def mark_inv_notification_as_read(request, order_number):
+    notification = get_object_or_404(Inv_Notification, order_number=order_number)
+
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save()
+
+    return redirect(reverse('invoice_preview', args=[order_number]))
+
+def mark_ticket_notification_as_read(request, ticket_num):
+    notification = get_object_or_404(Ticket_Notification, ticket_num=ticket_num)
+
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save()
+
+    return redirect(reverse('ticket_view', args=[ticket_num]))    
 
 def manil_base(request):
     user_id = request.session.get('user_id')
@@ -175,7 +220,6 @@ def manil_dashboard(request):
 
     return render(request, 'manil_temp/manil_dashboard.html', context)
 
-
 def forgot_password(request):
     return render(request, 'Base/forgot_password.html')
 
@@ -225,7 +269,6 @@ def manil_master(request):
     
     
     return render (request, 'manil_temp/manil_master.html', {'data':data, 'C_data':C_data})
-
 
 def manil_emails(request):
     user_id = request.session.get('user_id')
@@ -331,7 +374,6 @@ def manil_emails(request):
 
     return render(request, 'manil_temp/manil_emails.html', context)
 
-
 def manil_user(request):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
@@ -387,7 +429,6 @@ def manil_user(request):
 
     return render(request, 'manil_temp/manil_user.html', {'data': data, 'm_user': m_user})
 
-
 def m_user_profile(request, user_id):
     data = Manil_User.objects.get(user_id=user_id)
     context = {'data': data}
@@ -415,7 +456,6 @@ def edit_manil_user(request, id):
         return redirect('manil_user')
 
     return render(request, 'manil_temp/manil_user.html', {'data': data, 'm_user': m_user})
-
 
 def get_short_form(text):
     words = text.split()
@@ -580,7 +620,6 @@ def Client_master(request):
 
     return render (request, 'manil_temp/Client_master.html', {'data':data, 'all_s_name':all_s_name, 'client_m':client_m})
 
-
 def edit_client_master(request, id):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id = user_id)
@@ -645,7 +684,6 @@ def edit_client_master(request, id):
 
     return render (request, 'manil_temp/Client_master.html', {'data':data, 'all_s_name':all_s_name, 'client_m':client_m})
 
-
 def get_sname_matches(request):
     query = request.GET.get('query', '')
     if query:
@@ -654,7 +692,6 @@ def get_sname_matches(request):
         return JsonResponse({'matches': list(matches)})
     
     return JsonResponse({'matches': []})
-
 
 def cust_user_master(request):
     user_id = request.session.get('user_id')
@@ -731,7 +768,6 @@ def cust_user_master(request):
 
     return render(request, 'manil_temp/cust_user_master.html', context)
 
-
 def edit_cust_user(request, id):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
@@ -756,7 +792,6 @@ def edit_cust_user(request, id):
         return redirect ('cust_user_master')
          
     return render(request, 'manil_temp/cust_user_master.html', {'data': data, 'client_m': client_m, 'com_user': com_user})
-
 
 def material_master(request):
     user_id = request.session.get('user_id')
@@ -825,7 +860,6 @@ def material_master(request):
     
     return render(request, 'manil_temp/material_master.html', {'data':data,'materials': materials})
 
-
 def edit_material_master(request, id):
     user_id = request.session.get('user_id')
     data = Manil_User.objects.get(user_id=user_id)
@@ -851,7 +885,6 @@ def edit_material_master(request, id):
         return redirect('material_master')
     
     return render(request, 'manil_temp/material_master.html', {'data':data,'materials': materials})
-
 
 def material_cost(request):
     user_id = request.session.get('user_id')
@@ -945,7 +978,6 @@ def manil_order_(request):
 
 
     return render (request, 'manil_temp/manil_order.html', {'data':data, 'm_orders':m_orders})
-
 
 
 def Re_manil_order_(request):
@@ -1160,8 +1192,6 @@ def client_order_(request):
 
     return render(request, 'manil_temp/client_order.html', context)
 
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
 
 def edit_client_order(request, order_number):
     user_id = request.session.get('user_id')
@@ -1251,7 +1281,6 @@ def c_order_view(request, ord_no):
     ord_det = client_order_details.objects.filter(order_number=ord_no)
     client_det = Client_Master.objects.get(client_id=order.client_id)
     mat_list = Material_Master.objects.all()
-    m_notification = Manil_Notification.objects.get(order_number=ord_no)
     
     new_values = {}
     grand_total = 0
@@ -1325,9 +1354,6 @@ def c_order_view(request, ord_no):
         old_order.authorisation_date = timezone.now() + timedelta(hours=5, minutes=30)
         old_order.authorised_by = data.first_name
         old_order.save()
-
-        m_notification.is_read = True
-        m_notification.save()
 
         notification_title = "Order Confirmation"
         notification_message = f"We are pleased to inform you, the order with (Order No: {old_order.order_number}) was successfully placed on {timezone.now().strftime('%d-%m-%Y at %H:%M')}.By {data.first_name}."
@@ -1453,16 +1479,11 @@ def c_order_view(request, ord_no):
         'mat_list': mat_list,
         'new_values': new_values,
         'grand_total': grand_total,
-        'm_notification':m_notification,
         'grand_total_word': f"{grand_total_word} Rupees Only"
     }
 
     return render(request, 'manil_temp/c_order_view.html', context)
 
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 @csrf_exempt
 def update_order_status(request, order_id):
@@ -1480,8 +1501,6 @@ def update_order_status(request, order_id):
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)})
     return JsonResponse({"success": False, "message": "Invalid request"})
-
-
 
 
 def manil_dispatch(request):
@@ -1596,8 +1615,6 @@ def ticket_view(request,ticket_num):
     tickets=Robo_Ticket.objects.get(ticket_num=ticket_num)
     client_dt=Client_Master.objects.get(client_id=tickets.client_id)
 
-    ticket_notification = Ticket_Notification.objects.get(ticket_num=ticket_num)
-
     if request.method == 'POST':
         tickets.res_description = request.POST.get('res_description')
         tickets.resolved_by = data.first_name
@@ -1620,10 +1637,6 @@ def ticket_view(request,ticket_num):
             title=notification_title
         )
         notification.save()
-
-        ticket_notification.is_read=True
-        ticket_notification.save()
-
 
         email_body = f"""
         <p>Dear Manil Team,</p>
@@ -1866,23 +1879,6 @@ def generate_invoice_number():
 
     return f"MANIL/MCC/{fy_part}{serial_part}"
 
-
-from reportlab.lib.utils import ImageReader
-from reportlab.lib.colors import black, white, grey
-from io import BytesIO
-from django.http import HttpResponse
-from pathlib import Path
-from reportlab.lib.pagesizes import letter, A4
-import os 
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Flowable,PageBreak
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.platypus import Image
-from reportlab.platypus import Flowable
-from reportlab.lib.pagesizes import A4
-import logging
-from reportlab.pdfgen import canvas
 
 def invoice_attachment(ord_no):
     try:
@@ -2202,8 +2198,6 @@ def invoice_preview(request, ord_no):
     mat_list = Material_Master.objects.all()
     dispatch = Despatch_Details.objects.all()
 
-    m_inv_notification = Inv_Notification.objects.get(order_number=ord_no)
-
     existing_invoice = M_client_invoice.objects.filter(order_number=order.order_number).exists()
 
     total_subtotal = 0
@@ -2245,9 +2239,6 @@ def invoice_preview(request, ord_no):
             title = notification_title
         )
         c_notification.save()
-
-        m_inv_notification.is_read = True
-        m_inv_notification.save()
 
         pdf_data = invoice_attachment(ord_no)
 
@@ -2700,7 +2691,6 @@ def order_remarks_view(request, ord_no):
     ord_det = client_order_details.objects.filter(order_number=ord_no)
     client_det = Client_Master.objects.get(client_id=order.client_id)
     mat_list = Material_Master.objects.all()
-    m_notification = Manil_Notification.objects.get(order_number=ord_no)
 
     try:
         re_ord = Re_manil_order.objects.get(ticket_num = tickets.ticket_num)
@@ -2807,8 +2797,6 @@ def order_remarks_view(request, ord_no):
                                 sub_total=sub_total
                             )
 
-        m_notification.is_read = True
-        m_notification.save()
 
         notification_title = "Order Confirmation"
         notification_message = f"We are pleased to inform you, the order with (Order No: {new_re_ord_no}) was successfully placed on {timezone.now().strftime('%d-%m-%Y at %H:%M')}.By {data.first_name}."
@@ -2927,7 +2915,6 @@ def order_remarks_view(request, ord_no):
         'mat_list': mat_list,
         'new_values': new_values,
         'grand_total': grand_total,
-        'm_notification':m_notification,
         'grand_total_word': f"{grand_total_word} Rupees Only",
         're_ord':re_ord,
     }

@@ -7,6 +7,7 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from num2words import num2words
 from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
 
 
 
@@ -26,7 +27,32 @@ def c_fetch_notifications(request):
         'c_ticket_unread_count': c_ticket_notifications.count(),
     })
 
+def mark_client_notification_as_read(request, order_number):
+    notification = get_object_or_404(Client_Notification, order_number=order_number)
 
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save()
+
+    return redirect(reverse('received_view', args=[order_number]))
+
+def mark_client_inv_notification_as_read(request, order_number):
+    notification = get_object_or_404(Client_Inv_Notification, order_number=order_number)
+
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save()
+
+    return redirect(reverse('download_invoice', args=[order_number]))
+
+def mark_client_ticket_notification_as_read(request, ticket_num):
+    notification = get_object_or_404(Client_Ticket_Notification, ticket_num=ticket_num)
+
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save()
+
+    return redirect(reverse('close_ticket', args=[ticket_num]))
 
 def Client_dashboard(request):    
     user_id = request.session.get('user_id')
@@ -686,14 +712,9 @@ def close_ticket(request,ticket_num):
     tickets=Robo_Ticket.objects.get(ticket_num=ticket_num, client_id=data.client_id)
     client_dt=Client_Master.objects.get(client_id=tickets.client_id)
 
-    c_notification=Client_Ticket_Notification.objects.get(ticket_num=ticket_num)
-
     if request.method == 'POST':
         tickets.status = 'Closed'
         tickets.save()
-
-        c_notification.is_read=True
-        c_notification.save()
 
         email_body = f"""
         <p>Dear Manil Team,</p>
@@ -766,8 +787,6 @@ def received_view(request, ord_no):
     mat_list = Material_Master.objects.all()
     dispatch = Despatch_Details.objects.get(order_number=ord_no)
 
-    c_notification = Client_Notification.objects.get(order_number=ord_no)
-
     context = {
         'data': data,
         'order': order,
@@ -793,9 +812,6 @@ def received_view(request, ord_no):
         # Update client order status
         c_order.status = 'Delivered'
         c_order.save()
-
-        c_notification.is_read = True
-        c_notification.save()
 
         notification_title = "Raise Invoice"
         notification_message = f"We are pleased to inform you, the order with (Order No: {order.order_number}) was successfully Received on {timezone.now().strftime('%d-%m-%Y at %H:%M')}. By {data.first_name}, So please raise Invoice "
@@ -928,8 +944,6 @@ def re_received_view(request, ord_no):
 
     cost_tbl = Costing_Table.objects.filter(client_id=data.client_id)
 
-    c_notification = Client_Notification.objects.get(order_number=ord_no)
-
     new_values = {}
     grand_total = 0
 
@@ -978,9 +992,6 @@ def re_received_view(request, ord_no):
 
         c_order.status = 'Delivered'
         c_order.save()
-
-        c_notification.is_read = True
-        c_notification.save()
 
         notification_title = "Order Received Successfully"
         notification_message = (
@@ -1099,10 +1110,8 @@ def remarks_view(request, ord_no):
 
     c_order = client_order.objects.get(order_number=order.order_number)
 
-    c_notification = Client_Notification.objects.get(order_number=ord_no)
 
-    # Fetch order details (assuming there's a related model or data source)
-    c_ord_det = client_order_details.objects.filter(order_number=ord_no)  # Replace `client_order_details` with your model name for order details.
+    c_ord_det = client_order_details.objects.filter(order_number=ord_no)  
 
     # Generate a new ticket number
     tickets = Order_Tickets.objects.filter(client_id=data.client_id)
@@ -1159,9 +1168,6 @@ def remarks_view(request, ord_no):
 
         c_order.status = 'Remarked'
         c_order.save()
-
-        c_notification.is_read = True
-        c_notification.save()
 
         notification_title = "Order Remark"
         notification_message = (
@@ -1277,12 +1283,7 @@ def download_invoice(request, ord_no):
     except Exception as e:
         return HttpResponse(str(e), status=404)
     
-    c_inv_notification = Client_Inv_Notification .objects.get(order_number=ord_no)
     
-    if request.method == "POST":
-        c_inv_notification.is_read = True
-        c_inv_notification.save()
-
     # Initialize the response object for PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="invoice_{ord_no}.pdf"'
@@ -1291,12 +1292,9 @@ def download_invoice(request, ord_no):
     styles = getSampleStyleSheet()
     flowables = []
 
-    # Attach manil_det to doc object so it can be accessed in the header
-    doc.manil_det = manil_det  # Store manil_det in the doc object
+    doc.manil_det = manil_det  
 
-    # Header content for the first page
     def first_page_header(canvas, doc):
-        # Access manil_det from the doc object
         manil_det = doc.manil_det
         
         canvas.saveState()  # Save the current state

@@ -3,6 +3,10 @@ from .views import *
 
 urlpatterns = [   
     path('c_notifications/fetch/', c_fetch_notifications, name='c_fetch_notifications'),  
+    path('client-notification/read/<str:order_number>/', mark_client_notification_as_read, name='mark_client_notification_as_read'),
+    path('client-inv-notification/read/<str:order_number>/', mark_client_inv_notification_as_read, name='mark_client_inv_notification_as_read'),
+    path('client-ticket-notification/read/<str:ticket_num>/', mark_client_ticket_notification_as_read, name='mark_client_ticket_notification_as_read'),
+
     path('Client_dashboard', Client_dashboard, name='Client_dashboard'),
     path('client_report', client_report, name='client_report'),
     path('client_emails', client_emails, name='client_emails'),

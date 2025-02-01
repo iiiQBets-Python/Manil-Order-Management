@@ -10,6 +10,7 @@ from django.core.mail import EmailMessage
 from manil_app.context_processors import global_context
 
 from django.http import JsonResponse
+from django.urls import reverse
 
 
 def cp_fetch_notifications(request):
@@ -24,6 +25,15 @@ def cp_fetch_notifications(request):
         'cp_notifications': list(cp_notifications.values('id', 'title', 'message')),
         'cp_unread_count': cp_notifications.count(),
     })
+
+def mark_chaipoint_notification_as_read(request, order_number):
+    notification = get_object_or_404(Chaipoint_Notification, order_number=order_number)
+
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save()
+
+    return redirect(reverse('order_view', args=[order_number]))
 
 def cp_dashboard(request):
     user_id = request.session.get('user_id')
